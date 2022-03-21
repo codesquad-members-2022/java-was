@@ -38,8 +38,12 @@ public class Request {
         }
     }
 
-    private String parseExt() {
+    public String parseExt() {
         String[] tokens = url.split("\\.");
         return tokens[tokens.length - 1];
+    }
+
+    public String getUrl() {
+        return url;
     }
 }

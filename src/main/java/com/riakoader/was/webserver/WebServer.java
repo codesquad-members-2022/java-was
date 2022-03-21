@@ -1,4 +1,4 @@
-package webserver;
+package com.riakoader.was.webserver;
 
 import java.net.ServerSocket;
 import java.net.Socket;

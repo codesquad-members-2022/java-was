@@ -1,4 +1,4 @@
-package util;
+package com.riakoader.was.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

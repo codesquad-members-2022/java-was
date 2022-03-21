@@ -1,11 +1,11 @@
-package db;
+package com.riakoader.was.db;
 
 import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-import model.User;
+import com.riakoader.was.model.User;
 
 public class DataBase {
     private static Map<String, User> users = Maps.newHashMap();

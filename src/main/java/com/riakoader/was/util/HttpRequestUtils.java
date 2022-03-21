@@ -1,4 +1,4 @@
-package util;
+package com.riakoader.was.util;
 
 import java.util.Arrays;
 import java.util.Map;

@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Strings;
 import com.riakoader.was.httpmessage.HttpClientRequest;
 import com.riakoader.was.util.HttpRequestUtils;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class RequestHandler extends Thread {
             HttpClientRequest httpClientRequest = receiveRequest(in);
 
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + httpClientRequest.getUrl()).toPath());
+            byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + httpClientRequest.getRequestURI()).toPath());
 
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -49,7 +50,7 @@ public class RequestHandler extends Thread {
         log.debug("request line : {}", line);
 
         List<HttpRequestUtils.Pair> headers = new ArrayList<>();
-        while (!"".equals(line)) {
+        while (!Strings.isNullOrEmpty(line)) {
             line = br.readLine();
             headers.add(HttpRequestUtils.parseHeader(line));
 

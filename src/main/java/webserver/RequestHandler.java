@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 import util.HttpRequestUtils.Pair;
 import util.IOUtils;
+import util.PrintUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -41,6 +42,7 @@ public class RequestHandler extends Thread {
             String pathURL = HttpRequestUtils.takeRequestURL(line);
 
             List<Pair> headerPairs = IOUtils.readRequestHeader(br);
+            PrintUtils.printRequestHeaders(headerPairs);
 
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());

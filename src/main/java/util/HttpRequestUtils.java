@@ -114,7 +114,8 @@ public class HttpRequestUtils {
 
         @Override
         public String toString() {
-            return "Pair [key=" + key + ", value=" + value + "]";
+            return key + ": " + value;
+//            return "Pair [key=" + key + ", value=" + value + "]";
         }
     }
 }

@@ -37,4 +37,9 @@ public class Request {
             }
         }
     }
+
+    private String parseExt() {
+        String[] tokens = url.split("\\.");
+        return tokens[tokens.length - 1];
+    }
 }

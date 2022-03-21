@@ -23,21 +23,25 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader bf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            DataOutputStream dos = new DataOutputStream(out);
+
             String firstLine = bf.readLine();
-            String[] strings = firstLine.split(" ");
-            String fileName = strings[1];
+            String fileName = firstLine.split(" ")[1];
             printRequestHeader(firstLine, bf);
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            DataOutputStream dos = new DataOutputStream(out); //
-            byte[] body = "Hello World".getBytes(StandardCharsets.UTF_8);
-            if (!fileName.equals("/")) {
-                body = Files.readAllBytes(new File("./webapp" + fileName).toPath());
-            }
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+
+            byte[] responseBody = createResponseBody(fileName);
+            response200Header(dos, responseBody.length);
+            responseBody(dos, responseBody);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private byte[] createResponseBody(String fileName) throws IOException {
+        if (!fileName.equals("/")) {
+            return Files.readAllBytes(new File("./webapp" + fileName).toPath());
+        }
+        return "Hello World".getBytes(StandardCharsets.UTF_8);
     }
 
     private void printRequestHeader(String firstLine, BufferedReader bf) throws IOException {

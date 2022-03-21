@@ -23,13 +23,10 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader bf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            String line = bf.readLine();
-            String[] strings = line.split(" ");
+            String firstLine = bf.readLine();
+            String[] strings = firstLine.split(" ");
             String fileName = strings[1];
-            while (!line.equals("")) {
-                log.info(line);
-                line = bf.readLine();
-            }
+            printRequestHeader(firstLine, bf);
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out); //
             byte[] body = "Hello World".getBytes(StandardCharsets.UTF_8);
@@ -40,6 +37,15 @@ public class RequestHandler extends Thread {
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private void printRequestHeader(String firstLine, BufferedReader bf) throws IOException {
+        log.info("Request line: {}", firstLine);
+        String line = bf.readLine();
+        while (!line.equals("")) {
+            log.info("header: {}", line);
+            line = bf.readLine();
         }
     }
 

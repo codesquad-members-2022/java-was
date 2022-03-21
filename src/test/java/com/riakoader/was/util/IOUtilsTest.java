@@ -1,9 +1,8 @@
-package util;
+package com.riakoader.was.util;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
 
-import com.riakoader.was.util.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

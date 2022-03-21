@@ -2,6 +2,10 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import util.HttpRequestUtils.Pair;
 
 public class IOUtils {
     /**
@@ -17,4 +21,21 @@ public class IOUtils {
         br.read(body, 0, contentLength);
         return String.copyValueOf(body);
     }
+
+    public static List<Pair> readRequestHeader(BufferedReader br) throws IOException {
+
+        List<Pair> headerPairs = new ArrayList<>();
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            if ("".equals(line)) {
+                return headerPairs;
+            }
+            headerPairs.add(HttpRequestUtils.parseHeader(line));
+        }
+
+        return headerPairs;
+
+    }
+
 }

@@ -25,12 +25,14 @@ public class RequestHandler extends Thread {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String line = br.readLine();
             log.debug("requestLine = {}", line);
+            String[] tokens = line.split(" ");
+            String url = tokens[1];
             while(!"".equals(line)) {
                 if (line == null) {
                     return;
                 }
                 line = br.readLine();
-                log.debug("reqeustHeader = {}", line);
+                log.debug("requestHeader = {}", line);
             }
 
             DataOutputStream dos = new DataOutputStream(out);

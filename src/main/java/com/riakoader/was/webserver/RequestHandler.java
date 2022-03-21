@@ -4,7 +4,11 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.riakoader.was.httpmessage.HttpClientRequest;
+import com.riakoader.was.util.HttpRequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,12 +29,11 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-
-            receiveRequest(in);
+            HttpClientRequest httpClientRequest = receiveRequest(in);
 
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File(WEBAPP_PATH).toPath());
+            byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + httpClientRequest.getUrl()).toPath());
+
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
@@ -38,16 +41,22 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void receiveRequest(InputStream in) throws IOException {
+    private HttpClientRequest receiveRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         String line = br.readLine();
-        String url = line.split(" ")[1];
-        log.debug("url : {}", url);
+        String requestLine = line;
+
         log.debug("request line : {}", line);
+
+        List<HttpRequestUtils.Pair> headers = new ArrayList<>();
         while (!"".equals(line)) {
             line = br.readLine();
+            headers.add(HttpRequestUtils.parseHeader(line));
+
             log.debug("header : {}", line);
         }
+
+        return new HttpClientRequest(requestLine, headers);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

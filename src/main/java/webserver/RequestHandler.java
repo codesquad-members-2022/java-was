@@ -33,6 +33,10 @@ public class RequestHandler extends Thread {
             BufferedReader br = new BufferedReader(inputReader);
 
             String line = br.readLine();
+
+            String[] tokens = line.split(" ");
+            log.debug("request URL : {}", tokens[1]);
+
             while (!"".equals(line)) {
                 System.out.println(line);
                 line = br.readLine();

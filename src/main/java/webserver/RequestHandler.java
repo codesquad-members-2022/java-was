@@ -30,20 +30,29 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리
-            InputStreamReader inputStreamReader = new InputStreamReader(in);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            Request request = parseRequest(in);
 
-            Request request = new Request(bufferedReader);
             ContentType contentType = ContentType.from(request.parseExt());
 
             // TODO 사용자 응답에 대한 처리
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + request.getUrl()).toPath());
-            response200Header(dos, body.length, contentType.getMime());
-            responseBody(dos, body);
+            responseFile(out, request, contentType);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private Request parseRequest(InputStream in) throws IOException {
+        InputStreamReader inputStreamReader = new InputStreamReader(in);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        return new Request(bufferedReader);
+    }
+
+    private void responseFile(OutputStream out, Request request, ContentType contentType)
+        throws IOException {
+        DataOutputStream dos = new DataOutputStream(out);
+        byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + request.getUrl()).toPath());
+        response200Header(dos, body.length, contentType.getMime());
+        responseBody(dos, body);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent,

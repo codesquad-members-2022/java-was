@@ -10,7 +10,10 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import util.IOUtils;
+import config.ProvidedExtension;
+import config.RequestMapping;
+import http.HttpMethod;
+import webserver.dto.RequestLine;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -30,9 +33,14 @@ public class RequestHandler extends Thread {
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              OutputStream out = connection.getOutputStream()) {
-
             // 1. request line 을 읽고 어떤 파일을 요청하는지 파악
-            String requestUrl = readRequestUrl(br);
+            RequestLine requestLine = parseRequestLine(br);
+
+            // 2. 매핑 정보 확인
+            if (RequestMapping.contains(requestLine.getHttpMethod(), requestLine.getUrl())) {
+                // 구현 필요
+                return;
+            }
 
             // 2. header 를 로그로 출력
             printHeaders(br);
@@ -42,12 +50,16 @@ public class RequestHandler extends Thread {
 
             String contentType = extractContentType(requestUrl);
 
-            DataOutputStream dos = new DataOutputStream(out);
-            response200Header(dos, body.length, contentType);
-            responseBody(dos, body);
+            response200(out, body, contentType);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void response200(OutputStream out, byte[] body, String contentType) {
+        DataOutputStream dos = new DataOutputStream(out);
+        response200Header(dos, body.length, contentType);
+        responseBody(dos, body);
     }
 
     private String extractContentType(String requestUrl) {
@@ -62,9 +74,15 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private String readRequestUrl(BufferedReader br) throws IOException {
-        String[] requestLine = br.readLine().split(" ");
-        return requestLine[REQUEST_URI_INDEX];
+    private RequestLine parseRequestLine(BufferedReader br) throws IOException {
+        String[] firstLine = br.readLine().split(" ");
+        HttpMethod httpMethod = HttpMethod.findMethod(firstLine[0]).orElseThrow();
+        String[] result = firstLine[1].split("\\?");
+        RequestLine requestLine = new RequestLine(httpMethod, result[0]);
+        if(result.length > 1) {
+            requestLine.setQueryString(result[1]);
+        }
+        return requestLine;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {

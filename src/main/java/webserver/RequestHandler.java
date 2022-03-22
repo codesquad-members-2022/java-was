@@ -24,25 +24,27 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             MyHttpRequest request = new MyHttpRequest(in);
-            String path = request.getPath();
-
-            if(path.equals("/user/create")) {
-                User user = new User(request.getParameter("userId"),
-                        request.getParameter("password"),
-                        request.getParameter("name"),
-                        request.getParameter("email"));
-                log.debug("user created : {}",user);
-            }
-
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            sendResponse(request, out);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
+    private void sendResponse(MyHttpRequest request, OutputStream out) throws IOException {
+        String path = request.getPath();
+        if(path.equals("/user/create")) {
+            User user = new User(request.getParameter("userId"),
+                    request.getParameter("password"),
+                    request.getParameter("name"),
+                    request.getParameter("email"));
+            log.debug("user created : {}",user);
+        }
+
+        DataOutputStream dos = new DataOutputStream(out);
+        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+        response200Header(dos, body.length);
+        responseBody(dos, body);
+    }
 
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

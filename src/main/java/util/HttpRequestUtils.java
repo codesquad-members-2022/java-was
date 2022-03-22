@@ -71,18 +71,6 @@ public class HttpRequestUtils {
         return URLDecoder.decode(resourcePath.substring(firstLen + 1), "UTF-8");
     }
 
-    public static void printRequest(BufferedReader reader) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        String line = reader.readLine();
-
-        sb.append(line).append("\n");
-        while(!"".equals(line)) {
-            line = reader.readLine();
-            sb.append(line).append("\n");
-        }
-        log.debug("[REQUEST] : {}", sb.toString());
-    }
-
     public static class Pair {
         String key;
         String value;

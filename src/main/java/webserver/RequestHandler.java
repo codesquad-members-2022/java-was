@@ -2,7 +2,6 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 
@@ -31,7 +30,7 @@ public class RequestHandler extends Thread {
 
             String requestLine = reader.readLine();
             System.out.println("requestLine = " + requestLine);
-            String resourcePath = HttpRequestUtils.parseRequestLine(requestLine);
+            String resourcePath = HttpRequestUtils.getUrlFromRequestLine(requestLine);
 
             if(resourcePath.startsWith("/user/create")) {
                 User user = createUser(resourcePath);

@@ -74,6 +74,6 @@ public class HttpRequestUtilsTest {
     @Test
     public void parseRequestLine() throws IOException {
         String url = "GET /index.html HTTP/1.1";
-        assertThat(HttpRequestUtils.parseRequestLine(url)).isEqualTo("/index.html");
+        assertThat(HttpRequestUtils.getUrlFromRequestLine(url)).isEqualTo("/index.html");
     }
 }

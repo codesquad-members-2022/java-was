@@ -8,11 +8,13 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import static util.CharacterUtils.BLANK;
+import static util.PathUtils.getPath;
+import static util.Pathes.WEBAPP_ROOT;
+
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
     private static final int REQUEST_INDEX = 1;
-    private static final String WEBAPP_ROOT = "./webapp";
-    private static final String BLANK = " ";
 
     private Socket connection;
 
@@ -50,7 +52,10 @@ public class RequestHandler extends Thread {
 
     private void makeResponseBody(OutputStream out, String requestUrl) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
-        byte[] body = Files.readAllBytes(new File(WEBAPP_ROOT + requestUrl).toPath());
+        String path = getPath(WEBAPP_ROOT, requestUrl);
+
+        byte[] body = Files.readAllBytes(new File(path).toPath());
+
         response200Header(dos, body.length);
         responseBody(dos, body);
     }
@@ -58,7 +63,6 @@ public class RequestHandler extends Thread {
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-//            dos.writeBytes("Content-Type:"+ Extention.of()+"\r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");

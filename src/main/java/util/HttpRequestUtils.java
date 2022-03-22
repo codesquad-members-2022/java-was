@@ -8,6 +8,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
+
+    public static String parseUrl(String requestLine) {
+        String[] tokens = requestLine.split(" ");
+        return tokens[1];
+    }
     /**
      * @param queryString은
      *            URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임

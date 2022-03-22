@@ -5,8 +5,10 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -24,16 +26,17 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String headerLine = bufferedReader.readLine();
-
-            log.debug("request header : {}", headerLine);
-
-            String[] tokens = headerLine.split(" ");
-            String url = tokens[1];
+            String requestLine = headerLine;
+            while(!Strings.isNullOrEmpty(headerLine)) {
+                log.debug("request header : {}", headerLine);
+                headerLine = bufferedReader.readLine();
+            }
+            String url = HttpRequestUtils.parseUrl(requestLine);
 
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             if(url.endsWith(".css")) {
-                response200withCssHeader(dos, body.length);
+                response200CssHeader(dos, body.length);
             }
 
             if(url.endsWith(".html")) {
@@ -56,7 +59,7 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void response200withCssHeader(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200CssHeader(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");

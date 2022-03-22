@@ -1,22 +1,16 @@
 package webserver;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.Socket;
-
-import java.nio.file.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.Socket;
+import java.nio.file.Files;
 
 public class RequestHandler extends Thread {
 
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String WEBAPP_PATH = "D:/dev/java-was/webapp";
+    private static final String WEBAPP_PATH = "./webapp";
 
     private Socket connection;
 
@@ -42,9 +36,8 @@ public class RequestHandler extends Thread {
     }
 
     private Request parseRequest(InputStream in) throws IOException {
-        InputStreamReader inputStreamReader = new InputStreamReader(in);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        return new Request(bufferedReader);
+        RequestReader requestReader = new RequestReader(in);
+        return requestReader.create();
     }
 
     private void responseFile(OutputStream out, Request request, ContentType contentType)

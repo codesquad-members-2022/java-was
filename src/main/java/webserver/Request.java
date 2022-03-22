@@ -1,6 +1,5 @@
 package webserver;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +12,9 @@ public class Request {
 
     private Map<String, String> header = new HashMap<>();
 
-    public Request(BufferedReader bufferedReader) throws IOException {
-        String line = bufferedReader.readLine();
+    public Request(String line, Map<String, String> header) throws IOException {
         parseLine(line);
-        parseHeader(bufferedReader);
+        this.header = header;
     }
 
     private void parseLine(String line) {
@@ -24,18 +22,6 @@ public class Request {
         method = tokens[0];
         url = tokens[1];
         protocol = tokens[2];
-    }
-
-    private void parseHeader(BufferedReader bufferedReader) throws IOException {
-        String line;
-
-        while (!(line = bufferedReader.readLine()).equals("")) {
-            String[] tokens = line.split(": ");
-
-            if (tokens.length == 2) {
-                header.put(tokens[0], tokens[1]);
-            }
-        }
     }
 
     public String parseExt() {

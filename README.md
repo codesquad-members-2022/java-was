@@ -32,17 +32,17 @@ Java Web Server Project for CodeSquad Members 2022
 
 ### 기능요구사항
 
-- [ ] index.html의 “회원가입” 메뉴를 클릭하면 http://localhost:8080/user/form.html 으로 이동하면서 회원가입 폼을 표시한다.
-- [ ] 이 폼을 통해서 회원가입을 할 수 있다.
+- [X] index.html의 “회원가입” 메뉴를 클릭하면 http://localhost:8080/user/form.html 으로 이동하면서 회원가입 폼을 표시한다. 
+  - 이 폼을 통해서 회원가입을 할 수 있다.
 
 ### 프로그래밍 요구사항
 
-- [ ] 회원가입을 하면 다음과 같은 형태로 사용자가 입력한 값이 서버에 전달된다. 
+- [X] 회원가입을 하면 다음과 같은 형태로 사용자가 입력한 값이 서버에 전달된다. 
   ```
   /create?userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net
   ```
-- [ ] HTML과 URL을 비교해 보고 사용자가 입력한 값을 파싱해 model.User 클래스에 저장한다.
-- [ ] 한글이 정확하게 입력되고 있는지 확인해야 한다.
+- [X] HTML과 URL을 비교해 보고 사용자가 입력한 값을 파싱해 model.User 클래스에 저장한다.
+- [X] 한글이 정확하게 입력되고 있는지 확인해야 한다.
 
 <br/>
 </div>

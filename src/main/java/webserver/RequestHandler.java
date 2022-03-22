@@ -2,10 +2,15 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+import db.DataBase;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -33,14 +38,20 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            requestLine = br.readLine();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
             String[] requestInfo = HttpRequestUtils.getRequestInfo(requestLine);
             String url = requestInfo[URL];
             String queryString = HttpRequestUtils.getQueryString(url);
             Map<String, String> queryParameters = HttpRequestUtils.parseQueryString(queryString);
+            User user = new User(queryParameters.get("userId"),
+                    queryParameters.get("password"),
+                    queryParameters.get("name"),
+                    queryParameters.get("email"));
+            log.debug("User : {}", user);
+            DataBase.addUser(user);
             setRequestHeader(br);
-
+            
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);
@@ -52,7 +63,7 @@ public class RequestHandler extends Thread {
 
     private void setRequestHeader(BufferedReader br) throws IOException {
         String line;
-        while (!"".equals(line = br.readLine())) {
+        while (!"".equals(line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8))) {
             if (line == null) {
                 return;
             }

@@ -1,10 +1,10 @@
 package model;
 
 public class User {
-    private String userId;
-    private String password;
-    private String name;
-    private String email;
+    private final String userId;
+    private final String password;
+    private final String name;
+    private final String email;
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
@@ -27,6 +27,22 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public boolean hasUserIdEqualTo(String userId) {
+        if (userId == null) {
+            return false;
+        }
+
+        return this.userId.equals(userId);
+    }
+
+    public boolean hasPasswordEqualTo(String password) {
+        if (password == null) {
+            return false;
+        }
+
+        return this.password.equals(password);
     }
 
     @Override

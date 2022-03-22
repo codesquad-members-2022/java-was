@@ -85,3 +85,27 @@ Java Web Server Project for CodeSquad Members 2022
 
 - 기존에 주어진 DataBase의 경우 static Map을 가진 Util 클래스인데, 이번 단계에서는 이를 그대로 사용하였습니다. 
   - 다만, DataBase를 static 필드와 static 메서드로 관리함에 있어서 어떤 문제가 발생할 수 있을지에 대해 좀 더 공부가 필요할 것 같습니다.
+
+## 4단계 - 쿠키를 이용한 로그인 구현
+
+### 기능요구사항
+
+- [x] 회원가입한 사용자로 로그인을 할 수 있어야 한다.
+  - [x] “로그인” 메뉴를 클릭하면 http://localhost:8080/user/login.html 으로 이동해 로그인할 수 있다.
+  - [x] 로그인이 성공하면 index.html로 이동하고, 로그인이 실패하면 /user/login_failed.html로 이동해야 한다.
+
+### 프로그래밍 요구사항
+
+- [x] 앞 단계에서 회원가입할 때 생성한 User 객체를 DataBase.addUser() 메서드를 활용해 메모리에 저장한다.
+  - 필요에 따라 Database 클래스의 메소드나 멤버변수를 수정해서 사용한다.
+- [x] 아이디와 비밀번호가 같은지를 확인해서 로그인이 성공하면 응답 header의 Set-Cookie 값을 sessionId=적당한값으로 설정한다.
+- [x] Set-Cookie 설정시 모든 요청에 대해 Cookie 처리가 가능하도록 Path 설정 값을 /(Path=/)로 설정한다.
+- [x] 응답 header에 Set-Cookie값을 설정한 후 요청 header에 Cookie이 전달되는지 확인한다.
+
+### 추가 요구 사항
+
+- [ ] (선택) 로그아웃을 구현한다.
+
+### 학습 메모
+
+- 

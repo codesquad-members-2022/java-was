@@ -19,6 +19,7 @@ public class HttpRequest {
     private String path;
     private Map<String, String> headers;
     private Map<String, String> parameters;
+    private Map<String, String> cookies;
 
     private HttpRequest() {
 
@@ -48,6 +49,12 @@ public class HttpRequest {
             httpRequest.parameters = parseQueryString(requestBody);
         }
 
+        String cookies;
+
+        if ((cookies = httpRequest.getHeader("Cookie")) != null) {
+            httpRequest.cookies = parseCookies(cookies);
+        }
+
         return httpRequest;
     }
 
@@ -72,7 +79,19 @@ public class HttpRequest {
     }
 
     public Map<String, String> getParameters() {
+        if (this.parameters == null) {
+            return null;
+        }
+
         return new HashMap<>(this.parameters);
+    }
+
+    public Map<String, String> getCookies() {
+        if (this.cookies == null) {
+            return null;
+        }
+
+        return Map.copyOf(this.cookies);
     }
 
     private static String readData(BufferedReader br, int contentLength) throws IOException {

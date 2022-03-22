@@ -47,23 +47,13 @@ public class RequestHandler extends Thread {
             String line = br.readLine();
 
             Request request = new Request(line);
-            System.out.println(line);
             String pathURL = request.takePath();
 
-//            String pathURL = HttpRequestUtils.takeRequestURL(queryString);
-
             String queryString = request.takeQueryString();
-            String decodedQueryString = null;
-            if (queryString != null) {
-                decodedQueryString = URLDecoder.decode(queryString, "UTF-8");
-            }
-            Map<String, String> parseQueryString = HttpRequestUtils.parseQueryString(decodedQueryString);
-            for (Entry<String, String> stringStringEntry : parseQueryString.entrySet()) {
-                System.out.println(stringStringEntry.toString());
-            }
+            Map<String, String> parseQueryString = HttpRequestUtils.parseQueryString(queryString);
 
             List<Pair> headerPairs = IOUtils.readRequestHeader(br);
-            PrintUtils.printRequestHeaders(headerPairs);
+            PrintUtils.printRequestHeaders(headerPairs, line);
 
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());

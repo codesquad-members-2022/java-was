@@ -28,15 +28,6 @@ public class HttpRequestUtils {
         return parseValues(cookies, ";");
     }
 
-    public static String takeRequestURL(String requestLine) {
-        String[] tokens = requestLine.split(" ");
-        if (tokens.length == 3) {
-            log.debug("request URL : {}", tokens[1]);
-            return tokens[1].split("\\?")[0];
-        }
-        throw new IllegalStateException("잘못된 Request Line입니다.");
-    }
-
     private static Map<String, String> parseValues(String values, String separator) {
         if (Strings.isNullOrEmpty(values)) {
             return Maps.newHashMap();

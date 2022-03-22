@@ -1,5 +1,9 @@
 package util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 public class Request {
 
 	private static final int PATH = 0;
@@ -18,9 +22,8 @@ public class Request {
 	}
 
 	public String takeQueryString() {
-
 		if (parseRequestURL().length > 1) {
-			return parseRequestURL()[QUERY_STRING];
+			return URLDecoder.decode(parseRequestURL()[QUERY_STRING], StandardCharsets.UTF_8);
 		}
 		return null;
 	}

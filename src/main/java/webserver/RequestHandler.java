@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-import static util.PathUtils.getPath;
+import static util.HttpRequestUtils.getPath;
 import static util.Pathes.WEBAPP_ROOT;
 import static util.SpecialCharacters.*;
 
@@ -45,7 +45,7 @@ public class RequestHandler extends Thread {
 
     private void printHeaders(BufferedReader bufferedReader) throws IOException {
         String line;
-        while (!(line = bufferedReader.readLine()).equals("")) {
+        while (!(line = bufferedReader.readLine()).equals(NULL_STRING)) {
             line = bufferedReader.readLine();
             log.debug("header: {} ", line);
         }

@@ -29,21 +29,32 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
             String url = getUrl(in);
-            log.debug("url: {}", url);
-
+            String route = url;
+            String queryParameter = null;
             if (url.contains("?")) {
-                String queryString = HttpRequestUtils.parseUrl(url);
-                Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);
-                User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
-                log.debug(user.toString());
+                route = url.split("\\?")[0];
+                queryParameter = HttpRequestUtils.parseUrl(url);
             }
 
-            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            log.debug("route: {}", route);
+
+            if (url.startsWith("/user/create")) {
+                createUser(queryParameter);
+                route = "/index.html";
+            }
+
+            byte[] body = Files.readAllBytes(new File("./webapp" + route).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void createUser(String queryString) {
+        Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);
+        User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
+        log.debug(user.toString());
     }
 
     private String getUrl(InputStream in) throws IOException {

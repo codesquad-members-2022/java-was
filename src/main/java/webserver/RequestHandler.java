@@ -14,6 +14,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import util.HttpRequestUtils;
+
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
@@ -29,7 +31,16 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
 
-            String[] token = getRequestToString(in);
+            BufferedReader buf = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            String line = buf.readLine();
+            String[] token = HttpRequestUtils.separateUrl(line);
+
+            log.debug("line={}", token[1]);
+            log.debug("Http line={}", line);
+            while (!line.equals("")) {
+                line = buf.readLine();
+                log.debug("Http header={}", line);
+            }
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + token[1]).toPath());
 
@@ -38,19 +49,6 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-    }
-
-    private String[] getRequestToString(InputStream in) throws IOException {
-        BufferedReader buf = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        String line = buf.readLine();
-        String[] token = line.split(" ");
-        log.debug("line={}", token[1]);
-        log.debug("Http line={}", line);
-        while (!line.equals("")) {
-            line = buf.readLine();
-            log.debug("Http header={}", line);
-        }
-        return token;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

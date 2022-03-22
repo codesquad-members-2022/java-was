@@ -1,11 +1,12 @@
 package util;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-
-import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
 
 public class HttpRequestUtilsTest {
@@ -68,5 +69,14 @@ public class HttpRequestUtilsTest {
         String header = "Content-Length: 59";
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
+    }
+
+    @Test
+    @DisplayName("Header 첫줄 URL을 정상적으로 받아서 분리해야한다.")
+    void separateUrlTest() {
+        String headerUrl = "GET /index.html HTTP/1.1";
+        String[] result = HttpRequestUtils.separateUrl(headerUrl);
+
+        assertThat(result[1]).isEqualTo("/index.html");
     }
 }

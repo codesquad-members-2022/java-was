@@ -10,10 +10,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import db.DataBase;
+import model.User;
 import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
@@ -35,7 +38,19 @@ public class RequestHandler extends Thread {
             String line = br.readLine();
 
             String url = HttpRequestUtils.getUrl(line);
-            HttpRequestUtils.readRequestHeader(br);
+            // HttpRequestUtils.readRequestHeader(br);
+
+            String[] requestLine = url.split("\\?");
+            if (requestLine[0].equals("/user/create")) {
+                Map<String, String> userData = HttpRequestUtils.parseQueryString(requestLine[1]);
+                String KorName = java.net.URLDecoder.decode
+                    (userData.get("name"), "UTF-8");
+
+                User user = new User(userData.get("userId"), userData.get("password"),
+                    KorName, userData.get("email"));
+                log.debug("user = {}", user);
+                DataBase.addUser(user);
+            }
 
             DataOutputStream dos = new DataOutputStream(out);
 

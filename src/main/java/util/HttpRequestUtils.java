@@ -1,11 +1,12 @@
 package util;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class HttpRequestUtils {
 
@@ -14,18 +15,20 @@ public class HttpRequestUtils {
     }
 
     /**
-     * @param
-     *           queryString 은 URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
-     * @return
+     * @param queryString 은 URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
+     *
+     * @return key에 쿼리인자 이름, value에 쿼리값이 들어간 맵
+     *
      */
     public static Map<String, String> parseQueryString(String queryString) {
         return parseValues(queryString, "&");
     }
 
     /**
-     * @param
-     *         cookies 값은 name1=value1; name2=value2 형식임
-     * @return
+     * @param cookies 값은 name1=value1; name2=value2 형식임
+     *
+     * @return key에 쿠키 이름, value에 쿠키 값이 들어간 맵
+     *
      */
     public static Map<String, String> parseCookies(String cookies) {
         return parseValues(cookies, ";");
@@ -37,8 +40,10 @@ public class HttpRequestUtils {
         }
 
         String[] tokens = values.split(separator);
-        return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
-                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+        return Arrays.stream(tokens)
+                .map(t -> getKeyValue(t, "="))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
     }
 
     static Pair getKeyValue(String keyValue, String regex) {
@@ -59,8 +64,8 @@ public class HttpRequestUtils {
     }
 
     public static class Pair {
-        String key;
-        String value;
+        private final String key;
+        private final String value;
 
         Pair(String key, String value) {
             this.key = key.trim();
@@ -79,8 +84,10 @@ public class HttpRequestUtils {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((key == null) ? 0 : key.hashCode());
-            result = prime * result + ((value == null) ? 0 : value.hashCode());
+
+            result = prime * result + key.hashCode();
+            result = prime * result + value.hashCode();
+
             return result;
         }
 
@@ -92,18 +99,10 @@ public class HttpRequestUtils {
                 return false;
             if (getClass() != obj.getClass())
                 return false;
+
             Pair other = (Pair) obj;
-            if (key == null) {
-                if (other.key != null)
-                    return false;
-            } else if (!key.equals(other.key))
-                return false;
-            if (value == null) {
-                if (other.value != null)
-                    return false;
-            } else if (!value.equals(other.value))
-                return false;
-            return true;
+
+            return (key.equals(other.key) && value.equals(other.value));
         }
 
         @Override

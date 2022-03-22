@@ -4,11 +4,16 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
 
-
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import util.HttpRequestUtils.Pair;
 
 public class HttpRequestUtilsTest {
+    private static final Logger log = LoggerFactory.getLogger(HttpRequestUtilsTest.class);
+
     @Test
     public void parseQueryString() {
         String queryString = "userId=javajigi";
@@ -68,5 +73,14 @@ public class HttpRequestUtilsTest {
         String header = "Content-Length: 59";
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
+    }
+
+    @Test
+    @DisplayName("리퀘스트 라인이 입력되면 url만 추출한다")
+    void getUrl() {
+        String requestLine = "GET /index.html HTTP/1.1";
+        String url = HttpRequestUtils.getUrl(requestLine);
+        log.info("url = {}", url);
+        assertThat(url).isEqualTo("/index.html");
     }
 }

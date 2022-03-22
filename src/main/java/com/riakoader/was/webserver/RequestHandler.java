@@ -6,9 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.base.Strings;
 import com.riakoader.was.httpmessage.HttpClientRequest;
+import com.riakoader.was.model.User;
 import com.riakoader.was.util.HttpRequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,11 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpClientRequest httpClientRequest = receiveRequest(in);
+
+            Map<String, String> requestParams = HttpRequestUtils.parseQueryString(httpClientRequest.getQueryString());
+            User user = new User(requestParams.get("userId"), requestParams.get("password"), requestParams.get("name"), requestParams.get("email"));
+
+            log.debug("user : {}", user);
 
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + httpClientRequest.getRequestURI()).toPath());

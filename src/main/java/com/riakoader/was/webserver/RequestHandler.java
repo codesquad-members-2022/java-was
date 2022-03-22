@@ -51,14 +51,14 @@ public class RequestHandler extends Thread {
 
     private HttpClientRequest receiveRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        String line = br.readLine();
-        String requestLine = URLDecoder.decode(line, StandardCharsets.UTF_8);
+        String line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+        String requestLine = line;
 
         log.debug("request line : {}", line);
 
         List<HttpRequestUtils.Pair> headers = new ArrayList<>();
         while (!Strings.isNullOrEmpty(line)) {
-            line = br.readLine();
+            line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
             headers.add(HttpRequestUtils.parseHeader(line));
 
             log.debug("header : {}", line);

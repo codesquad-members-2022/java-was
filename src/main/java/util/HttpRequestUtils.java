@@ -67,6 +67,12 @@ public class HttpRequestUtils {
         return url.split(" ")[1];
     }
 
+    public static String getQueryString(String resourcePath) {
+        int firstLen = resourcePath.indexOf("?");
+        String queryString = resourcePath.substring(firstLen + 1);
+        return queryString;
+    }
+
     public static void printRequest(BufferedReader reader) throws IOException {
         StringBuilder sb = new StringBuilder();
         String line = reader.readLine();

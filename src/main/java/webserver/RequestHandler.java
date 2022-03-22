@@ -27,7 +27,7 @@ public class RequestHandler extends Thread {
             String[] tokens = line.split(" ");
 
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./src/main/resources/webapp" + tokens[1]).toPath());
+            byte[] body = Files.readAllBytes(new File("./webapp/" + tokens[1]).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {

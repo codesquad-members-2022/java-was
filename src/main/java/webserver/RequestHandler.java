@@ -1,12 +1,12 @@
 package webserver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -31,10 +31,7 @@ public class RequestHandler extends Thread {
 
             printHeaders(bufferedReader);
 
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File(WEBAPP_ROOT + requestUrl).toPath());
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            makeResponseBody(out, requestUrl);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -51,6 +48,13 @@ public class RequestHandler extends Thread {
             line = bufferedReader.readLine();
             log.debug("header: {} ", line);
         }
+    }
+
+    private void makeResponseBody(OutputStream out, String requestUrl) throws IOException {
+        DataOutputStream dos = new DataOutputStream(out);
+        byte[] body = Files.readAllBytes(new File(WEBAPP_ROOT + requestUrl).toPath());
+        response200Header(dos, body.length);
+        responseBody(dos, body);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

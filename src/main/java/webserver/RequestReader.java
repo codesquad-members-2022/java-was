@@ -16,10 +16,10 @@ public class RequestReader {
     }
 
     public Request create() throws IOException {
-        return new Request(readRequestLine(), parseHeader());
+        return new Request(readLine(), parseHeader());
     }
 
-    private String readRequestLine() throws IOException {
+    private String readLine() throws IOException {
         return br.readLine();
     }
 

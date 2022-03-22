@@ -10,7 +10,15 @@ import java.util.stream.Collectors;
 
 public class HttpRequestUtils {
 
-    public static String parseRequestURI(String requestLine) {
+    public static String getRequestPath(String requestURI) {
+        return requestURI.split("\\?")[0];
+    }
+
+    public static String getQueryString(String requestURI) {
+        return requestURI.split("\\?")[1];
+    }
+
+    public static String getRequestURI(String requestLine) {
         return requestLine.split(" ")[1];
     }
 

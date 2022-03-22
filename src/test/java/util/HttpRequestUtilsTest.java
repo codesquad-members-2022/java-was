@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Map;
 
 
+import org.assertj.core.api.AbstractThrowableAssert;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
 
@@ -68,5 +71,30 @@ public class HttpRequestUtilsTest {
         String header = "Content-Length: 59";
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
+    }
+
+    @Test
+    @DisplayName("올바른 Request Line이 들어왔을 때 path를 가져온다.")
+    void takeRequestURL(){
+        //given
+        String requestLine = "GET /index.html HTTP/1.1";
+
+        //when
+        String result = HttpRequestUtils.takeRequestURL(requestLine);
+
+        //then
+        assertThat("/index.html").isEqualTo(result);
+    }
+
+    @Test
+    @DisplayName("잘못된 Request Line이 들어왔을 때 IllegalStateException을 throw한다.")
+    void takeWrongRequestURL(){
+        //given
+        String wrongRequestLine = "GET /index.html HTTP/1.1 lucas";
+
+        //then
+        assertThatThrownBy(() -> HttpRequestUtils.takeRequestURL(wrongRequestLine))
+                .hasMessage("잘못된 Request Line입니다.");
+
     }
 }

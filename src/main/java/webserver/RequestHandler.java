@@ -13,7 +13,7 @@ import util.HttpRequestUtils;
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
-    private Socket connection;
+    private final Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -25,23 +25,25 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            DataOutputStream dos = new DataOutputStream(out);
             String headerLine = bufferedReader.readLine();
             String requestLine = headerLine;
+
             while(!Strings.isNullOrEmpty(headerLine)) {
                 log.debug("request header : {}", headerLine);
                 headerLine = bufferedReader.readLine();
             }
-            String url = HttpRequestUtils.parseUrl(requestLine);
 
-            DataOutputStream dos = new DataOutputStream(out);
+            String url = HttpRequestUtils.parseUrl(requestLine);
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+
             if(url.endsWith(".css")) {
                 response200CssHeader(dos, body.length);
             }
-
             if(url.endsWith(".html")) {
                 response200Header(dos, body.length);
             }
+
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());

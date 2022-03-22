@@ -7,5 +7,4 @@ public class PathUtils {
     public static String getPath(String... args) {
         return String.join("", args);
     }
-
 }

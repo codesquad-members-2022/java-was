@@ -1,5 +1,6 @@
 package webserver;
 
+import model.Extention;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,9 +9,9 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-import static util.CharacterUtils.BLANK;
 import static util.PathUtils.getPath;
 import static util.Pathes.WEBAPP_ROOT;
+import static util.SpecialCharacters.*;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -54,17 +55,21 @@ public class RequestHandler extends Thread {
         DataOutputStream dos = new DataOutputStream(out);
         String path = getPath(WEBAPP_ROOT, requestUrl);
 
+        // 추후 따로 Parser 만드는 것 고려
+        String[] extentionArray = requestUrl.split(DOT);
+        String extention = extentionArray[extentionArray.length - 1];
+
         byte[] body = Files.readAllBytes(new File(path).toPath());
 
-        response200Header(dos, body.length);
+        response200Header(dos, body.length, extention);
         responseBody(dos, body);
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String type) {
         try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("HTTP/1.1 200 OK" + ENTER);
+            dos.writeBytes("Content-Type:" + Extention.of(type) + ENTER);
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + ENTER);
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

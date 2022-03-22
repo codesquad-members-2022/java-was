@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -40,7 +41,7 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
 
-            InputStreamReader inputReader = new InputStreamReader(in, Charset.forName("UTF-8"));
+            InputStreamReader inputReader = new InputStreamReader(in, StandardCharsets.UTF_8);
             BufferedReader br = new BufferedReader(inputReader);
 
             String line = br.readLine();
@@ -48,9 +49,15 @@ public class RequestHandler extends Thread {
             Request request = new Request(line);
             System.out.println(line);
             String pathURL = request.takePath();
-//            String pathURL = HttpRequestUtils.takeRequestURL(line);
+
+//            String pathURL = HttpRequestUtils.takeRequestURL(queryString);
+
             String queryString = request.takeQueryString();
-            Map<String, String> parseQueryString = HttpRequestUtils.parseQueryString(queryString);
+            String decodedQueryString = null;
+            if (queryString != null) {
+                decodedQueryString = URLDecoder.decode(queryString, "UTF-8");
+            }
+            Map<String, String> parseQueryString = HttpRequestUtils.parseQueryString(decodedQueryString);
             for (Entry<String, String> stringStringEntry : parseQueryString.entrySet()) {
                 System.out.println(stringStringEntry.toString());
             }

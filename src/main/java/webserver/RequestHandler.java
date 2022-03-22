@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
@@ -32,8 +33,8 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader buf = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String line = buf.readLine();
+            BufferedReader buf = new BufferedReader(new InputStreamReader(in));
+            String line = URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
             String[] token = HttpRequestUtils.separateUrl(line);
             Map<String, String> urlParseResult = HttpRequestUtils.parseQueryString(token[1]);
             User user = new User(urlParseResult.get("userId"), urlParseResult.get("password"), urlParseResult.get("name"), urlParseResult.get("email"));
@@ -41,7 +42,7 @@ public class RequestHandler extends Thread {
             log.debug("line={}", token[1]);
             log.debug("Http line={}", line);
             while (!line.equals("")) {
-                line = buf.readLine();
+                line = URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
                 log.debug("Http header={}", line);
             }
             DataOutputStream dos = new DataOutputStream(out);

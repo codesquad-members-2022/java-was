@@ -27,6 +27,13 @@ public class RequestHandler extends Thread {
             String line = br.readLine();
             log.debug("requestLine = {}", line);
             String url = HttpRequestUtils.parseUrl(line);
+            String queryString = "";
+
+            if (url.contains("?")) {
+                int queryStringStartIndex = url.indexOf('?');
+                queryString = url.substring(queryStringStartIndex + 1);
+                url = url.substring(0, queryStringStartIndex);
+            }
 
             while(!"".equals(line)) {
                 if (line == null) {

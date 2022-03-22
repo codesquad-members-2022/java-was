@@ -45,7 +45,7 @@ public class RequestHandler extends Thread {
 				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
 			}
 
-			//TODO 4. 컨트롤러 안에서 Response 메세지 생성 (URI 에 맞는 정적 페이지 읽어서 write)
+			DataOutputStream dos = new DataOutputStream(out);
 			response200Header(dos, body.length);
 			responseBody(dos, body);
 

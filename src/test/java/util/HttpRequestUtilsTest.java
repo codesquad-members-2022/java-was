@@ -23,6 +23,19 @@ public class HttpRequestUtilsTest {
     }
 
     @Test
+    public void parseQueryString_korean() {
+        String queryString = "userId=%ED%85%8C%EB%A6%AC";
+        Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
+        assertThat(parameters.get("userId")).isEqualTo("테리");
+        assertThat(parameters.get("password")).isNull();
+
+        queryString = "userId=%EC%BF%A0%ED%82%B4&password=password2";
+        parameters = HttpRequestUtils.parseQueryString(queryString);
+        assertThat(parameters.get("userId")).isEqualTo("쿠킴");
+        assertThat(parameters.get("password")).isEqualTo("password2");
+    }
+
+    @Test
     public void parseQueryString_null() {
         Map<String, String> parameters = HttpRequestUtils.parseQueryString(null);
         assertThat(parameters.isEmpty()).isTrue();

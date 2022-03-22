@@ -3,6 +3,7 @@ package util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -16,12 +17,15 @@ public class HttpRequestUtils {
      * @return
      */
     public static Map<String, String> parseQueryString(String queryString) {
+        if(queryString == null){
+            return new HashMap<>();
+        }
         try {
             return parseValues(URLDecoder.decode(queryString, "utf-8"), "&");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        return null;
+        return new HashMap<>();
     }
 
     /**

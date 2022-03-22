@@ -26,13 +26,8 @@ public class RequestHandler extends Thread {
 
 		try (InputStream in = connection.getInputStream();
 			OutputStream out = connection.getOutputStream()) {
-			//TODO 1. Request 객체 만듬, 모든 요청 데이터를 가지고 헤더 파싱, 바디 구분
 			Request request = createRequest(in);
 
-			//TODO 2. Response 객체도 만듬, 아직 비어있음
-			DataOutputStream dos = new DataOutputStream(out);
-
-			//TODO 3. 경로에 맞게 컨트롤러 실행
 			byte[] body = null;
 			if ("/user/create".equals(request.getUri())) {
 				User user = new User(request.getParam("userId"),
@@ -40,7 +35,7 @@ public class RequestHandler extends Thread {
 					request.getParam("name"),
 					request.getParam("email"));
 				log.debug("회원가입완료 {}",user );
-				body = Files.readAllBytes(new File("/webapp/" + "index.html").toPath());
+				body = Files.readAllBytes(new File("./webapp/" + "index.html").toPath());
 			} else {
 				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
 			}

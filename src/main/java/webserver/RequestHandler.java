@@ -1,5 +1,10 @@
 package webserver;
 
+import java.io.*;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +37,7 @@ public class RequestHandler extends Thread {
             printHeaders(bufferedReader);
 
             makeResponseBody(out, requestUrl);
+
         } catch (IOException e) {
             log.error(e.getMessage());
         }

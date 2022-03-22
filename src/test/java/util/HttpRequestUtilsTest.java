@@ -2,6 +2,7 @@ package util;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 
@@ -68,5 +69,11 @@ public class HttpRequestUtilsTest {
         String header = "Content-Length: 59";
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
+    }
+
+    @Test
+    public void parseRequestLine() throws IOException {
+        String url = "GET /index.html HTTP/1.1";
+        assertThat(HttpRequestUtils.parseRequestLine(url)).isEqualTo("/index.html");
     }
 }

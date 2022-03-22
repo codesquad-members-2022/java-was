@@ -26,7 +26,6 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String requestUrl = getRequestUrl(bufferedReader);
-
             printHeaders(bufferedReader);
 
             makeResponseBody(out, requestUrl);
@@ -43,7 +42,7 @@ public class RequestHandler extends Thread {
 
     private void printHeaders(BufferedReader bufferedReader) throws IOException {
         String line;
-        while (!(line = bufferedReader.readLine()).equals(BLANK)) {
+        while (!(line = bufferedReader.readLine()).equals("")) {
             line = bufferedReader.readLine();
             log.debug("header: {} ", line);
         }
@@ -59,6 +58,7 @@ public class RequestHandler extends Thread {
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
+//            dos.writeBytes("Content-Type:"+ Extention.of()+"\r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");

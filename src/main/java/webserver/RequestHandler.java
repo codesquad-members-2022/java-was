@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -41,7 +43,7 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
 
-            InputStreamReader inputReader = new InputStreamReader(in, StandardCharsets.UTF_8);
+            InputStreamReader inputReader = new InputStreamReader(in);
             BufferedReader br = new BufferedReader(inputReader);
 
             String line = br.readLine();
@@ -51,6 +53,14 @@ public class RequestHandler extends Thread {
 
             String queryString = request.takeQueryString();
             Map<String, String> parseQueryString = HttpRequestUtils.parseQueryString(queryString);
+            User user = new User(
+                    parseQueryString.get("userId"),
+                    parseQueryString.get("password"),
+                    parseQueryString.get("name"),
+                    parseQueryString.get("email")
+            );
+
+            System.out.println(user.toString());
 
             List<Pair> headerPairs = IOUtils.readRequestHeader(br);
             PrintUtils.printRequestHeaders(headerPairs, line);

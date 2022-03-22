@@ -1,6 +1,5 @@
 package util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -9,11 +8,9 @@ public class Request {
 	private static final int PATH = 0;
 	private static final int QUERY_STRING = 1;
 
-	private String requestLine;
 	private String[] parsedRequestLine;
 
 	public Request(String requestLine) {
-		this.requestLine = requestLine;
 		this.parsedRequestLine = requestLine.split(" ");
 	}
 

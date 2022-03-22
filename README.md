@@ -1,6 +1,8 @@
 # java-was project by Riako_Ader
 Java Web Server Project for CodeSquad Members 2022
 
+# 웹 서버 1단계 - HTTP GET 응답
+
 ## 프로젝트 구조
 > ![1_tree](https://user-images.githubusercontent.com/29879110/159228887-f413bbd2-37a9-4311-8fed-386bc2d5588d.JPG)  
 
@@ -119,3 +121,55 @@ GATEWAY_TIMEOUT(504, Series.SERVER_ERROR, "Gateway Timeout"); // 게이트웨이
 HTTP_VERSION_NOT_SUPPORTED(505, Series.SERVER_ERROR, "HTTP Version not supported"); // 서버가 요청에 사용된 HTTP 프로토콜 버전을 지원하지 않는 경우, 브라우저는 서버가 처리 가능한 HTTP 버전을 자동으로 선택하므로 보기 드문 오류
 
 ```
+
+---
+
+# 웹 서버 2단계 - GET으로 회원가입 기능 구현
+
+## 요구사항
+- [x] index.html의 “회원가입” 메뉴를 클릭하면 http://localhost:8080/user/form.html 으로 이동하면서 회원가입 폼을 표시한다.
+- [x] 이 폼을 통해서 회원가입을 할 수 있다.
+
+## 주요코드
+
+```java
+    public HttpClientRequest(String requestLine, List<HttpRequestUtils.Pair> headers) {
+        String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
+        String requestURL = requestLineTokens[1];
+        int queryStringDelimiterIndex = requestURL.indexOf(QUERYSTRING_DELIMITER);
+
+        this.method = requestLineTokens[0];
+        this.requestURI = requestURL.substring(0, queryStringDelimiterIndex);
+        this.queryString = requestURL.substring(queryStringDelimiterIndex + 1);
+        this.params = HttpRequestUtils.parseQueryString(queryString);
+        this.headers = headers;
+    }
+```
+
+>    1. requestLine 에서 추출한 URL 을 URI 와 QueryString 으로 분리한다.
+>    2. QueryString 은 HttpRequestUtils 에 정의된 parseQueryString 메서드를 사용하여 파라미터 맵으로 정제하여 저장한다.
+>    3. HttpClientRequest 의 getParameter(String name) 메서드를 정의하여 해당 맵에서 값을 꺼내올 수 있도록 한다.
+>    4. ex. User user = new User(request.getParameter("userId"), request.getParameter("password"),request.getParameter("name"), request.getParameter("email"));
+
+```java
+    private HttpClientRequest receiveRequest(InputStream in) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        String line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+        String requestLine = line;
+
+        log.debug("request line : {}", line);
+
+        List<HttpRequestUtils.Pair> headers = new ArrayList<>();
+        while (!Strings.isNullOrEmpty(line)) {
+            line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+            headers.add(HttpRequestUtils.parseHeader(line));
+    
+            log.debug("header : {}", line);
+        }
+
+        return new HttpClientRequest(requestLine, headers);
+    }
+```
+
+>    1. UTF-8 로 인코딩된 데이터를 한 라인 씩 읽어 URLDecoder 의 decode 메서드로 디코딩한다.
+>    2. 해당 결과를 라인마다 알맞게 정제하여 데이터를 저장한다.

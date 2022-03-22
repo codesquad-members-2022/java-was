@@ -27,3 +27,18 @@ FileReader, FileWriter, FileInputStream, FileOutputStream 은 직접적으로 �
 이에 반에, DataInputStream, DataOutputStream은 primitive type의 데이터를 읽고 쓸 수 있다.
 
 출처 : https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=highkrs&logNo=220474124970
+
+## 2단계 - GET으로 회원가입 기능 구현
+
+   -[] index.html의 “회원가입” 메뉴를 클릭하면 http://localhost:8080/user/form.html 으로 이동하면서 회원가입 폼을 표시한다.
+
+   -[] 이 폼을 통해서 회원가입을 할 수 있다.
+        ```text
+        /create?userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net
+        ```
+       + (String 값) 추출 테스트 코드 작성 : 입력 값을 추출해서 파싱함
+       + userId, password, name, email들 값들로 User 클래스 만들기
+       + DB에 저장 
+       * 한글이 정확하게 입력되고 있는지 확인하기
+
+   -[] 

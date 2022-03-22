@@ -9,15 +9,20 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 import util.HttpRequestUtils.Pair;
 import util.IOUtils;
 import util.PrintUtils;
+import util.Request;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -35,11 +40,20 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
 
-            InputStreamReader inputReader = new InputStreamReader(in, StandardCharsets.UTF_8);
+            InputStreamReader inputReader = new InputStreamReader(in, Charset.forName("UTF-8"));
             BufferedReader br = new BufferedReader(inputReader);
 
             String line = br.readLine();
-            String pathURL = HttpRequestUtils.takeRequestURL(line);
+
+            Request request = new Request(line);
+            System.out.println(line);
+            String pathURL = request.takePath();
+//            String pathURL = HttpRequestUtils.takeRequestURL(line);
+            String queryString = request.takeQueryString();
+            Map<String, String> parseQueryString = HttpRequestUtils.parseQueryString(queryString);
+            for (Entry<String, String> stringStringEntry : parseQueryString.entrySet()) {
+                System.out.println(stringStringEntry.toString());
+            }
 
             List<Pair> headerPairs = IOUtils.readRequestHeader(br);
             PrintUtils.printRequestHeaders(headerPairs);

@@ -26,7 +26,7 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             DataOutputStream dos = new DataOutputStream(out);
 
             String requestLine = reader.readLine();
@@ -47,7 +47,7 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private User createUser(String resourcePath) {
+    private User createUser(String resourcePath) throws UnsupportedEncodingException {
         String queryString = HttpRequestUtils.getQueryString(resourcePath);
         Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
         return new User(parameters.get("userId"), parameters.get("password"), parameters.get("name"), parameters.get("email"));

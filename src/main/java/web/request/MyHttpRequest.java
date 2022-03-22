@@ -19,6 +19,7 @@ public class MyHttpRequest {
     private String method;
     private String url;
     private String path;
+    private String queryString;
     private Map<String, String> parameters;
 
     public MyHttpRequest(InputStream in) throws IOException {
@@ -30,22 +31,27 @@ public class MyHttpRequest {
         log.debug("requestLine = {}", line);
         this.requestLine = line;
         this.url = HttpRequestUtils.parseUrl(requestLine);
-
-        String queryString = "";
-        if (url.contains("?")) {
-            int queryStringStartIndex = url.indexOf('?');
-            queryString = url.substring(queryStringStartIndex + 1);
-            this.path = url.substring(0, queryStringStartIndex);
-        } else {
-            this.path = url;
-        }
-
+        initPathAndQueryString();
         this.parameters = HttpRequestUtils.parseQueryString(queryString);
 
         while(!"".equals(line)) {
             line = br.readLine();
             log.debug("requestHeader = {}", line);
         }
+    }
+
+    private void initPathAndQueryString() {
+        String path = "";
+        String queryString = "";
+        if (url.contains("?")) {
+            int queryStringStartIndex = url.indexOf('?');
+            queryString = url.substring(queryStringStartIndex + 1);
+            path = url.substring(0, queryStringStartIndex);
+        } else {
+            path = url;
+        }
+        this.path = path;
+        this.queryString = queryString;
     }
 
     public String getParameter(String key) {

@@ -28,22 +28,29 @@ public class RequestHandler extends Thread {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             DataOutputStream dos = new DataOutputStream(out);
 
-            String requestLine = reader.readLine();
-            System.out.println("requestLine = " + requestLine);
-            String resourcePath = HttpRequestUtils.getUrlFromRequestLine(requestLine);
+            String resourcePath = getResourcePath(reader);
 
             if(resourcePath.startsWith("/user/create")) {
                 User user = createUser(resourcePath);
                 System.out.println("user = " + user);
             }
 
-           byte[] body = Files.readAllBytes(new File("./webapp" + resourcePath).toPath());
+            byte[] body = viewResolver(resourcePath);
 
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private String getResourcePath(BufferedReader reader) throws IOException {
+        String requestLine = reader.readLine();
+        return HttpRequestUtils.getUrlFromRequestLine(requestLine);
+    }
+
+    private byte[] viewResolver(String resourcePath) throws IOException {
+        return Files.readAllBytes(new File("./webapp" + resourcePath).toPath());
     }
 
     private User createUser(String resourcePath) throws UnsupportedEncodingException {

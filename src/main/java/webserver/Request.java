@@ -1,27 +1,22 @@
 package webserver;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Request {
 
-    private String method;
-    private String url;
-    private String protocol;
+    private final String method;
+    private final String url;
+    private final String protocol;
 
-    private Map<String, String> header = new HashMap<>();
+    private final Map<String, String> header;
 
-    public Request(String line, Map<String, String> header) throws IOException {
-        parseLine(line);
-        this.header = header;
-    }
-
-    private void parseLine(String line) {
+    public Request(String line, Map<String, String> header) {
         String[] tokens = line.split(" ");
         method = tokens[0];
         url = tokens[1];
         protocol = tokens[2];
+
+        this.header = header;
     }
 
     public String parseExt() {
@@ -29,7 +24,19 @@ public class Request {
         return tokens[tokens.length - 1];
     }
 
+    public String getMethod() {
+        return method;
+    }
+
     public String getUrl() {
         return url;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public Map<String, String> getHeader() {
+        return header;
     }
 }

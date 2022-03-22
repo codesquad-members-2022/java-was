@@ -36,6 +36,4 @@ public class RequestReader {
         }
         return header;
     }
-
-
 }

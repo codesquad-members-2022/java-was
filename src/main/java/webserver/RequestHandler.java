@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -34,8 +35,10 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             requestLine = br.readLine();
-            String[] tokens = requestLine.split(" ");
-            String url = tokens[URL];
+            String[] requestInfo = HttpRequestUtils.getRequestInfo(requestLine);
+            String url = requestInfo[URL];
+            String queryString = HttpRequestUtils.getQueryString(url);
+            Map<String, String> queryParameters = HttpRequestUtils.parseQueryString(queryString);
             setRequestHeader(br);
 
             DataOutputStream dos = new DataOutputStream(out);

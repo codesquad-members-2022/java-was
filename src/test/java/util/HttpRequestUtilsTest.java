@@ -24,7 +24,7 @@ public class HttpRequestUtilsTest {
 
     @Test
     @DisplayName("parseUrl 메서드는 requestLine의 URL 전체를 반환해야한다.")
-    public void parseUrlTest() {
+    public void parseUrlTest() throws Exception {
         //given
         String requestLine = "GET /index.html HTTP/1.1";
 

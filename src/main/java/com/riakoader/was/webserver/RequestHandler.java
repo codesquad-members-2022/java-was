@@ -1,16 +1,23 @@
-package webserver;
+package com.riakoader.was.webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.google.common.base.Strings;
+import com.riakoader.was.httpmessage.HttpClientRequest;
+import com.riakoader.was.util.HttpRequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.io.File.separatorChar;
+
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    private static final String WEBAPP_PATH = "." + separatorChar + "webapp" + separatorChar;
 
     private Socket connection;
 
@@ -23,14 +30,34 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+            HttpClientRequest httpClientRequest = receiveRequest(in);
+
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "Hello World".getBytes();
+            byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + httpClientRequest.getRequestURI()).toPath());
+
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private HttpClientRequest receiveRequest(InputStream in) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        String line = br.readLine();
+        String requestLine = line;
+
+        log.debug("request line : {}", line);
+
+        List<HttpRequestUtils.Pair> headers = new ArrayList<>();
+        while (!Strings.isNullOrEmpty(line)) {
+            line = br.readLine();
+            headers.add(HttpRequestUtils.parseHeader(line));
+
+            log.debug("header : {}", line);
+        }
+
+        return new HttpClientRequest(requestLine, headers);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

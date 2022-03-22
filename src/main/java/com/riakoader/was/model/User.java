@@ -1,4 +1,4 @@
-package model;
+package com.riakoader.was.model;
 
 public class User {
     private String userId;

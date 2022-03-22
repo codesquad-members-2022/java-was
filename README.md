@@ -11,3 +11,5 @@
 `dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");`
 
 여기에서 Content-Type을 text/html로 지정했기 때문. 호출 url에 "css"가 포함되어있으면 text/css 가 대신 입력되도록하여 해결하였다.
+
+### 웹브라우저에서 parsing하여 DB에 저장한 값을 html에 어떻게 넣을 수 있는가??!

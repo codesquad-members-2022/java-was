@@ -8,15 +8,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import db.DataBase;
-import model.User;
 import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
@@ -31,29 +29,21 @@ public class RequestHandler extends Thread {
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
             connection.getPort());
-
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+        
+        try (InputStream in = connection.getInputStream();
+             OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(
                 new InputStreamReader(in, StandardCharsets.UTF_8));
-            String line = br.readLine();
+            String line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
 
             String url = HttpRequestUtils.getUrl(line);
-            // HttpRequestUtils.readRequestHeader(br);
+            HttpRequestUtils.readRequestHeader(br);
 
-            String[] requestLine = url.split("\\?");
-            if (requestLine[0].equals("/user/create")) {
-                Map<String, String> userData = HttpRequestUtils.parseQueryString(requestLine[1]);
-                String KorName = java.net.URLDecoder.decode
-                    (userData.get("name"), "UTF-8");
-
-                User user = new User(userData.get("userId"), userData.get("password"),
-                    KorName, userData.get("email"));
-                log.debug("user = {}", user);
-                DataBase.addUser(user);
+            if (url.contains("/user/create")) {
+                HttpRequestUtils.addUserInfo(url);
             }
 
             DataOutputStream dos = new DataOutputStream(out);
-
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length, url);
             responseBody(dos, body);

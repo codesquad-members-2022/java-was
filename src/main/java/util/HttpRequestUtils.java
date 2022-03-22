@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
+import db.DataBase;
+import model.User;
+
 public class HttpRequestUtils {
     private static final Logger log = LoggerFactory.getLogger(HttpRequestUtils.class);
 
@@ -21,13 +24,27 @@ public class HttpRequestUtils {
 
     public static void readRequestHeader(BufferedReader br) throws IOException {
         String line = br.readLine();
-        while (!"".equals(line)) {
+        while (!Strings.isNullOrEmpty(line)) {
             if (line == null) {
-                break;
+                return;
             }
             log.debug("request header ={}", line);
             line = br.readLine();
         }
+    }
+
+    public static User addUserInfo(String url) {
+        String[] requestLine = url.split("\\?");
+        Map<String, String> userData = HttpRequestUtils.parseQueryString(requestLine[1]);
+
+        User user = new User(userData.get("userId")
+            , userData.get("password")
+            , userData.get("name")
+            , userData.get("email"));
+
+        log.debug("user = {}", user);
+        DataBase.addUser(user);
+        return user;
     }
 
     /**
@@ -52,9 +69,10 @@ public class HttpRequestUtils {
         if (Strings.isNullOrEmpty(values)) {
             return Maps.newHashMap();
         }
-
         String[] tokens = values.split(separator);
-        return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
+        return Arrays.stream(tokens)
+            .map(t -> getKeyValue(t, "="))
+            .filter(p -> p != null)
             .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
 

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
 
-
 import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
 
@@ -68,5 +67,22 @@ public class HttpRequestUtilsTest {
         String header = "Content-Length: 59";
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
+    }
+
+
+    @Test
+    public void getRequestInfo() {
+        String requestLine = "GET /index.html HTTP/1.1";
+        String[] requestInfo = HttpRequestUtils.getRequestInfo(requestLine);
+        assertThat(requestInfo[0]).isEqualTo("GET");
+        assertThat(requestInfo[1]).isEqualTo("/index.html");
+        assertThat(requestInfo[2]).isEqualTo("HTTP/1.1");
+    }
+
+    @Test
+    public void getQueryString() {
+        String url = "/create?userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net";
+        assertThat(HttpRequestUtils.getQueryString(url))
+                .isEqualTo("userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net");
     }
 }

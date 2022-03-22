@@ -13,8 +13,9 @@ public class HttpClientRequest {
     private List<HttpRequestUtils.Pair> headers;
 
     public HttpClientRequest(String requestLine, List<HttpRequestUtils.Pair> headers) {
-        this.method = requestLine.split(REQUEST_LINE_DELIMITER)[0];
-        this.requestURI = requestLine.split(REQUEST_LINE_DELIMITER)[1];
+        String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
+        this.method = requestLineTokens[0];
+        this.requestURI = requestLineTokens[1];
         this.headers = headers;
     }
 

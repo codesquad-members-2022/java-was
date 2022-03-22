@@ -30,6 +30,8 @@ public class RequestHandler extends Thread {
             String resourcePath = HttpRequestUtils.parseRequestLine(requestLine);
             byte[] body = Files.readAllBytes(new File("./webapp" + resourcePath).toPath());
 
+            HttpRequestUtils.printRequest(reader);
+
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {

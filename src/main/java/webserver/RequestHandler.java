@@ -13,7 +13,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
+import model.User;
 import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
@@ -30,11 +32,12 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-
             BufferedReader buf = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String line = buf.readLine();
             String[] token = HttpRequestUtils.separateUrl(line);
-
+            Map<String, String> urlParseResult = HttpRequestUtils.parseQueryString(token[1]);
+            User user = new User(urlParseResult.get("userId"), urlParseResult.get("password"), urlParseResult.get("name"), urlParseResult.get("email"));
+            log.debug("user={}", user);
             log.debug("line={}", token[1]);
             log.debug("Http line={}", line);
             while (!line.equals("")) {

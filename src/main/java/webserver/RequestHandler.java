@@ -46,7 +46,6 @@ public class RequestHandler extends Thread {
     private void printHeaders(BufferedReader bufferedReader) throws IOException {
         String line;
         while (!(line = bufferedReader.readLine()).equals(NULL_STRING)) {
-            line = bufferedReader.readLine();
             log.debug("header: {} ", line);
         }
     }
@@ -70,7 +69,7 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK" + ENTER);
             dos.writeBytes("Content-Type:" + Extention.of(type) + ENTER);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + ENTER);
-            dos.writeBytes("\r\n");
+            dos.writeBytes(ENTER);
         } catch (IOException e) {
             log.error(e.getMessage());
         }

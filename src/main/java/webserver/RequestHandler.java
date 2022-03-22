@@ -40,12 +40,19 @@ public class RequestHandler extends Thread {
             // 3. 1번에서 요청한 파일을 읽어서, String -> byte[] 로 변환하여 브라우저로 반환
             byte[] body = IOUtils.readFile(staticResourcePath + requestUrl);
 
+            String contentType = extractContentType(requestUrl);
+
             DataOutputStream dos = new DataOutputStream(out);
-            response200Header(dos, body.length);
+            response200Header(dos, body.length, contentType);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private String extractContentType(String requestUrl) {
+        String[] split = requestUrl.split("\\.");
+        return ProvidedExtension.extensionResolver(split[split.length - 1]);
     }
 
     private void printHeaders(BufferedReader br) throws IOException {
@@ -60,10 +67,10 @@ public class RequestHandler extends Thread {
         return requestLine[REQUEST_URI_INDEX];
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", contentType));
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {

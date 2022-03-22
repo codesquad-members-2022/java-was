@@ -2,11 +2,11 @@ package com.riakoader.was.webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.Strings;
 import com.riakoader.was.httpmessage.HttpClientRequest;
@@ -32,15 +32,15 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            HttpClientRequest httpClientRequest = receiveRequest(in);
+            HttpClientRequest request = receiveRequest(in);
 
-            Map<String, String> requestParams = HttpRequestUtils.parseQueryString(httpClientRequest.getQueryString());
-            User user = new User(requestParams.get("userId"), requestParams.get("password"), requestParams.get("name"), requestParams.get("email"));
+            User user = new User(request.getParameter("userId"), request.getParameter("password"),
+                    request.getParameter("name"), request.getParameter("email"));
 
             log.debug("user : {}", user);
 
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + httpClientRequest.getRequestURI()).toPath());
+            byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + request.getRequestURI()).toPath());
 
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -52,7 +52,7 @@ public class RequestHandler extends Thread {
     private HttpClientRequest receiveRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         String line = br.readLine();
-        String requestLine = line;
+        String requestLine = URLDecoder.decode(line, StandardCharsets.UTF_8);
 
         log.debug("request line : {}", line);
 

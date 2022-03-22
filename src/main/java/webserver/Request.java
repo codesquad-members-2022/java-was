@@ -1,6 +1,7 @@
 package webserver;
 
 import java.util.Map;
+import util.HttpRequestUtils;
 
 public class Request {
 
@@ -19,9 +20,19 @@ public class Request {
         this.header = header;
     }
 
-    public String parseExt() {
+    public String parsePath() {
+        return url.split("\\?")[0];
+    }
+
+    public Map<String, String> parseQueryString() {
+        String[] tokens = url.split("\\?");
+        return HttpRequestUtils.parseQueryString(tokens.length < 2 ? "" : tokens[1]);
+    }
+
+    public String toContentType() {
         String[] tokens = url.split("\\.");
-        return tokens[tokens.length - 1];
+        String ext = tokens[tokens.length - 1];
+        return ContentType.from(ext).getMime();
     }
 
     public String getMethod() {

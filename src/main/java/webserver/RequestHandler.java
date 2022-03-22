@@ -1,5 +1,7 @@
 package webserver;
 
+import java.util.Map;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +25,8 @@ public class RequestHandler extends Thread {
             connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리
             Request request = parseRequest(in);
-
-            ContentType contentType = ContentType.from(request.parseExt());
-
-            // TODO 사용자 응답에 대한 처리
-            responseFile(out, request, contentType);
+            handlePath(request, out);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -40,12 +37,36 @@ public class RequestHandler extends Thread {
         return requestReader.create();
     }
 
-    private void responseFile(OutputStream out, Request request, ContentType contentType)
-        throws IOException {
+    public void handlePath(Request request, OutputStream out) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
-        byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + request.getUrl()).toPath());
-        response200Header(dos, body.length, contentType.getMime());
+
+        // create
+        if (request.parsePath().equals("/create")) {
+            createUser(request, dos);
+            response201Header(dos);
+            return;
+        }
+
+        // default
+        byte[] body = readFile(request, dos);
+        response200Header(dos, body.length, request.toContentType());
         responseBody(dos, body);
+    }
+
+    private byte[] readFile(Request request, DataOutputStream dos) throws IOException {
+        return Files.readAllBytes(new File(WEBAPP_PATH + request.parsePath()).toPath());
+    }
+
+    private void createUser(Request request, DataOutputStream dos) {
+        Map<String, String> qs = request.parseQueryString();
+
+        User user = new User(
+            qs.get("userId"),
+            qs.get("password"),
+            qs.get("name"),
+            qs.get("email")
+        );
+        log.info("user={}", user);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent,
@@ -54,6 +75,15 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: " + contentType + "\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response201Header(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 201 CREATED \r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

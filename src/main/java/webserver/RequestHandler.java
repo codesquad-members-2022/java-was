@@ -2,13 +2,16 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 
+import model.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.RequestParser;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -25,16 +28,18 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             DataOutputStream dos = new DataOutputStream(out);
 
-            String resourcePath = getResourcePath(reader);
+            RequestParser requestParser = new RequestParser(in);
+            HttpRequest request = requestParser.createRequest();
 
-            if(resourcePath.startsWith("/user/create")) {
+            String resourcePath = request.getPath();
+            if (resourcePath.startsWith("/user/create")) {
                 User user = createUser(resourcePath);
                 System.out.println("user = " + user);
             }
 
+            log.debug("[REQUEST] : {}", request);
             byte[] body = viewResolver(resourcePath);
 
             response200Header(dos, body.length);

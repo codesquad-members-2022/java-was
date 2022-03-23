@@ -1,12 +1,12 @@
 package util;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import util.HttpRequestUtils.Pair;
 
 import java.util.Map;
 
-
-import org.junit.jupiter.api.Test;
-import util.HttpRequestUtils.Pair;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HttpRequestUtilsTest {
     @Test
@@ -20,6 +20,19 @@ public class HttpRequestUtilsTest {
         parameters = HttpRequestUtils.parseQueryString(queryString);
         assertThat(parameters.get("userId")).isEqualTo("javajigi");
         assertThat(parameters.get("password")).isEqualTo("password2");
+    }
+
+    @Test
+    @DisplayName("parseUrl 메서드는 requestLine의 URL 전체를 반환해야한다.")
+    public void parseUrlTest() {
+        //given
+        String requestLine = "GET /index.html HTTP/1.1";
+
+        //when
+        String parseUrl = HttpRequestUtils.parseUrl(requestLine);
+
+        //then
+        assertThat(parseUrl).isEqualTo("/index.html");
     }
 
     @Test

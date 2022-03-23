@@ -3,6 +3,7 @@ package webserver;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.request.MyHttpMethod;
 import web.request.MyHttpRequest;
 
 import java.io.*;
@@ -32,7 +33,8 @@ public class RequestHandler extends Thread {
 
     private void sendResponse(MyHttpRequest request, OutputStream out) throws IOException {
         String path = request.getPath();
-        if(path.equals("/user/create")) {
+        MyHttpMethod method = request.getMethod();
+        if(path.equals("/user/create") && method.isPost()) {
             User user = new User(request.getParameter("userId"),
                     request.getParameter("password"),
                     request.getParameter("name"),

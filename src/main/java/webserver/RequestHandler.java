@@ -32,45 +32,27 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+        try (InputStream in = connection.getInputStream();
+            OutputStream out = connection.getOutputStream();
             InputStreamReader inputReader = new InputStreamReader(in);
-            BufferedReader br = new BufferedReader(inputReader);
+            BufferedReader br = new BufferedReader(inputReader)) {
 
-            String requestLine = br.readLine();
+            Request request = new Request();
+            request.readRequest(br);
+            DataOutputStream dos = new DataOutputStream(out);
 
-            Request request = new Request(requestLine);
+            if (request.getHttpMethod().equals("GET")) {
+                PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 
-            String httpMethod = request.takeHttpMethod();
-
-            if (httpMethod.equals("GET")) {
-
-                String pathURL = request.takePath();
-
-                Map<String, String> parsedQueryString = request.takeParsedQueryString();
-
-                User user = new User(
-                    parsedQueryString.get("userId"),
-                    parsedQueryString.get("password"),
-                    parsedQueryString.get("name"),
-                    parsedQueryString.get("email")
-                );
-
-                PrintUtils.printRequestHeaders(request.takeHeaderPairs(br), requestLine);
-
-                DataOutputStream dos = new DataOutputStream(out);
-                byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());
+                byte[] body = Files.readAllBytes(new File("./webapp" + request.getPath()).toPath());
 
                 response200Header(dos, body.length);
                 responseBody(dos, body);
             } else {
 
-                String pathURL = request.takePath();
+                String pathURL = request.getPath();
 
-                List<Pair> headerPairs = request.takeHeaderPairs(br);
-                int contentLength = request.takeContentLength();
-
-                String s = IOUtils.readData(br, contentLength);
-                System.out.println("body:" + s);
+                System.out.println("body:" + request.getRequestBody());
 
 //                User user = new User(
 //                    parsedQueryString.get("userId"),
@@ -79,9 +61,8 @@ public class RequestHandler extends Thread {
 //                    parsedQueryString.get("email")
 //                );
 
-                PrintUtils.printRequestHeaders(headerPairs, requestLine);
+                PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 
-                DataOutputStream dos = new DataOutputStream(out);
                 byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());
 
                 response200Header(dos, body.length);

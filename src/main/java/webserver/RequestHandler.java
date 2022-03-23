@@ -10,12 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 import http.HttpRequest;
+import http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import controller.MyController;
 import controller.SaveUserController;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -52,45 +54,12 @@ public class RequestHandler extends Thread {
                 path = myController.process(paramMap);
             }
 
-            printRequestHeader(httpRequest.getHeaderMessages());
+            IOUtils.printRequestHeader(httpRequest.getHeaderMessages());
 
-            byte[] responseBody = createResponseBody(path);
-            response200Header(dos, responseBody.length);
-            responseBody(dos, responseBody);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private byte[] createResponseBody(String path) throws IOException {
-        if (!path.equals("/")) {
-            return Files.readAllBytes(new File("./webapp/" + path).toPath());
-        }
-        return "Hello World".getBytes(StandardCharsets.UTF_8);
-    }
-
-    private void printRequestHeader(List<String> headerMessages) throws IOException {
-        log.info("Request line: {}", headerMessages.get(0));
-        for (int i = 1; i < headerMessages.size(); i++) {
-            log.info("header: {}", headerMessages.get(i));
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
+            HttpResponse httpResponse = new HttpResponse(path);
+            dos.writeBytes(httpResponse.getHttpMessage());
             dos.flush();
+            System.out.println(httpResponse.getHttpMessage());
         } catch (IOException e) {
             log.error(e.getMessage());
         }

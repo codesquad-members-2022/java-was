@@ -1,6 +1,5 @@
 package webserver;
 
-import java.util.Map;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.Map;
 
 public class RequestHandler extends Thread {
 
@@ -27,7 +27,8 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             Request request = parseRequest(in);
-            handlePath(request, out);
+            Response response = handlePath(request);
+            sendResponse(out, response);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -38,20 +39,28 @@ public class RequestHandler extends Thread {
         return requestReader.create();
     }
 
-    private void handlePath(Request request, OutputStream out) throws IOException {
-        DataOutputStream dos = new DataOutputStream(out);
+    private void sendResponse(OutputStream out, Response response) {
+        ResponseWriter responseWriter = new ResponseWriter(new DataOutputStream(out));
+        responseWriter.from(response);
+    }
+
+    private Response handlePath(Request request) throws IOException {
 
         // create
-        if (request.getPath().equals("/create")) {
+        if (request.getMethod().equals("POST") && request.parsePath().equals("/user/create")) {
             createUser(request);
-            response201Header(dos);
-            return;
+            return new Response(Status.FOUND, Map.of(
+                    "Location", "http://localhost:8080/index.html")
+            );
         }
 
         // default
         byte[] body = readFile(request);
-        response200Header(dos, body.length, request.getContentType().getMime());
-        responseBody(dos, body);
+        return new Response(Status.OK, Map.of(
+                "Content-Type", request.toContentType(),
+                "Content-Length", String.valueOf(body.length)),
+                body
+        );
     }
 
     private byte[] readFile(Request request) throws IOException {
@@ -70,33 +79,4 @@ public class RequestHandler extends Thread {
         log.info("user={}", user);
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent,
-        String contentType) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + contentType + "\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response201Header(DataOutputStream dos) {
-        try {
-            dos.writeBytes("HTTP/1.1 201 CREATED \r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
 }

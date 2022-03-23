@@ -34,25 +34,48 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader buf = new BufferedReader(new InputStreamReader(in));
-            String line = URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
-            String[] token = HttpRequestUtils.separateUrl(line);
-            Map<String, String> urlParseResult = HttpRequestUtils.parseQueryString(token[1]);
-            User user = new User(urlParseResult.get("userId"), urlParseResult.get("password"), urlParseResult.get("name"), urlParseResult.get("email"));
+            String httpHeader = urlDecoding(buf);
+            String[] token = parseUrl(httpHeader);
+            User user = createUser(separateUserInfo(token));
             log.debug("user={}", user);
-            log.debug("line={}", token[1]);
-            log.debug("Http line={}", line);
-            while (!line.equals("")) {
-                line = URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
-                log.debug("Http header={}", line);
-            }
+            log.debug("Http httpHeaderLine={}", httpHeader);
+            readHeader(buf, httpHeader);
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + token[1]).toPath());
-
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void readHeader(BufferedReader buf, String httpHeader) throws IOException {
+        while (!httpHeader.equals("")) {
+            httpHeader = URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
+            log.debug("Http header={}", httpHeader);
+        }
+    }
+
+    private String[] parseUrl(String httpHeader) {
+        return HttpRequestUtils.separateUrl(httpHeader);
+    }
+
+    private User createUser(Map<String, String> urlParseResult) {
+        return new User(urlParseResult.get("userId"),
+                urlParseResult.get("password"),
+                urlParseResult.get("name"),
+                urlParseResult.get("email")
+        );
+    }
+
+    private Map<String, String> separateUserInfo(String[] token) {
+        Map<String, String> urlParseResult = HttpRequestUtils.parseQueryString(token[1]);
+        log.debug("httpHeaderLine={}", token[1]);
+        return urlParseResult;
+    }
+
+    private String urlDecoding(BufferedReader buf) throws IOException {
+        return URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

@@ -67,7 +67,7 @@ public class MyHttpRequest {
         if (contentLength > 0) {
             body = IOUtils.readData(br, contentLength);
         }
-        return body;
+        return HttpRequestUtils.decodeUrl(body);
     }
 
     private void initPathAndQueryString() {
@@ -80,8 +80,8 @@ public class MyHttpRequest {
         } else {
             path = url;
         }
-        this.path = path;
-        this.queryString = queryString;
+        this.path = HttpRequestUtils.decodeUrl(path);
+        this.queryString = HttpRequestUtils.decodeUrl(queryString);
     }
 
     public String getParameter(String key) {

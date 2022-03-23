@@ -9,13 +9,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils.Pair;
-import util.IOUtils;
 import util.PrintUtils;
 import util.Request;
 
@@ -42,32 +39,52 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             if (request.getHttpMethod().equals("GET")) {
+
+                log.debug("GET 요청, requestLine: {}", request.getRequestLine());
+
                 PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 
                 byte[] body = Files.readAllBytes(new File("./webapp" + request.getPath()).toPath());
 
                 response200Header(dos, body.length);
                 responseBody(dos, body);
-            } else {
+
+            } else if (request.getHttpMethod().equals("POST") && request.getPath().equals("/user/create")){
+
+                log.debug("POST 요청, requestLine: {}", request.getRequestLine());
 
                 String pathURL = request.getPath();
 
-                System.out.println("body:" + request.getRequestBody());
+                Map<String, String> parsedBody = request.takeParsedBody();
 
-//                User user = new User(
-//                    parsedQueryString.get("userId"),
-//                    parsedQueryString.get("password"),
-//                    parsedQueryString.get("name"),
-//                    parsedQueryString.get("email")
-//                );
+                log.debug("POST BODY: {}", parsedBody);
+
+                User user = new User(
+                    parsedBody.get("userId"),
+                    parsedBody.get("password"),
+                    parsedBody.get("name"),
+                    parsedBody.get("email")
+                );
 
                 PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 
-                byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());
+                byte[] body = Files.readAllBytes(new File("./webapp/index.html").toPath());
 
-                response200Header(dos, body.length);
+                response302Header(dos, body.length, "http://localhost:8080/index.html");
                 responseBody(dos, body);
             }
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, int lengthOfBodyContent, String redirectURL) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found\r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Location: " + redirectURL + "\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }

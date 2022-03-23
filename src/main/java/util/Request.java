@@ -42,7 +42,7 @@ public class Request {
 		this.parsedQueryString = takeParsedQueryString();
 	}
 
-	public int takeContentLength() {
+	private int takeContentLength() {
 		return Integer.parseInt(
 			headerPairs.stream()
 				.filter(Pair::isContentLength)
@@ -58,6 +58,10 @@ public class Request {
 	private Map<String, String> takeParsedQueryString() {
 		String queryString = takeQueryString();
 		return HttpRequestUtils.parseQueryString(queryString);
+	}
+
+	public Map<String, String> takeParsedBody() {
+		return HttpRequestUtils.parseQueryString(requestBody);
 	}
 
 	private String takeQueryString() {
@@ -81,10 +85,6 @@ public class Request {
 
 	public Map<String, String> getParsedQueryString() {
 		return parsedQueryString;
-	}
-
-	public String getRequestBody() {
-		return requestBody;
 	}
 
 	public String getRequestLine() {

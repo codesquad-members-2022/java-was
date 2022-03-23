@@ -27,21 +27,13 @@ public class RequestHandler extends Thread {
         connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            DataOutputStream dos = new DataOutputStream(out);
-            String headerLine = bufferedReader.readLine();
-            String requestLine = headerLine;
-
-            while(!Strings.isNullOrEmpty(headerLine)) {
-                log.debug("request header : {}", headerLine);
-                headerLine = bufferedReader.readLine();
-            }
-
+            String requestLine = getRequestLine(in);
             String url = HttpRequestUtils.parseUrl(requestLine);
             String queryString = HttpRequestUtils.getQueryString(requestLine);
 
             url = findView(url, queryString);
 
+            DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
 
             if(url.endsWith(".css")) {
@@ -57,20 +49,35 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private String findView(String url, String queryString) {
-        if (url.equals("/user/create")) {
-            return signUp(queryString);
-        }
-
-        return url; 
+    private String getRequestLine(InputStream in) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        String requestLine = bufferedReader.readLine();
+        log.debug("request header : {}", requestLine);
+        printHeaderLogs(bufferedReader);
+        return requestLine;
     }
 
-    private String signUp(String queryString) {
+    private void printHeaderLogs(BufferedReader bufferedReader) throws IOException {
+        String headerLine = bufferedReader.readLine();
+        while(!Strings.isNullOrEmpty(headerLine)) {
+            log.debug("request header : {}", headerLine);
+            headerLine = bufferedReader.readLine();
+        }
+    }
+
+    private String findView(String url, String queryString) {
+        if (url.equals("/user/create")) {
+            signUp(queryString);
+            return "/index.html";
+        }
+
+        return url;
+    }
+
+    private void signUp(String queryString) {
         Map<String, String> map = HttpRequestUtils.parseQueryString(queryString);
         User user = new User(map.get("userId"), map.get("password"), map.get("name"), map.get("email"));
         DataBase.addUser(user);
-
-        return "/index.html";
     }
 
 

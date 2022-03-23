@@ -33,18 +33,24 @@ public class MyHttpRequest {
         }
         log.debug("requestLine = {}", line);
         this.requestLine = line;
-        this.url = HttpRequestUtils.parseUrl(requestLine);
+        parseRequestLine(requestLine);
         initPathAndQueryString();
         this.parameters = HttpRequestUtils.parseQueryString(queryString);
 
-        while(!"".equals(line)) {
+        while (!"".equals(line)) {
             line = br.readLine();
             log.debug("requestHeader = {}", line);
-            if(line.startsWith("Content-Length")) {
+            if (line.startsWith("Content-Length")) {
                 this.contentLength = Integer.parseInt(line.substring(line.indexOf(':') + 2));
             }
         }
         this.body = initBody(br);
+    }
+
+    private void parseRequestLine(String requestLine) {
+        String[] tokens = requestLine.split(" ");
+        this.method = tokens[0];
+        this.url = tokens[1];
     }
 
     private String initBody(BufferedReader br) throws IOException {

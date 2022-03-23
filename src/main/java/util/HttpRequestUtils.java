@@ -56,12 +56,6 @@ public class HttpRequestUtils {
         return getKeyValue(header, ": ");
     }
 
-    public static String parseUrl(String requestLine) throws UnsupportedEncodingException {
-        String[] tokens = requestLine.split(" ");
-        String encodedUrl = tokens[1];
-        return URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8);
-    }
-
     public static class Pair {
         String key;
         String value;

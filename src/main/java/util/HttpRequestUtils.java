@@ -71,6 +71,10 @@ public class HttpRequestUtils {
             return value;
         }
 
+        public boolean isContentLength() {
+            return key.equals("Content-Length");
+        }
+
         @Override
         public int hashCode() {
             final int prime = 31;

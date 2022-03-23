@@ -9,10 +9,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils.Pair;
+import util.IOUtils;
 import util.PrintUtils;
 import util.Request;
 
@@ -36,23 +39,54 @@ public class RequestHandler extends Thread {
             String requestLine = br.readLine();
 
             Request request = new Request(requestLine);
-            String pathURL = request.takePath();
-            Map<String, String> parsedQueryString = request.takeParsedQueryString();
 
-            User user = new User(
+            String httpMethod = request.takeHttpMethod();
+
+            if (httpMethod.equals("GET")) {
+
+                String pathURL = request.takePath();
+
+                Map<String, String> parsedQueryString = request.takeParsedQueryString();
+
+                User user = new User(
                     parsedQueryString.get("userId"),
                     parsedQueryString.get("password"),
                     parsedQueryString.get("name"),
                     parsedQueryString.get("email")
-            );
+                );
 
-            PrintUtils.printRequestHeaders(request.takeHeaderPairs(br), requestLine);
+                PrintUtils.printRequestHeaders(request.takeHeaderPairs(br), requestLine);
 
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());
+                DataOutputStream dos = new DataOutputStream(out);
+                byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());
 
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+            } else {
+
+                String pathURL = request.takePath();
+
+                List<Pair> headerPairs = request.takeHeaderPairs(br);
+                int contentLength = request.takeContentLength();
+
+                String s = IOUtils.readData(br, contentLength);
+                System.out.println("body:" + s);
+
+//                User user = new User(
+//                    parsedQueryString.get("userId"),
+//                    parsedQueryString.get("password"),
+//                    parsedQueryString.get("name"),
+//                    parsedQueryString.get("email")
+//                );
+
+                PrintUtils.printRequestHeaders(headerPairs, requestLine);
+
+                DataOutputStream dos = new DataOutputStream(out);
+                byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());
+
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }

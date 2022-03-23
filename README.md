@@ -51,3 +51,9 @@
   - node.js에서 Stream은 버퍼들을 포함하는 개념 (Java에서는 위의 개념으로 쓰임)
 - 참고 : https://stackoverflow.com/questions/43147069/how-do-an-inputstream-inputstreamreader-and-bufferedreader-work-together-in-jav
 ---
+
+## Step3 : POST로 회원가입
+
+### try-with-resource
+
+Closeable

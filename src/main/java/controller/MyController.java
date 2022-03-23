@@ -4,5 +4,5 @@ import java.util.Map;
 
 public interface MyController {
 
-    String process(Map<String, String> paramMap, Map<String, Object> model);
+    String process(Map<String, String> paramMap);
 }

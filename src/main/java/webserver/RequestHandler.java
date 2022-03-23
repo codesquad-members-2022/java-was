@@ -45,11 +45,8 @@ public class RequestHandler extends Thread {
                 MyController myController = handlerMapper.get(path);
 
                 Map<String, String> paramMap = HttpRequestUtils.parseQueryString(firstLine);
-                Map<String, Object> model = new HashMap<>();
-                path = myController.process(paramMap, model);
+                path = myController.process(paramMap);
             }
-
-
 
             printRequestHeader(firstLine, bf);
 

@@ -8,7 +8,7 @@ import model.User;
 public class SaveUserController implements MyController {
 
     @Override
-    public String process(Map<String, String> paramMap, Map<String, Object> model) {
+    public String process(Map<String, String> paramMap) {
         String userId = paramMap.get("userId");
         String password = paramMap.get("password");
         String name = paramMap.get("name");

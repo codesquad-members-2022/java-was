@@ -34,8 +34,6 @@ public class MyHttpRequest {
         log.debug("requestLine = {}", line);
         this.requestLine = line;
         parseRequestLine(requestLine);
-        initPathAndQueryString();
-        this.parameters = HttpRequestUtils.parseQueryString(queryString);
 
         while (!"".equals(line)) {
             line = br.readLine();
@@ -45,6 +43,17 @@ public class MyHttpRequest {
             }
         }
         this.body = initBody(br);
+        initPathAndQueryString();
+        this.parameters = initParameters();
+    }
+
+    private Map<String, String> initParameters() {
+        //method가 Get일 경우
+        if ("GET".equals(method)) {
+            return HttpRequestUtils.parseQueryString(queryString);
+        }
+        //method가 Post인 경우
+        return HttpRequestUtils.parseQueryString(body);
     }
 
     private void parseRequestLine(String requestLine) {

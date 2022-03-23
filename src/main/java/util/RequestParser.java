@@ -45,9 +45,7 @@ public class RequestParser {
 
         if (requestLineTokens[0].toLowerCase().equals("post")) {
             int contentLength = Integer.parseInt(header.get("Content-Length"));
-            char[] bodyArray = new char[contentLength];
-            reader.read(bodyArray, 0, contentLength);
-            body = new String(bodyArray);
+            body = IOUtils.readData(reader, contentLength);
         }
 
         return new HttpRequest.Builder().method(requestLineTokens[0])

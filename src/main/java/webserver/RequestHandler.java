@@ -11,10 +11,14 @@ import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import db.DataBase;
+import model.Request;
+import model.User;
 import util.HttpRequestUtils;
 import util.MimeUtils;
 
@@ -31,11 +35,11 @@ public class RequestHandler extends Thread {
             connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String line = URLDecoder.decode(bufferedReader.readLine(), StandardCharsets.UTF_8);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            Request request = new Request(br);
 
-            String url = HttpRequestUtils.getUrl(line);
-            HttpRequestUtils.readRequestHeader(bufferedReader);
+            String method = request.getMethod();
+            String url = request.getUrl();
 
             UrlHandler urlHandler = UrlHandler.getInstance();
             urlHandler.mapUrl(url);
@@ -44,6 +48,16 @@ public class RequestHandler extends Thread {
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length, url);
             responseBody(dos, body);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, String url) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
+            dos.writeBytes("Location: /index.html \r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }

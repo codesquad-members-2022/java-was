@@ -2,6 +2,7 @@ package util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,25 +13,15 @@ import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
     /**
-     * @param queryString은
-     *            URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
+     * @param queryString은 URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
      * @return
      */
     public static Map<String, String> parseQueryString(String queryString) {
-        if(queryString == null){
-            return new HashMap<>();
-        }
-        try {
-            return parseValues(URLDecoder.decode(queryString, "utf-8"), "&");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return new HashMap<>();
+        return parseValues(URLDecoder.decode(queryString, StandardCharsets.UTF_8), "&");
     }
 
     /**
-     * @param 쿠키
-     *            값은 name1=value1; name2=value2 형식임
+     * @param 쿠키 값은 name1=value1; name2=value2 형식임
      * @return
      */
     public static Map<String, String> parseCookies(String cookies) {

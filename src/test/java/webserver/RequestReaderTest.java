@@ -1,20 +1,19 @@
 package webserver;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.BDDAssertions.entry;
+import static org.assertj.core.api.BDDAssertions.then;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.BDDAssertions.then;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class RequestReaderTest {
 
     @Test
-    @DisplayName("RequestReader가 생성된다")
+    @DisplayName("RequestReader 가 생성된다")
     public void createRequestReaderTest() throws IOException {
         // given
         String newLine = System.getProperty("line.separator");

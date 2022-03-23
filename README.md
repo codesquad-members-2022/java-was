@@ -56,4 +56,7 @@
 
 ### try-with-resource
 
-Closeable
+- Closeable, AutoCloesable 조사하기
+- Test code 재작성 + 추가작성
+- RequestHandler 중복제거 (방법이 있는지 찾아라도 보기)
+- 

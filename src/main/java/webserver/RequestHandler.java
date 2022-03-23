@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.PrintUtils;
 import util.Request;
+import util.Response;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -39,72 +40,31 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             if (request.getHttpMethod().equals("GET")) {
-
                 log.debug("GET 요청, requestLine: {}", request.getRequestLine());
-
                 PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 
                 byte[] body = Files.readAllBytes(new File("./webapp" + request.getPath()).toPath());
-
-                response200Header(dos, body.length);
-                responseBody(dos, body);
+                Response response = new Response(body, dos);
+                response.response200Header();
+                response.responseBody();
 
             } else if (request.getHttpMethod().equals("POST") && request.getPath().equals("/user/create")){
-
                 log.debug("POST 요청, requestLine: {}", request.getRequestLine());
-
-                String pathURL = request.getPath();
-
                 Map<String, String> parsedBody = request.takeParsedBody();
-
                 log.debug("POST BODY: {}", parsedBody);
-
                 User user = new User(
                     parsedBody.get("userId"),
                     parsedBody.get("password"),
                     parsedBody.get("name"),
                     parsedBody.get("email")
                 );
-
                 PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 
                 byte[] body = Files.readAllBytes(new File("./webapp/index.html").toPath());
-
-                response302Header(dos, body.length, "http://localhost:8080/index.html");
-                responseBody(dos, body);
+                Response response = new Response(body, dos);
+                response.response302Header("http://localhost:8080/index.html");
+                response.responseBody();
             }
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response302Header(DataOutputStream dos, int lengthOfBodyContent, String redirectURL) {
-        try {
-            dos.writeBytes("HTTP/1.1 302 Found\r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("Location: " + redirectURL + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }

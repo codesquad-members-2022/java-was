@@ -30,7 +30,7 @@ Java Web Server Project for CodeSquad Members 2022
 <details>
 <summary>3단계 요구사항</summary>
 
-- [ ] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
-- [ ] POST로 회원가입 기능이 정상적으로 동작하도록 구현한다.
-- [ ] 가입 후 페이지 이동을 위해 redirection 기능을 구현한다.
+- [x] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
+- [x] POST로 회원가입 기능이 정상적으로 동작하도록 구현한다.
+- [x] 가입 후 페이지 이동을 위해 redirection 기능을 구현한다.
 </details>

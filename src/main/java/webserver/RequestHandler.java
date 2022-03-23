@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +32,11 @@ public class RequestHandler extends Thread {
 
 			byte[] body = null;
 			if ("/user/create".equals(request.getUri())) {
-//				User user = new User(request.getParam("userId"),
-//					request.getParam("password"),
-//					request.getParam("name"),
-//					request.getParam("email"));
-//				log.debug("회원가입완료 {}",user );
+				User user = new User(request.getParam("userId"),
+					request.getParam("password"),
+					request.getParam("name"),
+					request.getParam("email"));
+				log.debug("회원가입완료 {}",user );
 				body = Files.readAllBytes(new File("./webapp/" + "index.html").toPath());
 			} else {
 				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
@@ -51,31 +52,29 @@ public class RequestHandler extends Thread {
 	}
 
 	private Request createRequest(InputStream in) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 		List<String> rawHeader = new ArrayList<>();
 		String line = br.readLine();
-		String firstLine = line;
+		String requestLine = line;
 
-		//request header 읽기
+		// read Request Header
 		int contentLength = 0;
 		while (!"".equals(line)) {
 			line = br.readLine();
 			rawHeader.add(line);
-			//여기서 content-length만 파싱
 			if(line.contains("Content-Length")){
 				String[] data = line.split(": ");
-				contentLength = Integer.valueOf(data[1]);
+				contentLength = Integer.parseInt(data[1]);
 			}
-			log.debug("rawHeader: {}" , line);
 		}
 
-		//조건이 있어야
+		// read Request Body
+		String rawBody = "";
 		if(contentLength > 0) {
-			String rawBody = IOUtils.readData(br, contentLength);
+			 rawBody = IOUtils.readData(br, contentLength);
 		}
 
-		Request request = new Request(firstLine, rawHeader, rawBody);
-		return request;
+		return new Request(requestLine, rawHeader, rawBody);
 	}
 
 	private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

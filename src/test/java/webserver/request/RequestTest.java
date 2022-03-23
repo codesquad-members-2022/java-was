@@ -30,8 +30,9 @@ class RequestTest {
 				rawData.add("Host: localhost:8080");
 				rawData.add("Connection: keep-alive");
 				rawData.add("Accept: */*");
+ 				String rawBody = "";
 
-				Request request = new Request(requestLine, rawData);
+				Request request = new Request(requestLine, rawData, rawBody);
 				Map<String, String> headerMap = request.getRequestHeaderMap();
 
 				assertThat(request.getMethod()).isEqualTo("GET");
@@ -55,8 +56,9 @@ class RequestTest {
 				rawData.add("Host: localhost:8080");
 				rawData.add("Connection: keep-alive");
 				rawData.add("Accept: */*");
+				String rawBody = "";
 
-				Request request = new Request(requestLine, rawData);
+				Request request = new Request(requestLine, rawData, rawBody);
 				Map<String, String> headerMap = request.getRequestHeaderMap();
 
 				assertThat(request.getMethod()).isEqualTo("GET");

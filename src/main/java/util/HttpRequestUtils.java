@@ -54,8 +54,8 @@ public class HttpRequestUtils {
     }
 
     public static class Pair {
-        String key;
-        String value;
+        private String key;
+        private String value;
 
         Pair(String key, String value) {
             this.key = key.trim();

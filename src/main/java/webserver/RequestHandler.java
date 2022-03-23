@@ -63,8 +63,8 @@ public class RequestHandler extends Thread {
     }
 
     private String signUp(String requestBody) {
-        Map<String, String> map = HttpRequestUtils.parseQueryString(requestBody);
-        User user = new User(map.get("userId"), map.get("password"), map.get("name"), map.get("email"));
+        Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
+        User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
         DataBase.addUser(user);
         log.debug("{} sign up", user);
 

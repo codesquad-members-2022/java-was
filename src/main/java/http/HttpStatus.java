@@ -5,7 +5,7 @@ public enum HttpStatus {
     BAD_REQUEST(400),
     INTERNAL_SERVER_ERROR(500);
 
-    private int statusCode;
+    private final int statusCode;
 
     HttpStatus(int statusCode) {
         this.statusCode = statusCode;

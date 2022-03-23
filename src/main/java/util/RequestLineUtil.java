@@ -2,11 +2,11 @@ package util;
 
 public class RequestLineUtil {
 
-    public static final int FIRST = 1;
+    public static final int URL_INDEX = 1;
 
-    public static String from(String firstLine) {
-        String[] strList = firstLine.split(" ");
-        return strList[FIRST];
+    public static String getURL(String requestLine) {
+        String[] strList = requestLine.split(" ");
+        return strList[URL_INDEX];
     }
 
 }

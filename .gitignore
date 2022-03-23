@@ -13,6 +13,18 @@
 .idea/**/dictionaries
 .idea/**/shelf
 
+# caches
+caches/
+
+# daemon
+daemon/
+
+# native
+native/
+
+# wrapper
+wrapper/
+
 # AWS User-specific
 .idea/**/aws.xml
 

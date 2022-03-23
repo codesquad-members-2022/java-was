@@ -29,6 +29,10 @@ public class HttpRequestUtils {
         return "";
     }
 
+    public static String getMethod(String requestLine) {
+        return requestLine.split(" ")[0];
+    }
+
     private static String splitRequestLine(String requestLine) {
         return requestLine.split(" ")[1];
     }

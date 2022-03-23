@@ -69,15 +69,14 @@ public class RequestHandler extends Thread {
     }
 
     private void createUser(Request request) {
-        Map<String, String> queryString = request.getQueryString();
+        Map<String, String> body = request.getBody();
 
         User user = new User(
-            queryString.get("userId"),
-            queryString.get("password"),
-            queryString.get("name"),
-            queryString.get("email")
+                body.get("userId"),
+                body.get("password"),
+                body.get("name"),
+                body.get("email")
         );
         log.info("user={}", user);
     }
-
 }

@@ -14,8 +14,9 @@ public class Request {
     private final ContentType contentType;
 
     private final Map<String, String> headers;
+    private final Map<String, String> body;
 
-    public Request(String line, Map<String, String> headers) {
+    public Request(String line, Map<String, String> headers, Map<String, String> body) {
         String[] tokens = line.split(" ");
         method = tokens[0];
         url = tokens[1];
@@ -26,6 +27,11 @@ public class Request {
         contentType = toContentType();
 
         this.headers = headers;
+        this.body = body;
+    }
+
+    public Request(String line, Map<String, String> header) {
+        this(line, header, null);
     }
 
     public String parsePath() {
@@ -69,5 +75,9 @@ public class Request {
 
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public Map<String, String> getBody() {
+        return body;
     }
 }

@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 import util.RequestLineUtil;
 
 public class RequestHandler extends Thread {
@@ -31,6 +32,7 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 
+            // Request Message
             String line = br.readLine();
             String url = RequestLineUtil.from(line);
             log.debug("Request: {}", line);
@@ -41,6 +43,18 @@ public class RequestHandler extends Thread {
                 log.debug("Request: {}", line);
             }
 
+            // URL decode
+            url = URLDecoder.decode(url, "UTF-8");
+
+            // URL query check
+            if (url.contains("?")) {
+                url = url.split("\\?")[1];
+                // Model save
+                userSave(url);
+                url = "/index.html";
+            }
+
+            // Response Message
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             DataOutputStream dos = new DataOutputStream(out);
             response200Header(dos, body.length);

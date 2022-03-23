@@ -34,38 +34,47 @@ public class RequestHandler extends Thread {
     private void sendResponse(MyHttpRequest request, OutputStream out) throws IOException {
         String path = request.getPath();
         MyHttpMethod method = request.getMethod();
-        if(path.equals("/user/create") && method.isPost()) {
+        DataOutputStream dos = new DataOutputStream(out);
+        byte[] body;
+
+        if (path.equals("/user/create") && method.isPost()) {
             User user = new User(request.getParameter("userId"),
                     request.getParameter("password"),
                     request.getParameter("name"),
                     request.getParameter("email"));
-            log.debug("user created : {}",user);
+            log.debug("user created : {}", user);
+            setResponseCode302(dos);
+            setRedirectLocation(dos, "/index.html");
+            dos.flush();
+            return;
         }
-
-        DataOutputStream dos = new DataOutputStream(out);
-        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
-        response200Header(dos, body.length);
+        body = Files.readAllBytes(new File("./webapp" + path).toPath());
+        setResponseCode200(dos);
+        setResponseHtml(dos, body.length);
         responseBody(dos, body);
     }
 
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
+    private void setRedirectLocation(DataOutputStream dos, String redirectLocation) throws IOException {
+        dos.writeBytes("location: " + redirectLocation + "\r\n");
     }
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
+    private void setResponseCode200(DataOutputStream dos) throws IOException {
+        dos.writeBytes("HTTP/1.1 200 OK \r\n");
     }
+
+    private void setResponseCode302(DataOutputStream dos) throws IOException {
+        dos.writeBytes("HTTP/1.1 302 Found \r\n");
+    }
+
+    private void setResponseHtml(DataOutputStream dos, int lengthOfBodyContent) throws IOException {
+        dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+        dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+        dos.writeBytes("\r\n");
+    }
+
+    private void responseBody(DataOutputStream dos, byte[] body) throws IOException {
+        dos.write(body, 0, body.length);
+        dos.flush();
+    }
+
 }

@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,8 +16,6 @@ import java.util.Map;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
-import util.IOUtils;
 
 public class RequestHandler extends Thread {
 
@@ -38,26 +35,19 @@ public class RequestHandler extends Thread {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             DataOutputStream dos = new DataOutputStream(out);
 
-            String requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
-            String requestMethod = HttpRequestUtils.getRequestMethod(requestLine);
-            String targetURI = HttpRequestUtils.getRequestURI(requestLine);
-            String targetPath = HttpRequestUtils.getRequestPath(targetURI);
+            HttpRequest httpRequest = HttpRequest.receive(br);
 
-            String requestHeaders = IOUtils.readHeaders(br);
-            Map<String, String> headers = HttpRequestUtils.parseHeaders(requestHeaders);
-
-            if (targetPath.equals("/user/create") && requestMethod.equals("POST")) {
-                String requestBody = IOUtils.readData(br, Integer.parseInt(headers.get("Content-Length")));
-                requestBody = URLDecoder.decode(requestBody, StandardCharsets.UTF_8);
-                Map<String, String> userCreationForm = HttpRequestUtils.parseQueryString(requestBody);
-                processUserCreation(dos, userCreationForm);
+            if (httpRequest.hasPathEqualTo("/user/create") && httpRequest.hasMethodEqualTo("POST")) {
+                processUserCreation(dos, httpRequest.getParameters());
                 return;
             }
 
-            byte[] body = Files.readAllBytes(Path.of(WEBAPP + targetPath));
+            byte[] body = Files.readAllBytes(Path.of(WEBAPP + httpRequest.getPath()));
 
             response200Header(dos, body.length);
             responseBody(dos, body);
+
+            connection.close();
         } catch (IOException e) {
             log.error(e.getMessage());
         }

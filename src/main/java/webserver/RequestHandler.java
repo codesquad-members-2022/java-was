@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 
 import model.HttpRequest;
@@ -25,32 +26,32 @@ public class RequestHandler extends Thread {
 
     @Override
     public void run() {
-        log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
-
+        log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            DataOutputStream dos = new DataOutputStream(out);
-
-            RequestParser requestParser = new RequestParser(in);
-            HttpRequest request = requestParser.createRequest();
-
-            String resourcePath = request.getPath();
-            log.debug("[resourcePath] :{}", resourcePath);
-
-            if (resourcePath.startsWith("/user/create")) {
-                User user = createUser(request.getBody());
-                response302Header(dos, HOME);
-                return;
-            }
-
-            byte[] body = viewResolver(resourcePath);
-            log.debug("[REQUEST] : {}", request);
-
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            HttpRequest request = buildRequest(in);
+            controlResourcePath(out, request); // TODO 이름 다시 생각해보기
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void controlResourcePath(OutputStream out, HttpRequest request) throws IOException {
+        DataOutputStream dos = new DataOutputStream(out);
+        String resourcePath = request.getPath();
+
+        if (resourcePath.startsWith("/user/create")) {
+            User user = createUser(request.getBody());
+            response302Header(dos, HOME);
+            return;
+        }
+
+        byte[] body = viewResolver(resourcePath);
+        response200Header(dos, body.length);
+        responseBody(dos, body);
+    }
+
+    private HttpRequest buildRequest(InputStream in) throws IOException {
+        return new RequestParser(in).createRequest();
     }
 
     private String getResourcePath(BufferedReader reader) throws IOException {

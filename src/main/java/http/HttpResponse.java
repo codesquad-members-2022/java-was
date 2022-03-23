@@ -12,13 +12,16 @@ import java.nio.file.Files;
 public class HttpResponse {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private String httpMessage = "";
+    private String responseHeader = "";
+    private byte[] responseBody;
 
-    public HttpResponse(String path) throws IOException {
-        byte[] body = createResponseBody(path);
-        response200Header(body.length);
-        httpMessage += new String(body);
-//        responseBody(body);
+    public HttpResponse(String path, DataOutputStream dos) throws IOException {
+        responseBody = createResponseBody(path);
+        response200Header(responseBody.length);
+    }
+
+    public byte[] getResponseBody() {
+        return responseBody;
     }
 
     public byte[] createResponseBody(String path) throws IOException {
@@ -29,10 +32,10 @@ public class HttpResponse {
     }
 
     public void response200Header(int lengthOfBodyContent) {
-        httpMessage += ("HTTP/1.1 200 OK \r\n");
-        httpMessage += ("Content-Type: text/html;charset=utf-8\r\n");
-        httpMessage += ("Content-Length: " + lengthOfBodyContent + "\r\n");
-        httpMessage += ("\r\n");
+        responseHeader += ("HTTP/1.1 200 OK \r\n");
+        responseHeader += ("Content-Type: text/html;charset=utf-8\r\n");
+        responseHeader += ("Content-Length: " + lengthOfBodyContent + "\r\n");
+        responseHeader += ("\r\n");
     }
 
 //    public void responseBody(DataOutputStream dos, byte[] body) {
@@ -44,7 +47,7 @@ public class HttpResponse {
 //        }
 //    }
 
-    public String getHttpMessage() {
-        return httpMessage;
+    public String getResponseHeader() {
+        return responseHeader;
     }
 }

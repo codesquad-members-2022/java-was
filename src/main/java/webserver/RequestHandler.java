@@ -42,7 +42,6 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader bf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             DataOutputStream dos = new DataOutputStream(out);
-
             HttpRequest httpRequest = new HttpRequest(bf);
 
             String path = httpRequest.getPath();
@@ -56,10 +55,10 @@ public class RequestHandler extends Thread {
 
             IOUtils.printRequestHeader(httpRequest.getHeaderMessages());
 
-            HttpResponse httpResponse = new HttpResponse(path);
-            dos.writeBytes(httpResponse.getHttpMessage());
+            HttpResponse httpResponse = new HttpResponse(path, dos);
+            dos.writeBytes(httpResponse.getResponseHeader());
+            dos.write(httpResponse.getResponseBody());
             dos.flush();
-            System.out.println(httpResponse.getHttpMessage());
         } catch (IOException e) {
             log.error(e.getMessage());
         }

@@ -37,8 +37,9 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        try (InputStream in = connection.getInputStream();
+             OutputStream out = connection.getOutputStream();
+             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
             String[] requestInfo = HttpRequestUtils.getRequestInfo(requestLine);
             String url = requestInfo[URL];
@@ -51,7 +52,7 @@ public class RequestHandler extends Thread {
             log.debug("User : {}", user);
             DataBase.addUser(user);
             setRequestHeader(br);
-            
+
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length);

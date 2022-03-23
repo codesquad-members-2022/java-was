@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -9,7 +10,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import java.net.URLDecoder;
 import java.nio.file.Files;
+import java.util.Map;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -82,5 +86,11 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void userSave(String url){
+        Map<String, String> userInfo = HttpRequestUtils.parseQueryString(url);
+        User user = new User(userInfo.get("userId"), userInfo.get("password"),userInfo.get("name"),userInfo.get("email"));
+        DataBase.addUser(user);
     }
 }

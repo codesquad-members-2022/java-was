@@ -47,17 +47,17 @@ FileReader, FileWriter, FileInputStream, FileOutputStream 은 직접적으로 �
 ## 3단계 - POST로 회원가입
 
    기능요구사항
-   - [ ] http://localhost:8080/user/form.html 파일의 HTML form을 통해 회원가입을 할 수 있다.
+   - [x] http://localhost:8080/user/form.html 파일의 HTML form을 통해 회원가입을 할 수 있다.
 
    - [ ] 가입 후 index.html 페이지로 이동한다.
 
    프로그래밍 요구사항
-   - [ ] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
+   - [x] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
 
    - [ ] POST로 회원가입 기능이 정상적으로 동작하도록 구현한다.
 
    - [ ] 가입 후 페이지 이동을 위해 redirection 기능을 구현한다.
 
    TODO 리스트 
-   - [ ] Request Body의 값 추출하기
+   - [x] Request Body의 값 추출하기
    - [ ] redirect 구현 (HTTP 응답 해더의 status code를 200이 아닌 302로 한다.)

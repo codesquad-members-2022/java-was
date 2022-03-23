@@ -8,22 +8,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
-import util.HttpRequestUtils.Pair;
-import util.IOUtils;
 import util.PrintUtils;
 import util.Request;
 
@@ -41,29 +30,23 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-
             InputStreamReader inputReader = new InputStreamReader(in);
             BufferedReader br = new BufferedReader(inputReader);
 
-            String line = br.readLine();
+            String requestLine = br.readLine();
 
-            Request request = new Request(line);
+            Request request = new Request(requestLine);
             String pathURL = request.takePath();
+            Map<String, String> parsedQueryString = request.takeParsedQueryString();
 
-            String queryString = request.takeQueryString();
-            Map<String, String> parseQueryString = HttpRequestUtils.parseQueryString(queryString);
             User user = new User(
-                    parseQueryString.get("userId"),
-                    parseQueryString.get("password"),
-                    parseQueryString.get("name"),
-                    parseQueryString.get("email")
+                    parsedQueryString.get("userId"),
+                    parsedQueryString.get("password"),
+                    parsedQueryString.get("name"),
+                    parsedQueryString.get("email")
             );
 
-            System.out.println(user.toString());
-
-            List<Pair> headerPairs = IOUtils.readRequestHeader(br);
-            PrintUtils.printRequestHeaders(headerPairs, line);
+            PrintUtils.printRequestHeaders(request.takeHeaderPairs(br), requestLine);
 
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());

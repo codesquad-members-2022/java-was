@@ -26,7 +26,7 @@ public class Request {
 
     public Map<String, String> parseQueryString() {
         String[] tokens = url.split("\\?");
-        return HttpRequestUtils.parseQueryString(tokens.length < 2 ? "" : tokens[1]);
+        return HttpRequestUtils.parseQueryString(tokens.length < 2 ? null : tokens[1]);
     }
 
     public String toContentType() {

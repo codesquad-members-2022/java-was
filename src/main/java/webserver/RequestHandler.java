@@ -37,27 +37,27 @@ public class RequestHandler extends Thread {
         return requestReader.create();
     }
 
-    public void handlePath(Request request, OutputStream out) throws IOException {
+    private void handlePath(Request request, OutputStream out) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
 
         // create
         if (request.parsePath().equals("/create")) {
-            createUser(request, dos);
+            createUser(request);
             response201Header(dos);
             return;
         }
 
         // default
-        byte[] body = readFile(request, dos);
+        byte[] body = readFile(request);
         response200Header(dos, body.length, request.toContentType());
         responseBody(dos, body);
     }
 
-    private byte[] readFile(Request request, DataOutputStream dos) throws IOException {
+    private byte[] readFile(Request request) throws IOException {
         return Files.readAllBytes(new File(WEBAPP_PATH + request.parsePath()).toPath());
     }
 
-    private void createUser(Request request, DataOutputStream dos) {
+    private void createUser(Request request) {
         Map<String, String> qs = request.parseQueryString();
 
         User user = new User(

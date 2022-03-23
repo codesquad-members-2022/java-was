@@ -28,5 +28,4 @@ public abstract class HttpServlet {
     public Response doPost() {
         throw new IllegalStateException("Unimplemented post method");
     }
-
 }

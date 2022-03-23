@@ -23,5 +23,4 @@ public class StaticResourceProcessor {
     public byte[] readStaticResource(String requestUrl) throws IOException {
         return IOUtils.readFile(staticResourcePath + requestUrl);
     }
-
 }

@@ -10,9 +10,10 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import config.ProvidedExtension;
 import config.RequestMapping;
-import http.HttpMethod;
+import http.HttpStatus;
+import http.Response;
+import util.HttpRequestUtils;
 import webserver.dto.RequestLine;
 
 public class RequestHandler extends Thread {
@@ -33,25 +34,12 @@ public class RequestHandler extends Thread {
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              OutputStream out = connection.getOutputStream()) {
-            // 1. request line 을 읽고 어떤 파일을 요청하는지 파악
-            RequestLine requestLine = parseRequestLine(br);
 
-            // 2. 매핑 정보 확인
-            if (RequestMapping.contains(requestLine.getHttpMethod(), requestLine.getUrl())) {
-                // 구현 필요
-                return;
-            }
+            RequestLine requestLine = RequestLine.of(br.readLine());
 
-            // 2. header 를 로그로 출력
-            printHeaders(br);
+            processRequest(br, out, requestLine);
 
-            // 3. 1번에서 요청한 파일을 읽어서, String -> byte[] 로 변환하여 브라우저로 반환
-            byte[] body = IOUtils.readFile(staticResourcePath + requestUrl);
-
-            String contentType = extractContentType(requestUrl);
-
-            response200(out, body, contentType);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
     }
@@ -67,22 +55,10 @@ public class RequestHandler extends Thread {
         return ProvidedExtension.extensionResolver(split[split.length - 1]);
     }
 
-    private void printHeaders(BufferedReader br) throws IOException {
-        String header;
-        while (!(header = br.readLine()).equals("") && header != null) {
-            log.debug("header : {}", header);
-        }
-    }
-
-    private RequestLine parseRequestLine(BufferedReader br) throws IOException {
-        String[] firstLine = br.readLine().split(" ");
-        HttpMethod httpMethod = HttpMethod.findMethod(firstLine[0]).orElseThrow();
-        String[] result = firstLine[1].split("\\?");
-        RequestLine requestLine = new RequestLine(httpMethod, result[0]);
-        if(result.length > 1) {
-            requestLine.setQueryString(result[1]);
-        }
-        return requestLine;
+    private void response(OutputStream out, byte[] body, String contentType, HttpStatus httpStatus) {
+        DataOutputStream dos = new DataOutputStream(out);
+        responseHeader(dos, body.length, contentType, httpStatus);
+        responseBody(dos, body);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {

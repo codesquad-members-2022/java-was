@@ -33,7 +33,7 @@ public class HttpRequestUtils {
 
         String[] tokens = values.split(separator);
         return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
-                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+            .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
 
     static Pair getKeyValue(String keyValue, String regex) {
@@ -87,7 +87,7 @@ public class HttpRequestUtils {
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            Pair other = (Pair) obj;
+            Pair other = (Pair)obj;
             if (key == null) {
                 if (other.key != null)
                     return false;

@@ -9,6 +9,7 @@ import java.util.List;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
 
@@ -30,11 +31,11 @@ public class RequestHandler extends Thread {
 
 			byte[] body = null;
 			if ("/user/create".equals(request.getUri())) {
-				User user = new User(request.getParam("userId"),
-					request.getParam("password"),
-					request.getParam("name"),
-					request.getParam("email"));
-				log.debug("회원가입완료 {}",user );
+//				User user = new User(request.getParam("userId"),
+//					request.getParam("password"),
+//					request.getParam("name"),
+//					request.getParam("email"));
+//				log.debug("회원가입완료 {}",user );
 				body = Files.readAllBytes(new File("./webapp/" + "index.html").toPath());
 			} else {
 				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
@@ -51,15 +52,29 @@ public class RequestHandler extends Thread {
 
 	private Request createRequest(InputStream in) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(in,"UTF-8"));
-		List<String> rawData = new ArrayList<>();
+		List<String> rawHeader = new ArrayList<>();
 		String line = br.readLine();
 		String firstLine = line;
+
+		//request header 읽기
+		int contentLength = 0;
 		while (!"".equals(line)) {
 			line = br.readLine();
-			rawData.add(line);
+			rawHeader.add(line);
+			//여기서 content-length만 파싱
+			if(line.contains("Content-Length")){
+				String[] data = line.split(": ");
+				contentLength = Integer.valueOf(data[1]);
+			}
+			log.debug("rawHeader: {}" , line);
 		}
 
-		Request request = new Request(firstLine, rawData);
+		//조건이 있어야
+		if(contentLength > 0) {
+			String rawBody = IOUtils.readData(br, contentLength);
+		}
+
+		Request request = new Request(firstLine, rawHeader, rawBody);
 		return request;
 	}
 

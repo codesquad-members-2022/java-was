@@ -13,9 +13,11 @@ public class HttpRequestUtils {
      * @return
      */
     public static Map<String, String> parseQueryString(String path) {
-        String queryString = path.split(" ")[1].split("\\?")[1];
-        System.out.println(queryString);
-        return parseValues(queryString, "&");
+        String[] splitedPath = path.split(" ")[1].split("\\?");
+        if (splitedPath.length != 2) {
+            return null;
+        }
+        return parseValues(splitedPath[1], "&");
     }
 
     /**
@@ -56,6 +58,10 @@ public class HttpRequestUtils {
 
     public static String parsePath(String firstLine) {
         return firstLine.split(" ")[1].split("\\?")[0];
+    }
+
+    public static String parseMethod(String firstLine) {
+        return firstLine.split(" ")[0];
     }
 
     public static class Pair {

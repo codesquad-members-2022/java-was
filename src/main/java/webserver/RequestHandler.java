@@ -6,8 +6,10 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,18 +41,18 @@ public class RequestHandler extends Thread {
             BufferedReader bf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             DataOutputStream dos = new DataOutputStream(out);
 
-            String firstLine = URLDecoder.decode(bf.readLine(), "UTF-8") ;
+            HttpRequest httpRequest = new HttpRequest(bf);
 
-            String path = HttpRequestUtils.parsePath(firstLine);
+            String path = httpRequest.getPath();
 
             if (handlerMapper.containsKey(path)) {
                 MyController myController = handlerMapper.get(path);
 
-                Map<String, String> paramMap = HttpRequestUtils.parseQueryString(firstLine);
+                Map<String, String> paramMap = httpRequest.getParamMap();
                 path = myController.process(paramMap);
             }
 
-            printRequestHeader(firstLine, bf);
+            printRequestHeader(httpRequest.getHeaderMessages());
 
             byte[] responseBody = createResponseBody(path);
             response200Header(dos, responseBody.length);
@@ -67,12 +69,10 @@ public class RequestHandler extends Thread {
         return "Hello World".getBytes(StandardCharsets.UTF_8);
     }
 
-    private void printRequestHeader(String firstLine, BufferedReader bf) throws IOException {
-        log.info("Request line: {}", firstLine);
-        String line = bf.readLine();
-        while (!line.equals("")) {
-            log.info("header: {}", line);
-            line = bf.readLine();
+    private void printRequestHeader(List<String> headerMessages) throws IOException {
+        log.info("Request line: {}", headerMessages.get(0));
+        for (int i = 1; i < headerMessages.size(); i++) {
+            log.info("header: {}", headerMessages.get(i));
         }
     }
 

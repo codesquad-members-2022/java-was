@@ -21,6 +21,7 @@ public class MyHttpRequest {
     private String path;
     private String queryString;
     private Map<String, String> parameters;
+    private int contentLength;
 
     public MyHttpRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
@@ -37,6 +38,9 @@ public class MyHttpRequest {
         while(!"".equals(line)) {
             line = br.readLine();
             log.debug("requestHeader = {}", line);
+            if(line.startsWith("Content-Length")) {
+                this.contentLength = Integer.parseInt(line.substring(line.indexOf(':') + 2));
+            }
         }
     }
 

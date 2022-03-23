@@ -1,10 +1,9 @@
 package webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +22,34 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+            BufferedReader bf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "Hello World".getBytes();
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+
+            String firstLine = bf.readLine();
+            String fileName = firstLine.split(" ")[1];
+            printRequestHeader(firstLine, bf);
+
+            byte[] responseBody = createResponseBody(fileName);
+            response200Header(dos, responseBody.length);
+            responseBody(dos, responseBody);
         } catch (IOException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private byte[] createResponseBody(String fileName) throws IOException {
+        if (!fileName.equals("/")) {
+            return Files.readAllBytes(new File("./webapp" + fileName).toPath());
+        }
+        return "Hello World".getBytes(StandardCharsets.UTF_8);
+    }
+
+    private void printRequestHeader(String firstLine, BufferedReader bf) throws IOException {
+        log.info("Request line: {}", firstLine);
+        String line = bf.readLine();
+        while (!line.equals("")) {
+            log.info("header: {}", line);
+            line = bf.readLine();
         }
     }
 

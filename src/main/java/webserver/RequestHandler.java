@@ -15,6 +15,7 @@ import util.RequestParser;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    public static final String HOME = "/index.html";
 
     private Socket connection;
 
@@ -34,13 +35,16 @@ public class RequestHandler extends Thread {
             HttpRequest request = requestParser.createRequest();
 
             String resourcePath = request.getPath();
+            log.debug("[resourcePath] :{}", resourcePath);
+
             if (resourcePath.startsWith("/user/create")) {
-                User user = createUser(resourcePath);
-                System.out.println("user = " + user);
+                User user = createUser(request.getBody());
+                response302Header(dos, HOME);
+                return;
             }
 
-            log.debug("[REQUEST] : {}", request);
             byte[] body = viewResolver(resourcePath);
+            log.debug("[REQUEST] : {}", request);
 
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -69,6 +73,17 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, String path) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Location: " + path + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

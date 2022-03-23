@@ -17,6 +17,9 @@ public class HttpRequestUtils {
      * @return
      */
     public static Map<String, String> parseQueryString(String queryString) {
+        if(queryString == null){
+            return new HashMap<>();
+        }
         return parseValues(URLDecoder.decode(queryString, StandardCharsets.UTF_8), "&");
     }
 

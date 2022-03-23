@@ -2,6 +2,10 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IOUtils {
     /**
@@ -16,5 +20,15 @@ public class IOUtils {
         char[] body = new char[contentLength];
         br.read(body, 0, contentLength);
         return String.copyValueOf(body);
+    }
+
+    public static Map<String, String> readRequestHeader(BufferedReader br) throws IOException {
+        Map<String, String> requestHeader = new HashMap<>();
+        String[] requestLine = br.readLine().split(" ");
+
+        requestHeader.put("httpMethod", requestLine[0]);
+        requestHeader.put("path", URLDecoder.decode(requestLine[1], StandardCharsets.UTF_8));
+
+        return requestHeader;
     }
 }

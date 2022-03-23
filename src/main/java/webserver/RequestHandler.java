@@ -51,7 +51,7 @@ public class RequestHandler extends Thread {
 
     private void readHeader(BufferedReader buf, String httpHeader) throws IOException {
         while (!httpHeader.equals("")) {
-            httpHeader = URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
+            httpHeader = buf.readLine();
             log.debug("Http header={}", httpHeader);
         }
     }

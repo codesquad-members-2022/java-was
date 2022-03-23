@@ -12,6 +12,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -27,56 +28,45 @@ public class RequestHandler extends Thread {
         connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            String requestLine = getRequestLine(in);
-            String url = HttpRequestUtils.parseUrl(requestLine);
-            String queryString = HttpRequestUtils.getQueryString(requestLine);
-
-            url = findView(url, queryString);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            Header header = new Header(bufferedReader);
+            String url = header.getUrl();
 
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
-
-            if(url.endsWith(".css")) {
-                response200CssHeader(dos, body.length);
-            }
-            if(url.endsWith(".html")) {
-                response200Header(dos, body.length);
+            if(header.isSameMethod("POST")) {
+                String requestBody = IOUtils.readData(bufferedReader, header.getContentLength());
+                String redirectUrl = executeLogicAndGetRedirectUrl(url, requestBody);
+                log.debug("requestBody : {}", requestBody);
+                response302Header(dos, redirectUrl);
             }
 
-            responseBody(dos, body);
+            if(header.isSameMethod("GET")) {
+                byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+                if(url.endsWith(".css")) {
+                    response200CssHeader(dos, body.length);
+                }
+                if(url.endsWith(".html")) {
+                    response200Header(dos, body.length);
+                }
+                responseBody(dos, body);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private String getRequestLine(InputStream in) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        String requestLine = bufferedReader.readLine();
-        log.debug("request header : {}", requestLine);
-        printHeaderLogs(bufferedReader);
-        return requestLine;
-    }
-
-    private void printHeaderLogs(BufferedReader bufferedReader) throws IOException {
-        String headerLine = bufferedReader.readLine();
-        while(!Strings.isNullOrEmpty(headerLine)) {
-            log.debug("request header : {}", headerLine);
-            headerLine = bufferedReader.readLine();
+    private String executeLogicAndGetRedirectUrl(String url, String requestBody) {
+        if(url.equals("/user/create")) {
+            return signUp(requestBody);
         }
+        return url;
     }
 
-    private String findView(String url, String queryString) {
-        if (url.equals("/user/create")) {
-            return signUp(queryString);
-        }
-
-        return url; 
-    }
-
-    private String signUp(String queryString) {
-        Map<String, String> map = HttpRequestUtils.parseQueryString(queryString);
+    private String signUp(String requestBody) {
+        Map<String, String> map = HttpRequestUtils.parseQueryString(requestBody);
         User user = new User(map.get("userId"), map.get("password"), map.get("name"), map.get("email"));
         DataBase.addUser(user);
+        log.debug("{} sign up", user);
 
         return "/index.html";
     }
@@ -98,6 +88,16 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, String url) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Redirect \r\n");
+            dos.writeBytes("Location: "+ url);
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

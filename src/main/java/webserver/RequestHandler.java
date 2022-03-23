@@ -4,8 +4,11 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
 import com.google.common.base.Strings;
+import db.DataBase;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -35,6 +38,10 @@ public class RequestHandler extends Thread {
             }
 
             String url = HttpRequestUtils.parseUrl(requestLine);
+            String queryString = HttpRequestUtils.getQueryString(requestLine);
+
+            url = findView(url, queryString);
+
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
 
             if(url.endsWith(".css")) {
@@ -49,6 +56,23 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
+
+    private String findView(String url, String queryString) {
+        if (url.equals("/user/create")) {
+            return signUp(queryString);
+        }
+
+        return url; 
+    }
+
+    private String signUp(String queryString) {
+        Map<String, String> map = HttpRequestUtils.parseQueryString(queryString);
+        User user = new User(map.get("userId"), map.get("password"), map.get("name"), map.get("email"));
+        DataBase.addUser(user);
+
+        return "/index.html";
+    }
+
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {

@@ -49,18 +49,18 @@ public class RequestHandler extends Thread {
         // create
         if (request.getMethod().equals("POST") && request.parsePath().equals("/user/create")) {
             createUser(request);
-            return new Response(Status.FOUND, Map.of(
-                    "Location", "http://localhost:8080/index.html")
-            );
+            return new Response.Builder(Status.FOUND)
+                    .addHeader("Location", "http://localhost:8080/index.html")
+                    .build();
         }
 
         // default
         byte[] body = readFile(request);
-        return new Response(Status.OK, Map.of(
-                "Content-Type", request.toContentType(),
-                "Content-Length", String.valueOf(body.length)),
-                body
-        );
+        return new Response.Builder(Status.OK)
+                .addHeader("Content-Type", request.toContentType())
+                .addHeader("Content-Length", String.valueOf(body.length))
+                .body(body)
+                .build();
     }
 
     private byte[] readFile(Request request) throws IOException {

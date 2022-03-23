@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
+import config.ProvidedExtension;
+
 public class HttpRequestUtils {
     /**
      * @param queryString은
@@ -34,6 +36,11 @@ public class HttpRequestUtils {
         String[] tokens = values.split(separator);
         return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
             .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+    }
+
+    public static String extractContentType(String requestUrl) {
+        String[] split = requestUrl.split("\\.");
+        return ProvidedExtension.extensionResolver(split[split.length - 1]);
     }
 
     static Pair getKeyValue(String keyValue, String regex) {

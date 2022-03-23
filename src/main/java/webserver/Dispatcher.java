@@ -23,9 +23,8 @@ public class Dispatcher {
     }
 
     public Response handleRequest(RequestLine requestLine) throws Exception {
-        Class<? extends HttpServlet> servletClass = RequestMapping.findHandlerMethod(requestLine.getHttpMethod(),
-                requestLine.getUrl())
-            .orElseThrow();
+        Class<? extends HttpServlet> servletClass = RequestMapping.findHandlerMethod(requestLine.getUrl())
+            .orElseThrow(() -> new IllegalStateException("Mapped servlet could not be found"));
 
         Request request = Request.of(requestLine);
         Response response = new Response();
@@ -35,6 +34,5 @@ public class Dispatcher {
 
         return httpServlet.service();
     }
-
 }
 

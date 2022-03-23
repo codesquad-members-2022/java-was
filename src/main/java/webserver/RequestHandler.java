@@ -21,9 +21,6 @@ public class RequestHandler extends Thread {
 
     private final Socket connection;
 
-    private static final String staticResourcePath = System.getProperty("user.dir") + "/webapp";
-    private static final int REQUEST_URI_INDEX = 1;
-
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
     }
@@ -44,15 +41,37 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void response200(OutputStream out, byte[] body, String contentType) {
-        DataOutputStream dos = new DataOutputStream(out);
-        response200Header(dos, body.length, contentType);
-        responseBody(dos, body);
+    private void processRequest(BufferedReader br, OutputStream out, RequestLine requestLine) throws Exception {
+        String contentType = HttpRequestUtils.extractContentType(requestLine.getUrl());
+
+        printHeaders(br);
+
+        if (RequestMapping.contains(requestLine.getHttpMethod(), requestLine.getUrl())) {
+            processDynamicRequest(out, requestLine, contentType);
+            return;
+        }
+        processStaticRequest(out, requestLine, contentType);
     }
 
-    private String extractContentType(String requestUrl) {
-        String[] split = requestUrl.split("\\.");
-        return ProvidedExtension.extensionResolver(split[split.length - 1]);
+    private void processDynamicRequest(OutputStream out, RequestLine requestLine, String contentType) throws Exception {
+        Dispatcher dispatcher = Dispatcher.getInstance();
+        Response response = dispatcher.handleRequest(requestLine);
+
+        response(out, new byte[] {}, contentType, response.getHttpStatus());
+    }
+
+    private void processStaticRequest(OutputStream out, RequestLine requestLine, String contentType) throws
+        IOException {
+        StaticResourceProcessor staticResourceProcessor = StaticResourceProcessor.getInstance();
+        byte[] body = staticResourceProcessor.readStaticResource(requestLine.getUrl());
+        response(out, body, contentType, HttpStatus.OK);
+    }
+
+    private void printHeaders(BufferedReader br) throws IOException {
+        String header;
+        while (((header = br.readLine()) != null) && header.equals("")) {
+            log.debug("header : {}", header);
+        }
     }
 
     private void response(OutputStream out, byte[] body, String contentType, HttpStatus httpStatus) {
@@ -61,9 +80,10 @@ public class RequestHandler extends Thread {
         responseBody(dos, body);
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
+    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, String contentType,
+        HttpStatus httpStatus) {
         try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes(String.format("HTTP/1.1 %d %s \r\n", httpStatus.getStatusCode(), httpStatus.name()));
             dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", contentType));
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");

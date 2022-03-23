@@ -3,6 +3,7 @@ package web.request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class MyHttpRequest {
     private String queryString;
     private Map<String, String> parameters;
     private int contentLength;
+    private String body;
 
     public MyHttpRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
@@ -42,6 +44,15 @@ public class MyHttpRequest {
                 this.contentLength = Integer.parseInt(line.substring(line.indexOf(':') + 2));
             }
         }
+        this.body = initBody(br);
+    }
+
+    private String initBody(BufferedReader br) throws IOException {
+        String body = "";
+        if (contentLength > 0) {
+            body = IOUtils.readData(br, contentLength);
+        }
+        return body;
     }
 
     private void initPathAndQueryString() {

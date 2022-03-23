@@ -17,7 +17,7 @@ public class MyHttpRequest {
     private final Logger log = LoggerFactory.getLogger(MyHttpRequest.class);
 
     private String requestLine;
-    private String method;
+    private MyHttpMethod method;
     private String url;
     private String path;
     private String queryString;
@@ -49,7 +49,7 @@ public class MyHttpRequest {
 
     private Map<String, String> initParameters() {
         //method가 Get일 경우
-        if ("GET".equals(method)) {
+        if (method.isGet()) {
             return HttpRequestUtils.parseQueryString(queryString);
         }
         //method가 Post인 경우
@@ -58,7 +58,7 @@ public class MyHttpRequest {
 
     private void parseRequestLine(String requestLine) {
         String[] tokens = requestLine.split(" ");
-        this.method = tokens[0];
+        this.method = MyHttpMethod.valueOf(tokens[0]);
         this.url = tokens[1];
     }
 
@@ -90,5 +90,9 @@ public class MyHttpRequest {
 
     public String getPath() {
         return this.path;
+    }
+
+    public MyHttpMethod getMethod() {
+        return this.method;
     }
 }

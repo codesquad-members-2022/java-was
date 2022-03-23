@@ -69,4 +69,17 @@ public class HttpRequestUtilsTest {
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
     }
+
+    @Test
+    @DisplayName("decodeUrl메서드는 넘어온 URL을 UTF-8로 디코딩할 수 있어야 한다.")
+    public void decodeUrl() throws Exception {
+        //given
+        String urlEncodedString = "userId=%EB%95%83%EB%95%83%EB%95%83";
+
+        //when
+        String decodedString = HttpRequestUtils.decodeUrl(urlEncodedString);
+
+        //then
+        assertThat(decodedString).contains("땃땃땃");
+    }
 }

@@ -29,6 +29,10 @@ public class HttpRequestUtils {
         return parseValues(cookies, ";");
     }
 
+    public static String decodeUrl(String urlEncodedString) {
+        return URLDecoder.decode(urlEncodedString, StandardCharsets.UTF_8);
+    }
+
     private static Map<String, String> parseValues(String values, String separator) {
         if (Strings.isNullOrEmpty(values)) {
             return Maps.newHashMap();

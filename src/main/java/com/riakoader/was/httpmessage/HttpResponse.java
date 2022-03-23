@@ -10,23 +10,41 @@ public class HttpResponse {
 
     private String statusLine;
     private final Map<String, String> headers = new HashMap<>();
-    private byte[] body;
-
+    private byte[] body = "".getBytes();
 
     public void setStatusLine(String protocol, HttpStatus status) {
         statusLine = protocol + " " + status;
+    }
+
+    public String getStatusLine() {
+        return statusLine;
     }
 
     public void setHeader(String name, String value) {
         headers.put(name, value);
     }
 
+    public String getHeader(String name) {
+        return headers.get(name);
+    }
+
+    public String getHeaders() {
+        StringBuilder sb = new StringBuilder();
+        headers.keySet().forEach(name -> sb.append(name + ": " + headers.get(name) + System.lineSeparator()));
+        return sb.toString();
+    }
+
     public void setBody(byte[] body) {
         this.body = body;
     }
 
+    public byte[] getBody() {
+        return body;
+    }
+
     public byte[] toByteArray() {
-        String responseMessage = statusLine + System.lineSeparator() +
+        String responseMessage =
+                statusLine + System.lineSeparator() +
                 headers.keySet().stream()
                 .map(name -> name + ": " + headers.get(name))
                 .collect(Collectors.joining(System.lineSeparator()));
@@ -36,9 +54,6 @@ public class HttpResponse {
         byte[] headerBytes = responseMessage.getBytes(StandardCharsets.UTF_8);
         byte[] responseMessageBytes = Arrays.copyOf(body, body.length);
         System.arraycopy(headerBytes, 0, responseMessageBytes, 0, headerBytes.length);
-        System.out.println("responseMessageTest = " + new String(headerBytes));
-        System.out.println("body = " + new String(body));
-        System.out.println("responseMessageBytes = " + (body == responseMessageBytes));
 
         return responseMessageBytes;
     }

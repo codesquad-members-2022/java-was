@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -38,7 +39,8 @@ public class RequestHandler extends Thread {
             BufferedReader bf = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             DataOutputStream dos = new DataOutputStream(out);
 
-            String firstLine = bf.readLine();
+            String firstLine = URLDecoder.decode(bf.readLine(), "UTF-8") ;
+
             String path = HttpRequestUtils.parsePath(firstLine);
 
             if (handlerMapper.containsKey(path)) {

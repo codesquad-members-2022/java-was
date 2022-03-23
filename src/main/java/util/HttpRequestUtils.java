@@ -14,6 +14,7 @@ public class HttpRequestUtils {
      */
     public static Map<String, String> parseQueryString(String path) {
         String queryString = path.split(" ")[1].split("\\?")[1];
+        System.out.println(queryString);
         return parseValues(queryString, "&");
     }
 

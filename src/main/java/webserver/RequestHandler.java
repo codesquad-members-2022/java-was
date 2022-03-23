@@ -35,27 +35,25 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader buf = new BufferedReader(new InputStreamReader(in));
-            String httpHeader = urlDecoding(buf);
-            String[] token = parseUrl(httpHeader);
+            String httpHeader = buf.readLine();
+            String token = parseUrl(httpHeader);
             if (httpHeader.contains("POST")) {
                 int length = 0;
                 while (!httpHeader.equals("")) {
                     httpHeader = buf.readLine();
                     if (httpHeader.contains("Content-Length")) {
-                        String[] contentLength;
-                        contentLength = httpHeader.split(" ");
-                        length = Integer.parseInt(contentLength[1]);
+                        String contentLength = httpHeader.split(" ")[1];
+                        length = Integer.parseInt(contentLength);
                     }
                 }
-                String body = IOUtils.readData(buf, length);
-                log.debug("body={}", body);
+                String url = urlDecoding(IOUtils.readData(buf, length));
+                User user = createUser(separateUserInfo(url));
+                log.debug("user={}", user);
             }
-            User user = createUser(separateUserInfo(token));
-            log.debug("user={}", user);
             log.debug("Http httpHeaderLine={}", httpHeader);
             readHeader(buf, httpHeader);
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + token[1]).toPath());
+            byte[] body = Files.readAllBytes(new File("./webapp" + token).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
@@ -70,7 +68,7 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private String[] parseUrl(String httpHeader) {
+    private String parseUrl(String httpHeader) {
         return HttpRequestUtils.separateUrl(httpHeader);
     }
 
@@ -82,14 +80,14 @@ public class RequestHandler extends Thread {
         );
     }
 
-    private Map<String, String> separateUserInfo(String[] token) {
-        Map<String, String> urlParseResult = HttpRequestUtils.parseQueryString(token[1]);
-        log.debug("httpHeaderLine={}", token[1]);
+    private Map<String, String> separateUserInfo(String token) {
+        Map<String, String> urlParseResult = HttpRequestUtils.parseQueryString(token);
+        log.debug("httpHeaderLine={}", token);
         return urlParseResult;
     }
 
-    private String urlDecoding(BufferedReader buf) throws IOException {
-        return URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
+    private String urlDecoding(String url) {
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

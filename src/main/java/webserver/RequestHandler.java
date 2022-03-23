@@ -18,6 +18,7 @@ import java.util.Map;
 
 import model.User;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -36,6 +37,19 @@ public class RequestHandler extends Thread {
             BufferedReader buf = new BufferedReader(new InputStreamReader(in));
             String httpHeader = urlDecoding(buf);
             String[] token = parseUrl(httpHeader);
+            if (httpHeader.contains("POST")) {
+                int length = 0;
+                while (!httpHeader.equals("")) {
+                    httpHeader = buf.readLine();
+                    if (httpHeader.contains("Content-Length")) {
+                        String[] contentLength;
+                        contentLength = httpHeader.split(" ");
+                        length = Integer.parseInt(contentLength[1]);
+                    }
+                }
+                String body = IOUtils.readData(buf, length);
+                log.debug("body={}", body);
+            }
             User user = createUser(separateUserInfo(token));
             log.debug("user={}", user);
             log.debug("Http httpHeaderLine={}", httpHeader);

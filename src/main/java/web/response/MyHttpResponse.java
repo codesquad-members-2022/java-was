@@ -26,6 +26,10 @@ public class MyHttpResponse {
         dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
         dos.writeBytes("Content-Length: " + body.length + "\r\n");
         dos.writeBytes("\r\n");
+        responseBody();
+    }
+
+    private void responseBody() throws IOException {
         dos.write(body, 0, body.length);
         dos.flush();
     }

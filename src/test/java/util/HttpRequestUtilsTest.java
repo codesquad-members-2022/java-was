@@ -17,7 +17,7 @@ public class HttpRequestUtilsTest {
         assertThat(parameters.get("userId")).isEqualTo("javajigi");
         assertThat(parameters.get("password")).isNull();
 
-        queryString = "userId=javajigi&password=password2";
+        queryString = "create?userId=javajigi&password=password2";
         parameters = HttpRequestUtils.parseQueryString(queryString);
         assertThat(parameters.get("userId")).isEqualTo("javajigi");
         assertThat(parameters.get("password")).isEqualTo("password2");
@@ -37,7 +37,7 @@ public class HttpRequestUtilsTest {
 
     @Test
     public void parseQueryString_invalid() {
-        String queryString = "userId=javajigi&password";
+        String queryString = "create?userId=javajigi&password";
         Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
         assertThat(parameters.get("userId")).isEqualTo("javajigi");
         assertThat(parameters.get("password")).isNull();

@@ -11,9 +11,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
+import model.User;
 import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
@@ -30,25 +33,49 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-
-            BufferedReader buf = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String line = buf.readLine();
-            String[] token = HttpRequestUtils.separateUrl(line);
-
-            log.debug("line={}", token[1]);
-            log.debug("Http line={}", line);
-            while (!line.equals("")) {
-                line = buf.readLine();
-                log.debug("Http header={}", line);
-            }
+            BufferedReader buf = new BufferedReader(new InputStreamReader(in));
+            String httpHeader = urlDecoding(buf);
+            String[] token = parseUrl(httpHeader);
+            User user = createUser(separateUserInfo(token));
+            log.debug("user={}", user);
+            log.debug("Http httpHeaderLine={}", httpHeader);
+            readHeader(buf, httpHeader);
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + token[1]).toPath());
-
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void readHeader(BufferedReader buf, String httpHeader) throws IOException {
+        while (!httpHeader.equals("")) {
+            httpHeader = URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
+            log.debug("Http header={}", httpHeader);
+        }
+    }
+
+    private String[] parseUrl(String httpHeader) {
+        return HttpRequestUtils.separateUrl(httpHeader);
+    }
+
+    private User createUser(Map<String, String> urlParseResult) {
+        return new User(urlParseResult.get("userId"),
+                urlParseResult.get("password"),
+                urlParseResult.get("name"),
+                urlParseResult.get("email")
+        );
+    }
+
+    private Map<String, String> separateUserInfo(String[] token) {
+        Map<String, String> urlParseResult = HttpRequestUtils.parseQueryString(token[1]);
+        log.debug("httpHeaderLine={}", token[1]);
+        return urlParseResult;
+    }
+
+    private String urlDecoding(BufferedReader buf) throws IOException {
+        return URLDecoder.decode(buf.readLine(), StandardCharsets.UTF_8);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

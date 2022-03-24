@@ -28,8 +28,11 @@ public class HttpRequestUtils {
         if (Strings.isNullOrEmpty(values)) {
             return Maps.newHashMap();
         }
-
         String[] tokens = values.split(separator);
+        if (tokens.length != 1) {
+            String[] userIdToken = tokens[0].split("\\?");
+            tokens[0] = userIdToken[1];
+        }
         return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
                 .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }

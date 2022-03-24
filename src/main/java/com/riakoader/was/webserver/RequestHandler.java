@@ -13,6 +13,7 @@ import com.riakoader.was.handler.HandlerMethodMapper;
 import com.riakoader.was.httpmessage.HttpRequest;
 import com.riakoader.was.httpmessage.HttpResponse;
 import com.riakoader.was.util.HttpRequestUtils;
+import com.riakoader.was.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest request = receiveRequest(in);
 
-            HandlerMethod handlerMethod = HandlerMethodMapper.getHandlerMethod(request.getRequestURI());
+            HandlerMethod handlerMethod = HandlerMethodMapper.getHandlerMethod(new HandlerMethodMapper.Pair(request.getMethod(), request.getRequestURI()));
             HttpResponse response = handlerMethod.service(request);
 
             sendResponse(out, response);
@@ -63,16 +64,32 @@ public class RequestHandler extends Thread {
         logger.debug("request line : {}", line);
 
         List<HttpRequestUtils.Pair> headers = new ArrayList<>();
-        while (!Strings.isNullOrEmpty(line)) {
+
+        int contentLength = 0;
+        while (true) {
             line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+
+            if (Strings.isNullOrEmpty(line)) {
+                break;
+            }
 
             HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(line);
             headers.add(pair);
 
+            if (!Strings.isNullOrEmpty(pair.getKey()) && pair.getKey().equals("Content-Length")) {
+                contentLength = NVL(pair.getValue());
+            }
+
             logger.debug("header : {}", line);
         }
 
-        return new HttpRequest(requestLine, headers);
+        String requestMessageBody = IOUtils.readData(br, contentLength);
+
+        return new HttpRequest(requestLine, headers, requestMessageBody);
+    }
+
+    private int NVL(String value) {
+        return Strings.isNullOrEmpty(value) ? 0 : Integer.parseInt(value);
     }
 
     /**

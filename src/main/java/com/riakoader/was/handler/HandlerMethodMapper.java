@@ -12,13 +12,14 @@ import java.io.FileReader;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 public class HandlerMethodMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(HandlerMethodMapper.class);
 
-    private static final Map<String, HandlerMethod> mapper = new HashMap<>();
+    private static final Map<Pair, HandlerMethod> mapper = new HashMap<>();
 
     private static final HandlerMethod resourceHandlerMethod = (request) -> {
         HttpResponse response = new HttpResponse();
@@ -36,7 +37,7 @@ public class HandlerMethodMapper {
     };
 
     static {
-        mapper.put("/user/create", (request) -> {
+        mapper.put(new Pair("GET", "/user/create"), (request) -> {
             User user = new User(request.getParameter("userId"), request.getParameter("password"),
                 request.getParameter("name"), request.getParameter("email"));
 
@@ -48,9 +49,48 @@ public class HandlerMethodMapper {
 
             return response;
         });
+
+        mapper.put(new Pair("POST", "/user/create"), (request) -> {
+            System.out.println(request.getRequestMessageBody());
+
+            User user = new User(request.getParameter("userId"), request.getParameter("password"),
+                    request.getParameter("name"), request.getParameter("email"));
+
+            DataBase.addUser(user);
+            logger.debug("user: {}", DataBase.findAll());
+
+            HttpResponse response = new HttpResponse();
+            response.setStatusLine(request.getProtocol(), HttpStatus.FOUND);
+            response.setHeader("Location", "/index.html");
+
+            return response;
+        });
     }
 
-    public static HandlerMethod getHandlerMethod(String uri) {
-        return mapper.getOrDefault(uri, resourceHandlerMethod);
+    public static HandlerMethod getHandlerMethod(Pair pair) {
+        return mapper.getOrDefault(pair, resourceHandlerMethod);
+    }
+
+    public static class Pair {
+
+        String method;
+        String uri;
+
+        public Pair(String method, String uri) {
+            this.method = method;
+            this.uri = uri;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Pair pair = (Pair) o;
+            return Objects.equals(method, pair.method) && Objects.equals(this.uri, pair.uri);
+        }
+        @Override
+        public int hashCode() {
+            return Objects.hash(method, uri);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.riakoader.was.httpmessage;
 
+import com.google.common.base.Strings;
 import com.riakoader.was.util.HttpRequestUtils;
 
 import java.util.List;
@@ -16,8 +17,9 @@ public class HttpRequest {
     private String queryString;
     private Map<String, String> params;
     private List<HttpRequestUtils.Pair> headers;
+    private String requestMessageBody;
 
-    public HttpRequest(String requestLine, List<HttpRequestUtils.Pair> headers) {
+    public HttpRequest(String requestLine, List<HttpRequestUtils.Pair> headers, String requestMessageBody) {
         String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
         String requestURL = requestLineTokens[1];
         int queryStringDelimiterIndex = requestURL.indexOf(QUERYSTRING_DELIMITER);
@@ -34,6 +36,15 @@ public class HttpRequest {
         }
 
         this.headers = headers;
+        this.requestMessageBody = requestMessageBody;
+
+        if (!Strings.isNullOrEmpty(requestMessageBody)) {
+            this.params = HttpRequestUtils.parseQueryString(requestMessageBody);
+        }
+    }
+
+    public String getMethod() {
+        return method;
     }
 
     public String getRequestURI() {
@@ -46,5 +57,9 @@ public class HttpRequest {
 
     public String getParameter(String name) {
         return params.get(name);
+    }
+
+    public String getRequestMessageBody() {
+        return requestMessageBody;
     }
 }

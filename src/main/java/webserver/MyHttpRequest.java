@@ -32,7 +32,7 @@ public class MyHttpRequest {
         String[] tokens = line.split(" ");
         method = tokens[0];
         requestURL = tokens[1];
-        int ampersandIdx = tokens[1].length()-1;
+        int ampersandIdx = tokens[1].length();
         for (int i = 0; i < tokens[1].length(); i++) {
             if (tokens[1].charAt(i) == '&') {
                 ampersandIdx = i;
@@ -40,7 +40,9 @@ public class MyHttpRequest {
             }
         }
         requestURI = tokens[1].substring(0, ampersandIdx);
-        paramMap = HttpRequestUtils.parseQueryString(tokens[1].substring(ampersandIdx+1));
+        if (ampersandIdx != tokens[1].length()) {
+            paramMap = HttpRequestUtils.parseQueryString(tokens[1].substring(ampersandIdx+1));
+        }
         protocol = tokens[2];
     }
 

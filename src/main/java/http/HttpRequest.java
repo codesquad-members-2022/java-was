@@ -18,7 +18,7 @@ public class HttpRequest {
 
     public HttpRequest(BufferedReader bf) throws IOException {
         String line = bf.readLine();
-        while (!line.equals("")) {
+        while (!(line.equals("") || line == null)) {
             headerMessages.add(URLDecoder.decode(line, "UTF-8"));
             line = bf.readLine();
         }

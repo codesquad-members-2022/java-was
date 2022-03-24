@@ -40,7 +40,7 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private Map<HeaderType, String> getHeaders(BufferedReader bufferedReader) {
+    private Map<HeaderType, String> getHeaders(BufferedReader bufferedReader) throws IOException {
         Map<HeaderType, String> headers = new ConcurrentHashMap<>();
 
         String[] requestLine = bufferedReader.readLine().split(BLANK);
@@ -53,8 +53,22 @@ public class RequestHandler extends Thread {
         return headers;
     }
 
-    private void addHeaderLineTypes(Map<HeaderType, String> headers, String[] requestLine) {
+    private void addHeader(Map<HeaderType, String> headers, String line) {
+        String key = line.split(":")[0];
+        String value = line.split(": ")[1];
+        headers.put(configuration.getHeaderType().get(key), value);
+    }
 
+    private void addHeaderLineTypes(Map<HeaderType, String> headers, String[] requestLine) {
+        String httpMethod = requestLine[0];
+        String requestURL = requestLine[1];
+
+        addHeaderLineTypes(headers, "Request Method", httpMethod);
+        addHeaderLineTypes(headers, "Request URL", requestURL);
+    }
+
+    private void addHeaderLineTypes(Map<HeaderType, String> headers, String type, String value) {
+        headers.put(HeaderType.of(type), value);
     }
 
     private String getRequestUrl(BufferedReader bufferedReader) throws IOException {

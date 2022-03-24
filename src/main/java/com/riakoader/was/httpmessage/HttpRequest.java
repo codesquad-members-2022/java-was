@@ -11,13 +11,13 @@ public class HttpRequest {
     private static final String REQUEST_LINE_DELIMITER = " ";
     private static final String QUERYSTRING_DELIMITER = "?";
 
-    private String method;
-    private String requestURI;
-    private String protocol;
+    private final String method;
+    private final String requestURI;
+    private final String protocol;
     private String queryString;
     private Map<String, String> params;
-    private List<HttpRequestUtils.Pair> headers;
-    private String requestMessageBody;
+    private final List<HttpRequestUtils.Pair> headers;
+    private final String requestMessageBody;
 
     public HttpRequest(String requestLine, List<HttpRequestUtils.Pair> headers, String requestMessageBody) {
         String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
@@ -57,9 +57,5 @@ public class HttpRequest {
 
     public String getParameter(String name) {
         return params.get(name);
-    }
-
-    public String getRequestMessageBody() {
-        return requestMessageBody;
     }
 }

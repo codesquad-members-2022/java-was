@@ -51,8 +51,6 @@ public class HandlerMethodMapper {
         });
 
         mapper.put(new Pair("POST", "/user/create"), (request) -> {
-            System.out.println(request.getRequestMessageBody());
-
             User user = new User(request.getParameter("userId"), request.getParameter("password"),
                     request.getParameter("name"), request.getParameter("email"));
 

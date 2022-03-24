@@ -6,6 +6,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.google.common.base.Strings;
 import com.riakoader.was.handler.HandlerMethod;
@@ -65,7 +66,6 @@ public class RequestHandler extends Thread {
 
         List<HttpRequestUtils.Pair> headers = new ArrayList<>();
 
-        int contentLength = 0;
         while (true) {
             line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
 
@@ -76,20 +76,20 @@ public class RequestHandler extends Thread {
             HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(line);
             headers.add(pair);
 
-            if (!Strings.isNullOrEmpty(pair.getKey()) && pair.getKey().equals("Content-Length")) {
-                contentLength = NVL(pair.getValue());
-            }
-
             logger.debug("header : {}", line);
         }
 
-        String requestMessageBody = IOUtils.readData(br, contentLength);
+        String requestMessageBody = IOUtils.readData(br, NVL(getContentLength(headers)));
 
         return new HttpRequest(requestLine, headers, requestMessageBody);
     }
 
-    private int NVL(String value) {
-        return Strings.isNullOrEmpty(value) ? 0 : Integer.parseInt(value);
+    private HttpRequestUtils.Pair getContentLength(List<HttpRequestUtils.Pair> headers) {
+        return headers.stream().filter(header -> header.getKey().equals("Content-Length")).findFirst().orElse(null);
+    }
+
+    private int NVL(HttpRequestUtils.Pair pair) {
+        return Objects.isNull(pair) ? 0 : Integer.parseInt(pair.getValue());
     }
 
     /**

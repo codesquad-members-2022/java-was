@@ -24,9 +24,7 @@ public class MyHttpRequest {
     public MyHttpRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         String line = br.readLine();
-        if (line == null) {
-            throw new IllegalStateException("요청이 유효하지 않습니다.");
-        }
+        validateRequestExistence(line);
         log.debug("requestLine = {}", line);
         this.requestLine = new MyRequestLine(line);
 
@@ -39,6 +37,12 @@ public class MyHttpRequest {
         }
         this.body = initBody(br);
         this.parameters = initParameters();
+    }
+
+    private void validateRequestExistence(String line) {
+        if (line == null) {
+            throw new IllegalStateException("요청이 유효하지 않습니다.");
+        }
     }
 
     private String initBody(BufferedReader br) throws IOException {

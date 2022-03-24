@@ -23,7 +23,6 @@ public class HandlerMethodMapper {
     private static final HandlerMethod resourceHandlerMethod = (request) -> {
         HttpResponse response = new HttpResponse();
         response.setStatusLine(request.getProtocol(), HttpStatus.OK);
-        response.setHeader("Content-Type", "text/html;charset=utf-8");
 
         FileReader resources= new FileReader("src/main/resources/env.properties");
         Properties properties = new Properties();

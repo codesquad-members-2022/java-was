@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class MyHttpRequest {
 
-    private final Logger log = LoggerFactory.getLogger(MyHttpRequest.class);
+    private static final Logger log = LoggerFactory.getLogger(MyHttpRequest.class);
 
     private String requestLine;
     private MyHttpMethod method;

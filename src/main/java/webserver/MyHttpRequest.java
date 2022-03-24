@@ -43,7 +43,7 @@ public class MyHttpRequest {
         requestURL = tokens[1];
         int ampersandIdx = tokens[1].length();
         for (int i = 0; i < tokens[1].length(); i++) {
-            if (tokens[1].charAt(i) == '&') {
+            if (tokens[1].charAt(i) == '?') {
                 ampersandIdx = i;
                 break;
             }

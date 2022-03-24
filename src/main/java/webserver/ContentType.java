@@ -8,13 +8,13 @@ public enum ContentType {
     HTML("html", "text/html"),
     CSS("css", "text/css"),
     JS("js", "application/javascript"),
-    UNKNOWN("*", "*/*");
+    OTHER("*", "*/*");
 
-    private String ext;
+    private String extension;
     private String mime;
 
-    ContentType(String ext, String mime) {
-        this.ext = ext;
+    ContentType(String extension, String mime) {
+        this.extension = extension;
         this.mime = mime;
     }
 
@@ -22,11 +22,11 @@ public enum ContentType {
         return Stream.of(values())
             .filter(contentType -> contentType.equalsExt(ext))
             .findAny()
-            .orElse(UNKNOWN);
+            .orElse(OTHER);
     }
 
-    private boolean equalsExt(String ext) {
-        return Objects.equals(this.ext, ext);
+    private boolean equalsExt(String extension) {
+        return Objects.equals(this.extension, extension);
     }
 
     public String getMime() {

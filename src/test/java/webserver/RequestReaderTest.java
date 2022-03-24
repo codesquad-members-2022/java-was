@@ -13,13 +13,11 @@ import org.junit.jupiter.api.Test;
 class RequestReaderTest {
 
     @Test
-    @DisplayName("RequestReader 가 생성된다")
+    @DisplayName("RequestReader 에서 Request 객체가 생성된다")
     public void createRequestReaderTest() throws IOException {
         // given
-        String newLine = System.getProperty("line.separator");
-
-        InputStream is = new ByteArrayInputStream(String.join(newLine,
-                        "GET /index.html HTTP/1.1", "Accept: */*", newLine)
+        InputStream is = new ByteArrayInputStream(String.join("\n",
+                        "GET /index.html HTTP/1.1", "Accept: */*", "\n")
                 .getBytes(StandardCharsets.UTF_8));
 
         RequestReader requestReader = new RequestReader(is);
@@ -31,6 +29,6 @@ class RequestReaderTest {
         then(request.getMethod()).isEqualTo("GET");
         then(request.getUrl()).isEqualTo("/index.html");
         then(request.getProtocol()).isEqualTo("HTTP/1.1");
-        then(request.getHeader()).contains(entry("Accept", "*/*"));
+        then(request.getHeaders()).contains(entry("Accept", "*/*"));
     }
 }

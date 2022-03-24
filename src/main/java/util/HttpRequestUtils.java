@@ -1,6 +1,5 @@
 package util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -57,8 +56,8 @@ public class HttpRequestUtils {
         return new Pair(tokens[0], tokens[1]);
     }
 
-    public static Pair parseHeader(String header) {
-        return getKeyValue(header, ": ");
+    public static Pair parseHeader(String headers) {
+        return getKeyValue(headers, ": ");
     }
 
     public static class Pair {

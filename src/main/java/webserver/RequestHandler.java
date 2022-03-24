@@ -15,6 +15,7 @@ public class RequestHandler extends Thread {
     private static final String WEBAPP_PATH = "./webapp";
 
     private Socket connection;
+    private RequestReader requestReader;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -33,7 +34,7 @@ public class RequestHandler extends Thread {
     }
 
     private Request parseRequest(InputStream in) throws IOException {
-        RequestReader requestReader = new RequestReader(in);
+        requestReader = new RequestReader(in);
         return requestReader.create();
     }
 
@@ -41,7 +42,7 @@ public class RequestHandler extends Thread {
         DataOutputStream dos = new DataOutputStream(out);
 
         // create
-        if (request.parsePath().equals("/create")) {
+        if (request.getPath().equals("/create")) {
             createUser(request);
             response201Header(dos);
             return;
@@ -49,7 +50,7 @@ public class RequestHandler extends Thread {
 
         // default
         byte[] body = readFile(request);
-        response200Header(dos, body.length, request.toContentType());
+        response200Header(dos, body.length, request.getContentType().getMime());
         responseBody(dos, body);
     }
 
@@ -58,13 +59,13 @@ public class RequestHandler extends Thread {
     }
 
     private void createUser(Request request) {
-        Map<String, String> qs = request.parseQueryString();
+        Map<String, String> queryString = request.getQueryString();
 
         User user = new User(
-            qs.get("userId"),
-            qs.get("password"),
-            qs.get("name"),
-            qs.get("email")
+            queryString.get("userId"),
+            queryString.get("password"),
+            queryString.get("name"),
+            queryString.get("email")
         );
         log.info("user={}", user);
     }

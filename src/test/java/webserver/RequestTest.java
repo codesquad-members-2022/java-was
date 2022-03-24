@@ -4,28 +4,38 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class RequestTest {
+
+    Map<String, String> headers;
+
+    @BeforeEach
+    public void setUp() {
+        headers = new HashMap<>() {{
+            put("Host", "localhost:8080");
+            put("Connection", "keep-alive");
+            put("Accept", "*/*");
+        }};
+    }
 
     @Test
     @DisplayName("Request 객체가 생성된다")
     void createRequestTest() {
         // given
         String line = "GET /index.html HTTP/1.1";
-        Map<String, String> header = new HashMap<>() {{
-            put("Accept", "*/*");
-        }};
 
         // when
-        Request request = new Request(line, header);
+        Request request = new Request(line, headers);
 
         // then
         then(request.getMethod()).isEqualTo("GET");
         then(request.getUrl()).isEqualTo("/index.html");
         then(request.getProtocol()).isEqualTo("HTTP/1.1");
-        then(request.getHeader().get("Accept")).isEqualTo("*/*");
+        then(request.getHeaders().get("Accept")).isEqualTo("*/*");
     }
 
     @Test
@@ -33,13 +43,8 @@ class RequestTest {
     void parsePathTest() {
         // given
         String line = "GET /create?userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net HTTP/1.1";
-        Map<String, String> header = new HashMap<>() {{
-            put("Host", "localhost:8080");
-            put("Connection", "keep-alive");
-            put("Accept", "*/*");
-        }};
 
-        Request request = new Request(line, header);
+        Request request = new Request(line, headers);
 
         // when
         String path = request.parsePath();
@@ -53,13 +58,8 @@ class RequestTest {
     void parseQueryStringTest() {
         // given
         String line = "GET /create?userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net HTTP/1.1";
-        Map<String, String> header = new HashMap<>() {{
-            put("Host", "localhost:8080");
-            put("Connection", "keep-alive");
-            put("Accept", "*/*");
-        }};
 
-        Request request = new Request(line, header);
+        Request request = new Request(line, headers);
 
         // when
         Map<String, String> queryString = request.parseQueryString();
@@ -80,13 +80,8 @@ class RequestTest {
     void parseEmptyQueryStringTest() {
         // given
         String line = "GET /create HTTP/1.1";
-        Map<String, String> header = new HashMap<>() {{
-            put("Host", "localhost:8080");
-            put("Connection", "keep-alive");
-            put("Accept", "*/*");
-        }};
 
-        Request request = new Request(line, header);
+        Request request = new Request(line, headers);
 
         // when
         Map<String, String> queryString = request.parseQueryString();
@@ -100,16 +95,11 @@ class RequestTest {
     void toContentTypeTest() {
         // given
         String line = "GET /index.html HTTP/1.1";
-        Map<String, String> header = new HashMap<>() {{
-            put("Host", "localhost:8080");
-            put("Connection", "keep-alive");
-            put("Accept", "*/*");
-        }};
 
-        Request request = new Request(line, header);
+        Request request = new Request(line, headers);
 
         // when
-        String contentType = request.toContentType();
+        String contentType = request.getContentType().getMime();
 
         // then
         then(contentType).isEqualTo("text/html");

@@ -31,21 +31,20 @@ public class RequestHandler extends Thread {
 			Request request = createRequest(in);
 
 			byte[] body = null;
+			DataOutputStream dos = new DataOutputStream(out);
 			if ("/user/create".equals(request.getUri())) {
 				User user = new User(request.getParam("userId"),
 					request.getParam("password"),
 					request.getParam("name"),
 					request.getParam("email"));
-				log.debug("회원가입완료 {}",user );
-				body = Files.readAllBytes(new File("./webapp/" + "index.html").toPath());
+				log.debug("회원가입완료 {}", user);
+
+				response302Header(dos, "http://localhost:8080/index.html");
 			} else {
 				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
+				response200Header(dos, body.length);
+				responseBody(dos, body);
 			}
-
-			DataOutputStream dos = new DataOutputStream(out);
-			response200Header(dos, body.length);
-			responseBody(dos, body);
-
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
@@ -62,7 +61,8 @@ public class RequestHandler extends Thread {
 		while (!"".equals(line)) {
 			line = br.readLine();
 			rawHeader.add(line);
-			if(line.contains("Content-Length")){
+
+			if (line.contains("Content-Length")) {
 				String[] data = line.split(": ");
 				contentLength = Integer.parseInt(data[1]);
 			}
@@ -70,8 +70,8 @@ public class RequestHandler extends Thread {
 
 		// read Request Body
 		String rawBody = "";
-		if(contentLength > 0) {
-			 rawBody = IOUtils.readData(br, contentLength);
+		if (contentLength > 0) {
+			rawBody = IOUtils.readData(br, contentLength);
 		}
 
 		return new Request(requestLine, rawHeader, rawBody);
@@ -82,6 +82,16 @@ public class RequestHandler extends Thread {
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
 			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+			dos.writeBytes("\r\n");
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	private void response302Header(DataOutputStream dos, String redirectionUrl) {
+		try {
+			dos.writeBytes("HTTP/1.1 302 Found \r\n");
+			dos.writeBytes("Location: " + redirectionUrl + "\r\n");
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
 			log.error(e.getMessage());

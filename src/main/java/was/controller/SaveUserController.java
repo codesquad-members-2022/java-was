@@ -1,9 +1,9 @@
-package controller;
+package was.controller;
 
 import java.util.Map;
 
-import db.DataBase;
-import model.User;
+import was.db.DataBase;
+import was.model.User;
 
 public class SaveUserController implements MyController {
 

@@ -1,14 +1,10 @@
-package util;
+package was.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.List;
 
 public class IOUtils {
@@ -27,9 +23,9 @@ public class IOUtils {
     }
 
     public static void printRequestHeader(List<String> headerMessages) throws IOException {
-        log.info("Request line: {}", headerMessages.get(0));
+        log.debug("Request line: {}", headerMessages.get(0));
         for (int i = 1; i < headerMessages.size(); i++) {
-            log.info("header: {}", headerMessages.get(i));
+            log.debug("header: {}", headerMessages.get(i));
         }
     }
 

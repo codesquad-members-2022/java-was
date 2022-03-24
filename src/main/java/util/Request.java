@@ -8,6 +8,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils.Pair;
@@ -39,8 +40,7 @@ public class Request {
 	public void readRequest() throws IOException {
 		extractRequestLine(br);
 		this.headerPairs = IOUtils.readRequestHeader(br);
-		this.requestBody = URLDecoder
-			.decode(IOUtils.readData(br, takeContentLength()), StandardCharsets.UTF_8);
+		this.requestBody = decode(IOUtils.readData(br, takeContentLength()));
 	}
 
 	private void extractRequestLine(BufferedReader br) throws IOException {
@@ -52,13 +52,10 @@ public class Request {
 	}
 
 	private int takeContentLength() {
-		//todo 빈 거 넣지 말고 null 방법은?
-		return Integer.parseInt(
-			headerPairs.stream()
-				.filter(Pair::isContentLength)
-				.findAny()
-				.orElseGet(() -> new Pair("Content-Length", "0"))
-				.getValue());
+		Optional<Pair> pair = headerPairs.stream()
+			.filter(Pair::isContentLength)
+			.findAny();
+		return pair.map(p -> Integer.parseInt(p.getValue())).orElse(0);
 	}
 
 	private String[] parseRequestURL() {
@@ -75,10 +72,11 @@ public class Request {
 	}
 
 	private String takeQueryString() {
-		if (parseRequestURL().length > 1) {
-			return URLDecoder.decode(parseRequestURL()[QUERY_STRING], StandardCharsets.UTF_8);
-		}
-		return null;
+		return parseRequestURL().length > 1 ? decode(parseRequestURL()[QUERY_STRING]) : null;
+	}
+
+	private String decode(String target) {
+		return URLDecoder.decode(target, StandardCharsets.UTF_8);
 	}
 
 	public List<Pair> getHeaderPairs() {
@@ -91,10 +89,6 @@ public class Request {
 
 	public String getPath() {
 		return path;
-	}
-
-	public Map<String, String> getParsedQueryString() {
-		return parsedQueryString;
 	}
 
 	public String getRequestLine() {

@@ -1,6 +1,7 @@
 package webserver;
 
 import model.Extention;
+import model.HeaderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +9,8 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static util.HttpRequestUtils.getPath;
 import static util.Pathes.WEBAPP_ROOT;
@@ -29,14 +32,29 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String requestUrl = getRequestUrl(bufferedReader);
-            printHeaders(bufferedReader);
-
-            makeResponseBody(out, requestUrl);
+            Map<HeaderType, String> headerValues = getHeaders(bufferedReader);
+            Request request = new Request(headerValues, "", "", "", "");
 
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private Map<HeaderType, String> getHeaders(BufferedReader bufferedReader) {
+        Map<HeaderType, String> headers = new ConcurrentHashMap<>();
+
+        String[] requestLine = bufferedReader.readLine().split(BLANK);
+        addHeaderLineTypes(headers, requestLine);
+
+        String line;
+        while (!(line = bufferedReader.readLine()).equals(NULL_STRING)) {
+            addHeader(headers, line);
+        }
+        return headers;
+    }
+
+    private void addHeaderLineTypes(Map<HeaderType, String> headers, String[] requestLine) {
+
     }
 
     private String getRequestUrl(BufferedReader bufferedReader) throws IOException {

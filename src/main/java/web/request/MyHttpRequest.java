@@ -15,12 +15,8 @@ import java.util.Map;
 public class MyHttpRequest {
 
     private static final Logger log = LoggerFactory.getLogger(MyHttpRequest.class);
+    private MyRequestLine requestLine;
 
-    private String requestLine;
-    private MyHttpMethod method;
-    private String url;
-    private String path;
-    private String queryString;
     private Map<String, String> parameters;
     private int contentLength;
     private String body;
@@ -32,8 +28,7 @@ public class MyHttpRequest {
             throw new IllegalStateException("요청이 유효하지 않습니다.");
         }
         log.debug("requestLine = {}", line);
-        this.requestLine = line;
-        parseRequestLine(requestLine);
+        this.requestLine = new MyRequestLine(line);
 
         while (!"".equals(line)) {
             line = br.readLine();
@@ -43,23 +38,7 @@ public class MyHttpRequest {
             }
         }
         this.body = initBody(br);
-        initPathAndQueryString();
         this.parameters = initParameters();
-    }
-
-    private Map<String, String> initParameters() {
-        //method가 Get일 경우
-        if (method.isGet()) {
-            return HttpRequestUtils.parseQueryString(queryString);
-        }
-        //method가 Post인 경우
-        return HttpRequestUtils.parseQueryString(body);
-    }
-
-    private void parseRequestLine(String requestLine) {
-        String[] tokens = requestLine.split(" ");
-        this.method = MyHttpMethod.valueOf(tokens[0]);
-        this.url = tokens[1];
     }
 
     private String initBody(BufferedReader br) throws IOException {
@@ -70,18 +49,14 @@ public class MyHttpRequest {
         return HttpRequestUtils.decodeUrl(body);
     }
 
-    private void initPathAndQueryString() {
-        String path = "";
-        String queryString = "";
-        if (url.contains("?")) {
-            int queryStringStartIndex = url.indexOf('?');
-            queryString = url.substring(queryStringStartIndex + 1);
-            path = url.substring(0, queryStringStartIndex);
-        } else {
-            path = url;
+    private Map<String, String> initParameters() {
+        //method가 Get일 경우
+        MyHttpMethod method = requestLine.getMethod();
+        if (method.isGet()) {
+            return requestLine.getQueryParameters();
         }
-        this.path = HttpRequestUtils.decodeUrl(path);
-        this.queryString = HttpRequestUtils.decodeUrl(queryString);
+        //method가 Post인 경우
+        return HttpRequestUtils.parseQueryString(body);
     }
 
     public String getParameter(String key) {
@@ -89,10 +64,10 @@ public class MyHttpRequest {
     }
 
     public String getPath() {
-        return this.path;
+        return requestLine.getPath();
     }
 
     public MyHttpMethod getMethod() {
-        return this.method;
+        return requestLine.getMethod();
     }
 }

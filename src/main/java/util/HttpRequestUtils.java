@@ -22,14 +22,14 @@ public class HttpRequestUtils {
         return line.split(" ")[1];
     }
 
-    public static void readRequestHeader(BufferedReader br) throws IOException {
-        String line = br.readLine();
+    public static void readRequestHeader(BufferedReader bufferedReader) throws IOException {
+        String line = bufferedReader.readLine();
         while (!Strings.isNullOrEmpty(line)) {
             if (line == null) {
                 return;
             }
             log.debug("request header ={}", line);
-            line = br.readLine();
+            line = bufferedReader.readLine();
         }
     }
 

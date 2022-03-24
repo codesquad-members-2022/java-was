@@ -108,11 +108,11 @@ public class HttpRequest {
         return sb.toString();
     }
 
-    public static Map<String, String> parseHeaders(String headers) {
+    private static Map<String, String> parseHeaders(String headers) {
         return parseValues(headers, "\n", ": ");
     }
 
-    public static Map<String, String> parseQueryString(String queryString) {
+    private static Map<String, String> parseQueryString(String queryString) {
         return parseValues(queryString, "&", "=");
     }
 
@@ -128,7 +128,7 @@ public class HttpRequest {
             .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
     }
 
-    static Pair getKeyValue(String keyValue, String regex) {
+    private static Pair getKeyValue(String keyValue, String regex) {
         if (Strings.isNullOrEmpty(keyValue)) {
             return null;
         }
@@ -141,7 +141,7 @@ public class HttpRequest {
         return new Pair(tokens[0], tokens[1]);
     }
 
-    public static class Pair {
+    private static class Pair {
         private final String key;
         private final String value;
 

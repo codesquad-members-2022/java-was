@@ -1,11 +1,14 @@
 package util;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
     /**
@@ -53,9 +56,10 @@ public class HttpRequestUtils {
         return getKeyValue(header, ": ");
     }
 
-    public static String parseUrl(String requestLine) {
+    public static String parseUrl(String requestLine) throws UnsupportedEncodingException {
         String[] tokens = requestLine.split(" ");
-        return tokens[1];
+        String encodedUrl = tokens[1];
+        return URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8);
     }
 
     public static class Pair {

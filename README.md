@@ -36,3 +36,31 @@ Java Web Server Project for CodeSquad Members 2022
   - Body
 
 ---
+
+## STEP3 - POST로 회원 가입
+
+### 기능 요구 사항
+- [x] POST 방식으로 HTML form 데이터가 body에 넘어왔을때 회원가입할 수 있다.
+- [x] 회원가입을 마치면 "/index.html"로 redirect 한다.
+
+### 별도로 한 작업
+- RequestLine 분리
+- MyHttpResponse 분리
+
+### 고민사항
+- 메서드는 하나의 기능을 담당해야 하므로 initPathAndQueryParameters를 분리하고 싶었지만 하나의 url로부터 두가지 요소를 분리하는 작업이 밀접하게 얽혀있어서, 두 가지 메서드로 분리하기 어려웠습니다.
+
+### 학습해볼 키워드
+- http 상태 코드
+  - 2xx : 성공
+  - 3xx : redirection
+  - 4xx : 클라이언트 오류 (요청 오류)
+  - 5xx : 서버 오류 (서버에서 요청을 수행하지 못함)
+- redirect 302 응답
+  ```
+    HTTP/1.1 302 Found
+    Location: /index.html
+  ```
+  - 이와 같은 응답을 보낼 경우, 클라이언트는 첫 줄의 상태 코드를 읽고 Location의 path를 읽어 서버에 재요청을 보낸다. 
+
+---

@@ -2,6 +2,8 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -19,6 +21,8 @@ public class Request {
 	private static final int PATH = 0;
 	private static final int QUERY_STRING = 1;
 
+	private final BufferedReader br;
+
 	private String requestLine;
 	private String[] parsedRequestLine;
 	private String httpMethod;
@@ -27,7 +31,12 @@ public class Request {
 	private Map<String, String> parsedQueryString;
 	private String requestBody;
 
-	public void readRequest(BufferedReader br) throws IOException {
+	public Request(InputStream in) {
+		InputStreamReader inputReader = new InputStreamReader(in);
+		br = new BufferedReader(inputReader);
+	}
+
+	public void readRequest() throws IOException {
 		extractRequestLine(br);
 		this.headerPairs = IOUtils.readRequestHeader(br);
 		this.requestBody = URLDecoder
@@ -43,6 +52,7 @@ public class Request {
 	}
 
 	private int takeContentLength() {
+		//todo 빈 거 넣지 말고 null 방법은?
 		return Integer.parseInt(
 			headerPairs.stream()
 				.filter(Pair::isContentLength)

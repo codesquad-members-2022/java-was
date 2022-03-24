@@ -31,40 +31,15 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream();
-            OutputStream out = connection.getOutputStream();
-            InputStreamReader inputReader = new InputStreamReader(in);
-            BufferedReader br = new BufferedReader(inputReader)) {
+            OutputStream out = connection.getOutputStream()) {
+            Request request = new Request(in);
+            request.readRequest();
 
-            Request request = new Request();
-            request.readRequest(br);
-            DataOutputStream dos = new DataOutputStream(out);
+            Response response = new Response(out, request);
+            response.writeResponse();
 
-            if (request.getHttpMethod().equals("GET")) {
-                log.debug("GET 요청, requestLine: {}", request.getRequestLine());
-                PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
+            PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 
-                byte[] body = Files.readAllBytes(new File("./webapp" + request.getPath()).toPath());
-                Response response = new Response(body, dos);
-                response.response200Header();
-                response.responseBody();
-
-            } else if (request.getHttpMethod().equals("POST") && request.getPath().equals("/user/create")){
-                log.debug("POST 요청, requestLine: {}", request.getRequestLine());
-                Map<String, String> parsedBody = request.takeParsedBody();
-                log.debug("POST BODY: {}", parsedBody);
-                User user = new User(
-                    parsedBody.get("userId"),
-                    parsedBody.get("password"),
-                    parsedBody.get("name"),
-                    parsedBody.get("email")
-                );
-                PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
-
-                byte[] body = Files.readAllBytes(new File("./webapp/index.html").toPath());
-                Response response = new Response(body, dos);
-                response.response302Header("http://localhost:8080/index.html");
-                response.responseBody();
-            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }

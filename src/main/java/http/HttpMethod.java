@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum HttpMethod {
-    GET;
+    GET,
+    POST
+    ;
 
     public static Optional<HttpMethod> findMethod(String input) {
         return Arrays.stream(HttpMethod.values())

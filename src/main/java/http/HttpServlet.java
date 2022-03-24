@@ -14,12 +14,18 @@ public abstract class HttpServlet {
         switch (request.getHttpMethod()) {
             case GET:
                 return doGet();
+            case POST:
+                return doPost();
         }
 
         throw new IllegalStateException("Unsupported http method");
     }
 
     public Response doGet() {
+        throw new IllegalStateException("Unimplemented get method");
+    }
+
+    public Response doPost() {
         throw new IllegalStateException("Unimplemented get method");
     }
 }

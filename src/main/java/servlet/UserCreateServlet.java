@@ -16,8 +16,9 @@ public class UserCreateServlet extends HttpServlet {
     }
 
     @Override
-    public Response doGet() {
-        Map<String, String> queryParameter = request.getQueryParameter();
+    public Response doPost() {
+        Map<String, String> queryParameter = request.getParameters();
+
         User user = new User(
             queryParameter.get("userId"),
             queryParameter.get("password"),

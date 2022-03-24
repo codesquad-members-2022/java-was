@@ -1,11 +1,10 @@
 package util;
 
+import com.google.common.base.Strings;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,18 +27,9 @@ public class HttpRequestUtils {
         return parseValues(cookies, ";");
     }
 
-    public static String takeRequestURL(String requestLine) {
-        String[] tokens = requestLine.split(" ");
-        if (tokens.length == 3) {
-            log.debug("request URL : {}", tokens[1]);
-            return tokens[1];
-        }
-        throw new IllegalStateException("잘못된 Request Line입니다.");
-    }
-
     private static Map<String, String> parseValues(String values, String separator) {
         if (Strings.isNullOrEmpty(values)) {
-            return Maps.newHashMap();
+            return new HashMap<>();
         }
 
         String[] tokens = values.split(separator);
@@ -65,8 +55,8 @@ public class HttpRequestUtils {
     }
 
     public static class Pair {
-        String key;
-        String value;
+        private final String key;
+        private final String value;
 
         Pair(String key, String value) {
             this.key = key.trim();

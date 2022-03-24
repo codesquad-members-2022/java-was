@@ -8,16 +8,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.List;
+import java.util.Map;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
-import util.HttpRequestUtils.Pair;
-import util.IOUtils;
 import util.PrintUtils;
+import util.Request;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -33,16 +30,23 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-
-            InputStreamReader inputReader = new InputStreamReader(in, StandardCharsets.UTF_8);
+            InputStreamReader inputReader = new InputStreamReader(in);
             BufferedReader br = new BufferedReader(inputReader);
 
-            String line = br.readLine();
-            String pathURL = HttpRequestUtils.takeRequestURL(line);
+            String requestLine = br.readLine();
 
-            List<Pair> headerPairs = IOUtils.readRequestHeader(br);
-            PrintUtils.printRequestHeaders(headerPairs);
+            Request request = new Request(requestLine);
+            String pathURL = request.takePath();
+            Map<String, String> parsedQueryString = request.takeParsedQueryString();
+
+            User user = new User(
+                    parsedQueryString.get("userId"),
+                    parsedQueryString.get("password"),
+                    parsedQueryString.get("name"),
+                    parsedQueryString.get("email")
+            );
+
+            PrintUtils.printRequestHeaders(request.takeHeaderPairs(br), requestLine);
 
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());

@@ -34,3 +34,20 @@
     - Stream / Channel
 
 ---
+
+## Step2 : GET으로 회원가입 기능 구현
+
+### URLDecoder
+- StandardCharsets.UTF_8는 Java 7부터 지원
+- InputStreamReader에 StandardCharsets.UTF_8를 굳이 넣어줄 필요가 없었다.
+  - 이유 : InputStream으로 받아올 때 한 글자씩 받아오게 되는데, 한글은 여러 문자의 조합으로 이루어지므로, 제대로 디코딩이 되지 않는다.
+  - 해결 : URLDecoder.decode(string, StandardCharsets.UTF_8)를 통하여 String을 decode 해준다.
+    - 이 때 decdode는 Java 8까지는 인자로 String 2개를 받았었는데, Java 11 이후로는 String과 Charset을 받을 수 있게 추가가 되어 이용이 가능했던 것이다.
+
+<br>
+
+### Stream vs Buffer
+- Stream은 한 글자씩 받아오는 반면, Buffer는 일정한 공간만큼 모아서 오는 차이가 있다.
+  - node.js에서 Stream은 버퍼들을 포함하는 개념 (Java에서는 위의 개념으로 쓰임)
+- 참고 : https://stackoverflow.com/questions/43147069/how-do-an-inputstream-inputstreamreader-and-bufferedreader-work-together-in-jav
+---

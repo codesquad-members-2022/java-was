@@ -54,9 +54,22 @@
 
 ## Step3 : POST로 회원가입
 
-### try-with-resource
+### try-with-resources
+- `try-with-resources`는 AutoCloseable 인터페이스를 구현한 리소스에 대하여 finally 직전에, close()를 호출한다.
+- Closeable vs AutoCloseable ?
+  - Closeable (extends AutoCloseable)
+    - JDK 5 ~
+    - IOException
+  - AutoCloseable
+    - JDK 7+ ~
+    - Exception
+- `try-with-resources` 블록 내에서의 리소스 반환 순서 : 괄호 안에 생성된 역순으로 close() 호출 
 
-- Closeable, AutoCloesable 조사하기
-- Test code 재작성 + 추가작성
-- RequestHandler 중복제거 (방법이 있는지 찾아라도 보기)
-- 
+### Optional OrElse, OrElseGet
+- orElse
+  - 반환 값을 그대로 받는다.
+  - 무조건 뒤의 로직이 실행된다.
+
+- orElseGet
+  - Supplier로 wrapping한 값을 받는다.
+  - **`null`일 경우에만** 뒤의 로직이 실행된다.(lazy)

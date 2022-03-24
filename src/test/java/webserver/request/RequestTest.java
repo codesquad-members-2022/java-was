@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
 class RequestTest {
 
 	@Nested
-	@DisplayName("생성자는(new Request(String requestLine, List<String> rawData")
+	@DisplayName("생성자는(new Request(String requestLine, List<String> rawHeader, String rawBody))")
 	class Describe_constructor {
 	    @Nested
 	    @DisplayName("만약 간단한 GET 요청이라면")
@@ -32,12 +32,12 @@ class RequestTest {
 				rawData.add("Accept: */*");
  				String rawBody = "";
 
-				Request request = new Request(requestLine, rawData, rawBody);
-				Map<String, String> headerMap = request.getRequestHeaderMap();
+				Request result = new Request(requestLine, rawData, rawBody);
+				Map<String, String> headerMap = result.getRequestHeaderMap();
 
-				assertThat(request.getMethod()).isEqualTo("GET");
-				assertThat(request.getUri()).isEqualTo("/user/create");
-				assertThat(request.getVersion()).isEqualTo("HTTP/1.1");
+				assertThat(result.getMethod()).isEqualTo("GET");
+				assertThat(result.getUri()).isEqualTo("/user/create");
+				assertThat(result.getVersion()).isEqualTo("HTTP/1.1");
 				assertThat(headerMap.get("Host")).isEqualTo("localhost:8080");
 				assertThat(headerMap.get("Connection")).isEqualTo("keep-alive");
 				assertThat(headerMap.get("Accept")).isEqualTo("*/*");
@@ -58,20 +58,43 @@ class RequestTest {
 				rawData.add("Accept: */*");
 				String rawBody = "";
 
-				Request request = new Request(requestLine, rawData, rawBody);
-				Map<String, String> headerMap = request.getRequestHeaderMap();
+				Request result = new Request(requestLine, rawData, rawBody);
+				Map<String, String> headerMap = result.getRequestHeaderMap();
 
-				assertThat(request.getMethod()).isEqualTo("GET");
-				assertThat(request.getUri()).isEqualTo("/user/create");
-				assertThat(request.getVersion()).isEqualTo("HTTP/1.1");
-				assertThat(request.getParam("username")).isEqualTo("kukim");
-				assertThat(request.getParam("password")).isEqualTo("1234");
+				assertThat(result.getMethod()).isEqualTo("GET");
+				assertThat(result.getUri()).isEqualTo("/user/create");
+				assertThat(result.getVersion()).isEqualTo("HTTP/1.1");
+				assertThat(result.getParam("username")).isEqualTo("kukim");
+				assertThat(result.getParam("password")).isEqualTo("1234");
 				assertThat(headerMap.get("Host")).isEqualTo("localhost:8080");
 				assertThat(headerMap.get("Connection")).isEqualTo("keep-alive");
 				assertThat(headerMap.get("Accept")).isEqualTo("*/*");
 
 			}
 		}
-	}
 
+		@Nested
+		@DisplayName("만약 POST /user/create 요청이라면")
+		class Context_with_POST_user_create_Request_Message {
+
+			@Test
+			@DisplayName("Request 객체를 생성한다.")
+			void It_returns_object_request() {
+				List<String> rawData = new ArrayList<>();
+				String requestLine = "POST /user/create HTTP/1.1";
+				rawData.add("Host: localhost:8080");
+				rawData.add("Connection: keep-alive");
+				rawData.add("Content-Type: application/x-www-form-urlencoded");
+				rawData.add("Accept: */*");
+				String rawBody = "userId=test&password=1234&name=test&email=test%40com";
+
+				Request result = new Request(requestLine, rawData, rawBody);
+
+				assertThat(result.getParam("userId")).isEqualTo("test");
+				assertThat(result.getParam("password")).isEqualTo("1234");
+				assertThat(result.getParam("name")).isEqualTo("test");
+				assertThat(result.getParam("email")).isEqualTo("test@com");
+			}
+		}
+	}
 }

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class RequestHandler extends Thread {
 
-    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private Socket connection;
 
@@ -26,9 +26,14 @@ public class RequestHandler extends Thread {
         this.connection = connectionSocket;
     }
 
+    /**
+     * 1. `receiveRequest` 메서드를 사용하여 클라이언트가 보낸 데이터 스트림을 읽어 요청 객체로 변환한다.
+     * 2. `HandlerMethodMapper` 로 요청 URI 값으로 매핑된 `HandlerMethod` 를 찾아 해당 요청을 수행하도록 한다.
+     * 3. `HandlerMethod` 가 반환한 결과 값을 받아 클라이언트에게 응답한다.
+     *
+     */
     public void run() {
-        log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
+        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest request = receiveRequest(in);
@@ -38,14 +43,16 @@ public class RequestHandler extends Thread {
 
             sendResponse(out, response);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
     /**
+     * 클라이언트가 보낸 데이터 스트림을 `RequestLine`, `RequestHeaders`, (+ RequestMessageBody) 로 구분 지어 읽어들인다.
+     * 읽어들인 메시지들을 사용하여 HttpRequest 객체를 생성하고 이를 반환한다.
      *
      * @param in
-     * @return HttpRequest
+     * @return `InputStream` 에서 읽어온 데이터로 HttpRequest 객체를 생성하여 반환한다.
      * @throws IOException
      */
     private HttpRequest receiveRequest(InputStream in) throws IOException {
@@ -53,7 +60,7 @@ public class RequestHandler extends Thread {
         String line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
         String requestLine = line;
 
-        log.debug("request line : {}", line);
+        logger.debug("request line : {}", line);
 
         List<HttpRequestUtils.Pair> headers = new ArrayList<>();
         while (!Strings.isNullOrEmpty(line)) {
@@ -62,13 +69,14 @@ public class RequestHandler extends Thread {
             HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(line);
             headers.add(pair);
 
-            log.debug("header : {}", line);
+            logger.debug("header : {}", line);
         }
 
         return new HttpRequest(requestLine, headers);
     }
 
     /**
+     * 매칭시킨 `HandlerMethod` 가 반환한 결과 값을 OutputStream 을 통해 클라이언트에게 응답한다.
      *
      * @param out
      * @param response
@@ -76,14 +84,10 @@ public class RequestHandler extends Thread {
     private void sendResponse(OutputStream out, HttpResponse response) {
         DataOutputStream dos = new DataOutputStream(out);
         try {
-            dos.writeBytes(response.getStatusLine() + System.lineSeparator());
-            dos.writeBytes(response.getHeader("Content-Type") + System.lineSeparator());
-            dos.writeBytes(response.getHeader("Content-Length") + System.lineSeparator());
-            dos.writeBytes(System.lineSeparator());
-            dos.write(response.getBody());
+            dos.write(response.toByteArray());
             dos.flush();
         } catch (IOException e) {
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 }

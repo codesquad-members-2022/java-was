@@ -79,12 +79,12 @@ public class Request {
 		return URLDecoder.decode(target, StandardCharsets.UTF_8);
 	}
 
-	public List<Pair> getHeaderPairs() {
-		return headerPairs;
+	public boolean isPOST() {
+		return httpMethod.equals("POST");
 	}
 
-	public String getHttpMethod() {
-		return httpMethod;
+	public List<Pair> getHeaderPairs() {
+		return headerPairs;
 	}
 
 	public String getPath() {

@@ -22,31 +22,26 @@ public class Response {
 	}
 
 	public void writeResponse() throws IOException {
-		if (request.getHttpMethod().equals("GET")) {
+		log.debug("requestLine: {}", request.getRequestLine());
+		if (request.isPOST() && request.getPath().equals("/user/create")) {
 
-			log.debug("GET 요청, requestLine: {}", request.getRequestLine());
-
-			this.body = Files.readAllBytes(new File("./webapp" + request.getPath()).toPath());
-			response200Header();
+			this.body = Files.readAllBytes(new File("./webapp/index.html").toPath());
+			response302Header("http://localhost:8080/index.html");
 			responseBody();
+
+			Map<String, String> parsedBody = request.takeParsedBody();
+			log.debug("POST BODY: {}", parsedBody);
+			User user = new User(
+				parsedBody.get("userId"),
+				parsedBody.get("password"),
+				parsedBody.get("name"),
+				parsedBody.get("email")
+			);
 			return;
 		}
-
-		log.debug("POST 요청, requestLine: {}", request.getRequestLine());
-
-		this.body = Files.readAllBytes(new File("./webapp/index.html").toPath());
-		response302Header("http://localhost:8080/index.html");
+		this.body = Files.readAllBytes(new File("./webapp" + request.getPath()).toPath());
+		response200Header();
 		responseBody();
-
-		Map<String, String> parsedBody = request.takeParsedBody();
-		log.debug("POST BODY: {}", parsedBody);
-		User user = new User(
-			parsedBody.get("userId"),
-			parsedBody.get("password"),
-			parsedBody.get("name"),
-			parsedBody.get("email")
-		);
-
 	}
 
 	public void response302Header(String redirectURL) {

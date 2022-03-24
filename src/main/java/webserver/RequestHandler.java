@@ -2,16 +2,20 @@ package webserver;
 
 import model.Extention;
 import model.HeaderType;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static model.HeaderType.REQUEST_URL;
 import static util.HttpRequestUtils.getPath;
 import static util.Pathes.WEBAPP_ROOT;
 import static util.SpecialCharacters.*;
@@ -35,6 +39,20 @@ public class RequestHandler extends Thread {
             Map<HeaderType, String> headerValues = getHeaders(bufferedReader);
             Request request = new Request(headerValues, "", "", "", "");
 
+            String requestUrl = request.getHeaderType(REQUEST_URL);
+
+            if (requestUrl.startsWith("/user/create")) {
+                int index = requestUrl.indexOf("?");
+
+                String queryString = requestUrl.substring(index + 1);
+                Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);
+                User user = new User(params.get("userId"), params.get("password"), URLDecoder.decode(params.get("name"), StandardCharsets.UTF_8), params.get("email"));
+
+                makeResponseBody(out, requestUrl);
+                log.debug("User : {}", user);
+            } else {
+                makeResponseBody(out, requestUrl);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }

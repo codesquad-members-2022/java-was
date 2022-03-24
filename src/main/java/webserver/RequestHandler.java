@@ -18,6 +18,7 @@ public class RequestHandler extends Thread {
     private static final int REQUEST_INDEX = 1;
 
     private Socket connection;
+    private Configuration configuration = new Configuration();
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;

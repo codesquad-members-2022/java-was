@@ -40,7 +40,7 @@ Java Web Server Project for CodeSquad Members 2022
 - [x] HTML과 URL을 비교해 보고 사용자가 입력한 값을 파싱해 model.User 클래스에 저장한다.
 - [x] 한글이 정확하게 입력되고 있는지 확인해야 한다.
 
-### 학습 메모
+### 새롭게 알게 된 내용
 
 - OS에 따라 파일 시스템에서 슬래시와 역슬래시의 용도가 다를 수 있다. 
   - 역슬래시(\)로 경로를 표시하던 관행은 IBM DOS에서 유래되었다. IBM 계열 시스템에서는 슬래시로 실행 스위치(옵션), 역슬래시로 경로를 표시했다. 
@@ -53,3 +53,28 @@ Java Web Server Project for CodeSquad Members 2022
   - 이 경우 브라우저에서 렌더링된 페이지에 있는 상대 경로들은 /user를 기준으로 하게 된다.
     - 예시1) href="css/bootstrap.min.css" 링크는 http://localhost:8080/user/css/bootstrap.min.css를 가리키게 된다. 
     - 예시2) href="user/form.html" 링크는 http://localhost:8080/user/user/form.html을 가리키게 된다.
+
+## 3단계 - GET으로 회원가입 기능 구현
+
+### 기능요구사항
+
+- [x] http://localhost:8080/user/form.html 파일의 HTML form을 통해 회원가입을 할 수 있다.
+- [x] 가입 후 index.html 페이지로 이동한다.
+
+### 프로그래밍 요구사항
+
+- [x] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
+- [x] POST로 회원가입 기능이 정상적으로 동작하도록 구현한다.
+- [x] 가입 후 페이지 이동을 위해 redirection 기능을 구현한다.
+
+### 새롭게 알게 된 내용
+
+- 리다이렉이션을 할 때는 상태코드를 30x로 하고 Location 응답 헤더에 리다이렉션할 URL 리소스를 입력한다.
+- 클라이언트에 응답을 줄 때는 상태 코드가 있으면 상태메시지(reason phrase : FOUND 등)를 생략해도 동작한다.
+- 상태코드를 생략해서 응답하면 200으로 응답된다.(웹 브라우저에서 확인했을 경우)
+  - (예시)
+  - HTTP/1.1 -> HTTP/1.1 200 OK로 들어옴
+  - HTTP/1.1(공백) -> HTTP/1.1 200으로 들어옴
+- 상태코드가 40x일 경우라도 html 등 리소스를 응답하면 웹 브라우저 단에서 웹 페이지는 정상적으로 출력된다.
+- form 태그로 POST 요청 시 default로 Content-Type Header가 application/x-www-form-urlencoded로 설정되어 쿼리 스트링이 바디에 입력되어 전송된다.
+  - 따라서 쿼리 스트링이 URL에 노출되지 않는다.

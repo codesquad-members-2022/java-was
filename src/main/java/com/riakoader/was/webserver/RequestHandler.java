@@ -79,7 +79,7 @@ public class RequestHandler extends Thread {
             logger.debug("header : {}", line);
         }
 
-        String requestMessageBody = IOUtils.readData(br, NVL(getContentLength(headers)));
+        String requestMessageBody = URLDecoder.decode(IOUtils.readData(br, NVL(getContentLength(headers))), StandardCharsets.UTF_8);
 
         return new HttpRequest(requestLine, headers, requestMessageBody);
     }

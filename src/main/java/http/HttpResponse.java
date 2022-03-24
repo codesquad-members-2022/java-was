@@ -25,10 +25,10 @@ public class HttpResponse {
     }
 
     public byte[] createResponseBody(String path) throws IOException {
-        if (!path.equals("/")) {
-            return Files.readAllBytes(new File("./webapp/" + path).toPath());
+        if (path.equals("/")) {
+            return "Hello World".getBytes(StandardCharsets.UTF_8);
         }
-        return "Hello World".getBytes(StandardCharsets.UTF_8);
+        return Files.readAllBytes(new File("./webapp/" + path).toPath());
     }
 
     public void response200Header(int lengthOfBodyContent) {

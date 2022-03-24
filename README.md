@@ -9,6 +9,10 @@
 
 - [x] RequestParser 만들기
 
+- [ ] Response 객체 만들기
+- [ ] response에 값 setting 해주기
+- [ ]
+
 ## Step01 TODO List
 
 - [x] 기본 소스코드 함께 읽고 분석하기 (요청시 -> mian -> start -> handler.run() 순서로 실행)

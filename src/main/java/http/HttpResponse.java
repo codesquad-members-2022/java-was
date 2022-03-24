@@ -1,13 +1,19 @@
 package http;
 
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HttpResponse {
 
+    private OutputStream out;
     private String statusLine;
     private Map<String, String> header;
-    private String body;
+    private byte[] body;
+
+    public HttpResponse(OutputStream out) {
+        this.out = out;
+    }
 
     public HttpResponse(Builder builder) {
         this.statusLine = builder.statusLine;
@@ -23,7 +29,7 @@ public class HttpResponse {
         return header;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
     }
 
@@ -31,7 +37,7 @@ public class HttpResponse {
 
         private String statusLine;
         private Map<String, String> header = new HashMap<>();
-        private String body;
+        private byte[] body;
 
         public Builder status(String status) {
             this.statusLine = status;
@@ -43,7 +49,7 @@ public class HttpResponse {
             return this;
         }
 
-        public Builder body(String body) {
+        public Builder body(byte[] body) {
             this.body = body;
             return this;
         }

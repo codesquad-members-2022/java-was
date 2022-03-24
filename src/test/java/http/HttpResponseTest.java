@@ -3,6 +3,8 @@ package http;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +14,7 @@ class HttpResponseTest {
     void createResponseTest() {
         //given
         String statusLine = "HTTP/1.1 200 OK";
-        String body = "<h1> My Home Page </h1>";
+        byte[] body = "<h1> My Home Page </h1>".getBytes(StandardCharsets.UTF_8);
 
 
         //when

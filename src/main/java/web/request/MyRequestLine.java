@@ -6,38 +6,31 @@ import java.util.Map;
 
 public class MyRequestLine {
     private MyHttpMethod method;
-    private String url;
     private String path;
-    private String queryString;
     private Map<String, String> queryParameters;
 
     public MyRequestLine(String requestLineString) {
         parseRequestLine(requestLineString);
-        initPathAndQueryString();
-        initQueryParameters();
     }
 
-    private void parseRequestLine(String requestLine) {
-        String[] tokens = requestLine.split(" ");
+    private void parseRequestLine(String requestLineString) {
+        String[] tokens = requestLineString.split(" ");
         this.method = MyHttpMethod.valueOf(tokens[0]);
-        this.url = tokens[1];
+        initPathAndQueryParameters(tokens[1]);
     }
 
-    private void initPathAndQueryString() {
-        String path = "";
+    private void initPathAndQueryParameters(String url) {
+        String decodedUrl = HttpRequestUtils.decodeUrl(url);
+        String path;
         String queryString = "";
-        if (url.contains("?")) {
-            int queryStringStartIndex = url.indexOf('?');
-            queryString = url.substring(queryStringStartIndex + 1);
-            path = url.substring(0, queryStringStartIndex);
+        if (decodedUrl.contains("?")) {
+            int queryStringStartIndex = decodedUrl.indexOf('?');
+            queryString = decodedUrl.substring(queryStringStartIndex + 1);
+            path = decodedUrl.substring(0, queryStringStartIndex);
         } else {
-            path = url;
+            path = decodedUrl;
         }
-        this.path = HttpRequestUtils.decodeUrl(path);
-        this.queryString = HttpRequestUtils.decodeUrl(queryString);
-    }
-
-    private void initQueryParameters() {
+        this.path = path;
         this.queryParameters = HttpRequestUtils.parseQueryString(queryString);
     }
 

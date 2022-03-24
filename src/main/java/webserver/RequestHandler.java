@@ -2,12 +2,10 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.Map;
 
-import model.HttpRequest;
+import http.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

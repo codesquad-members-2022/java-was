@@ -1,6 +1,6 @@
 package model;
 
-import org.assertj.core.api.Assertions;
+import http.HttpRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

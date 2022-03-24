@@ -1,5 +1,7 @@
 package webserver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 
 import java.io.BufferedReader;
@@ -7,20 +9,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MyHttpRequest {
+
+    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+
     private String method;
     private String requestURL;
     private String requestURI;
     private String protocol;
     private Map<String, String> paramMap;
 
+    private Map<String, String[]> headersMap;
+
     public MyHttpRequest(InputStream in) {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         try {
             initStartLine(bufferedReader);
-            // TODO : initHeader();
+            initHeaders(bufferedReader);
             // TODO : initBody();
         } catch (IOException ie) {
             ie.printStackTrace();
@@ -46,6 +55,19 @@ public class MyHttpRequest {
         protocol = tokens[2];
     }
 
+    private void initHeaders(BufferedReader bufferedReader) throws IOException {
+        headersMap = new HashMap<>();
+        String line = "";
+        while (((line = bufferedReader.readLine()) != null) && !line.equals("")) {
+            String[] tokens = line.split(": ");
+            String headerName = tokens[0];
+            String[] headerValues = tokens[1].split(",");
+
+            headersMap.put(headerName, headerValues);
+        }
+
+    }
+
     public String getMethod() {
         return method;
     }
@@ -64,5 +86,9 @@ public class MyHttpRequest {
 
     public Map<String, String> getParamMap() {
         return paramMap;
+    }
+
+    public String[] getHeader(String name) {
+        return headersMap.get(name);
     }
 }

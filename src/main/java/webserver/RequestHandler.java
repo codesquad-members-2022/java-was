@@ -16,6 +16,7 @@ public class RequestHandler extends Thread {
 
     private Socket connection;
     private RequestReader requestReader;
+    private ResponseWriter responseWriter;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -40,14 +41,14 @@ public class RequestHandler extends Thread {
     }
 
     private void sendResponse(OutputStream out, Response response) {
-        ResponseWriter responseWriter = new ResponseWriter(new DataOutputStream(out));
+        responseWriter = new ResponseWriter(new DataOutputStream(out));
         responseWriter.from(response);
     }
 
     private Response handlePath(Request request) throws IOException {
 
         // create
-        if (request.getMethod().equals("POST") && request.parsePath().equals("/user/create")) {
+        if (request.getMethod().equals("GET") && request.parsePath().equals("/user/create")) {
             createUser(request);
             return new Response.Builder(Status.FOUND)
                     .addHeader("Location", "http://localhost:8080/index.html")
@@ -57,7 +58,7 @@ public class RequestHandler extends Thread {
         // default
         byte[] body = readFile(request);
         return new Response.Builder(Status.OK)
-                .addHeader("Content-Type", request.toContentType())
+                .addHeader("Content-Type", request.getContentType().getMime())
                 .addHeader("Content-Length", String.valueOf(body.length))
                 .body(body)
                 .build();

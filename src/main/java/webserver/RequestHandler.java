@@ -2,16 +2,19 @@ package webserver;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -32,12 +35,19 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String requestLine = br.readLine();
-            String targetUrl = HttpRequestUtils.parseRequestURI(requestLine);
-
-            byte[] body = Files.readAllBytes(Path.of(WEBAPP + targetUrl));
-
             DataOutputStream dos = new DataOutputStream(out);
+            String requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+            String targetURI = HttpRequestUtils.getRequestURI(requestLine);
+            String targetPath = HttpRequestUtils.getRequestPath(targetURI);
+
+            if (targetPath.equals("/user/create")) {
+                String queryString = HttpRequestUtils.getQueryString(targetURI);
+                processUserCreation(dos, queryString);
+                return;
+            }
+
+            byte[] body = Files.readAllBytes(Path.of(WEBAPP + targetPath));
+
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
@@ -45,11 +55,33 @@ public class RequestHandler extends Thread {
         }
     }
 
+    private void processUserCreation(DataOutputStream dos, String queryString) {
+        Map<String, String> userCreationForm = HttpRequestUtils.parseQueryString(queryString);
+        User user = new User(userCreationForm.get("userId"),
+                userCreationForm.get("password"),
+                userCreationForm.get("name"),
+                userCreationForm.get("email"));
+        log.debug("New User has been created: {}", user);
+
+        response302Header(dos, "/index.html");
+    }
+
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, String redirectPath) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: " + redirectPath + "\r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

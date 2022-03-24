@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Map;
 
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
 
@@ -68,5 +69,21 @@ public class HttpRequestUtilsTest {
         String header = "Content-Length: 59";
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
+    }
+
+    @Test
+    @DisplayName("두 페어가 가진 문자열이 일치하면 true, 다르면 false가 나와야 한다.")
+    public void testPairEquals() {
+        Pair aa = new Pair("a", "a");
+        Pair AA = new Pair("a", "a");
+        Pair ab = new Pair("a", "b");
+        Pair ba = new Pair("b", "a");
+        Pair bb = new Pair("b", "b");
+
+        assertThat(aa.equals(aa)).isTrue();
+        assertThat(aa.equals(AA)).isTrue();
+        assertThat(aa.equals(ab)).isFalse();
+        assertThat(aa.equals(ba)).isFalse();
+        assertThat(aa.equals(bb)).isFalse();
     }
 }

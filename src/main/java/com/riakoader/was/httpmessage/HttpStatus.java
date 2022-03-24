@@ -2,7 +2,8 @@ package com.riakoader.was.httpmessage;
 
 public enum HttpStatus {
 
-    OK(200, "OK");
+    OK(200, "OK"),
+    FOUND(302, "Found");
 
     final int code;
     final String message;

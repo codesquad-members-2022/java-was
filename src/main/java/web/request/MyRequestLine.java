@@ -8,6 +8,7 @@ public class MyRequestLine {
     private MyHttpMethod method;
     private String path;
     private Map<String, String> queryParameters;
+    private String protocol;
 
     public MyRequestLine(String requestLineString) {
         parseRequestLine(requestLineString);
@@ -17,6 +18,7 @@ public class MyRequestLine {
         String[] tokens = requestLineString.split(" ");
         this.method = MyHttpMethod.valueOf(tokens[0]);
         initPathAndQueryParameters(tokens[1]);
+        this.protocol = tokens[2];
     }
 
     private void initPathAndQueryParameters(String url) {
@@ -44,5 +46,9 @@ public class MyRequestLine {
 
     public Map<String, String> getQueryParameters() {
         return queryParameters;
+    }
+
+    public String getProtocol() {
+        return protocol;
     }
 }

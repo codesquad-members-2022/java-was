@@ -74,4 +74,8 @@ public class MyHttpRequest {
     public MyHttpMethod getMethod() {
         return requestLine.getMethod();
     }
+
+    public String getProtocol() {
+        return requestLine.getProtocol();
+    }
 }

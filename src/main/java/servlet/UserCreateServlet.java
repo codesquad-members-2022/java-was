@@ -26,7 +26,8 @@ public class UserCreateServlet extends HttpServlet {
             queryParameter.get("email")
         );
         DataBase.addUser(user);
-        response.setHttpStatus(HttpStatus.OK);
+        response.setHttpStatus(HttpStatus.SEE_OTHER);
+        response.setRedirectUrl("/index.html");
         return response;
     }
 }

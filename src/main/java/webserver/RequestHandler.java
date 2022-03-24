@@ -78,18 +78,32 @@ public class RequestHandler extends Thread {
         processStaticRequest(out, requestData.getHttpRequestLine(), contentType);
     }
 
-    private void processDynamicRequest(OutputStream out, HttpRequestData requestData, String contentType) throws Exception {
+    private void processDynamicRequest(OutputStream out, HttpRequestData requestData, String contentType) throws
+        Exception {
         Dispatcher dispatcher = Dispatcher.getInstance();
         Response response = dispatcher.handleRequest(requestData);
 
-        response(out, new byte[] {}, contentType, response.getHttpStatus());
+        dynamicResponse(out, response);
+    }
+
+    private void dynamicResponse(OutputStream out, Response response) throws IOException {
+        DataOutputStream dos = new DataOutputStream(out);
+
+        Map<String, String> headers = new HashMap<>();
+
+        if (response.getHttpStatus().equals(HttpStatus.SEE_OTHER)) {
+            headers.put("Location", response.getRedirectUrl());
+        }
+
+        responseHeader(dos, response.getHttpStatus(), headers);
+        flush(dos);
     }
 
     private void processStaticRequest(OutputStream out, HttpRequestLine requestLine, String contentType) throws
         IOException {
         StaticResourceProcessor staticResourceProcessor = StaticResourceProcessor.getInstance();
         byte[] body = staticResourceProcessor.readStaticResource(requestLine.getUrl());
-        response(out, body, contentType, HttpStatus.OK);
+        staticResponse(out, body, contentType, HttpStatus.OK);
     }
 
     private void printHeaders(Map<String, String> headers) {
@@ -109,18 +123,24 @@ public class RequestHandler extends Thread {
         return headers;
     }
 
-    private void response(OutputStream out, byte[] body, String contentType, HttpStatus httpStatus) {
+    private void staticResponse(OutputStream out, byte[] body, String contentType, HttpStatus httpStatus) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
-        responseHeader(dos, body.length, contentType, httpStatus);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", contentType + ";charset=utf-8");
+        headers.put("Content-Length", String.valueOf(body.length));
+
+        responseHeader(dos, httpStatus, headers);
         responseBody(dos, body);
+        flush(dos);
     }
 
-    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, String contentType,
-        HttpStatus httpStatus) {
+    private void responseHeader(DataOutputStream dos, HttpStatus httpStatus, Map<String, String> headers) {
         try {
             dos.writeBytes(String.format("HTTP/1.1 %d %s \r\n", httpStatus.getStatusCode(), httpStatus.name()));
-            dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", contentType));
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            for (String key : headers.keySet()) {
+                dos.writeBytes(key + ": " + headers.get(key) +"\r\n");
+            }
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -130,9 +150,12 @@ public class RequestHandler extends Thread {
     private void responseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);
-            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void flush(DataOutputStream dos) throws IOException {
+        dos.flush();
     }
 }

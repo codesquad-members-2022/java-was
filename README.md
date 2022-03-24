@@ -127,49 +127,75 @@ HTTP_VERSION_NOT_SUPPORTED(505, Series.SERVER_ERROR, "HTTP Version not supported
 # 웹 서버 2단계 - GET으로 회원가입 기능 구현
 
 ## 요구사항
+
 - [x] index.html의 “회원가입” 메뉴를 클릭하면 http://localhost:8080/user/form.html 으로 이동하면서 회원가입 폼을 표시한다.
 - [x] 이 폼을 통해서 회원가입을 할 수 있다.
 
 ## 주요코드
 
 ```java
-    public HttpClientRequest(String requestLine, List<HttpRequestUtils.Pair> headers) {
-        String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
-        String requestURL = requestLineTokens[1];
-        int queryStringDelimiterIndex = requestURL.indexOf(QUERYSTRING_DELIMITER);
+    /**
+     * 1. `receiveRequest` 메서드를 사용하여 클라이언트가 보낸 데이터 스트림을 읽어 요청 객체로 변환한다.
+     * 2. `HandlerMethodMapper` 로 요청 URI 값으로 매핑된 `HandlerMethod` 를 찾아 해당 요청을 수행하도록 한다.
+     * 3. `HandlerMethod` 가 반환한 결과 값을 받아 클라이언트에게 응답한다.
+     *
+     */
+    public void run() {
+        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
 
-        this.method = requestLineTokens[0];
-        this.requestURI = requestURL.substring(0, queryStringDelimiterIndex);
-        this.queryString = requestURL.substring(queryStringDelimiterIndex + 1);
-        this.params = HttpRequestUtils.parseQueryString(queryString);
-        this.headers = headers;
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+            HttpRequest request = receiveRequest(in);
+
+            HandlerMethod handlerMethod = HandlerMethodMapper.getHandlerMethod(request.getRequestURI());
+            HttpResponse response = handlerMethod.service(request);
+
+            sendResponse(out, response);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
     }
-```
 
->    1. requestLine 에서 추출한 URL 을 URI 와 QueryString 으로 분리한다.
->    2. QueryString 은 HttpRequestUtils 에 정의된 parseQueryString 메서드를 사용하여 파라미터 맵으로 정제하여 저장한다.
->    3. HttpClientRequest 의 getParameter(String name) 메서드를 정의하여 해당 맵에서 값을 꺼내올 수 있도록 한다.
->    4. ex. User user = new User(request.getParameter("userId"), request.getParameter("password"),request.getParameter("name"), request.getParameter("email"));
-
-```java
-    private HttpClientRequest receiveRequest(InputStream in) throws IOException {
+    /**
+     * 클라이언트가 보낸 데이터 스트림을 `RequestLine`, `RequestHeaders`, (+ RequestMessageBody) 로 구분 지어 읽어들인다.
+     * 읽어들인 메시지들을 사용하여 HttpRequest 객체를 생성하고 이를 반환한다.
+     *
+     * @param in
+     * @return `InputStream` 에서 읽어온 데이터로 HttpRequest 객체를 생성하여 반환한다.
+     * @throws IOException
+     */
+    private HttpRequest receiveRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         String line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
         String requestLine = line;
 
-        log.debug("request line : {}", line);
+        logger.debug("request line : {}", line);
 
         List<HttpRequestUtils.Pair> headers = new ArrayList<>();
         while (!Strings.isNullOrEmpty(line)) {
             line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
-            headers.add(HttpRequestUtils.parseHeader(line));
-    
-            log.debug("header : {}", line);
+
+            HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(line);
+            headers.add(pair);
+
+            logger.debug("header : {}", line);
         }
 
-        return new HttpClientRequest(requestLine, headers);
+        return new HttpRequest(requestLine, headers);
+    }
+
+    /**
+     * 매칭시킨 `HandlerMethod` 가 반환한 결과 값을 OutputStream 을 통해 클라이언트에게 응답한다.
+     *
+     * @param out
+     * @param response
+     */
+    private void sendResponse(OutputStream out, HttpResponse response) {
+        DataOutputStream dos = new DataOutputStream(out);
+        try {
+            dos.write(response.toByteArray());
+            dos.flush();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
     }
 ```
-
->    1. UTF-8 로 인코딩된 데이터를 한 라인 씩 읽어 URLDecoder 의 decode 메서드로 디코딩한다.
->    2. 해당 결과를 라인마다 알맞게 정제하여 데이터를 저장한다.

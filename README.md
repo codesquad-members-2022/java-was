@@ -15,3 +15,12 @@ Java Web Server Project for CodeSquad Members 2022
 - try-with-resource 키워드 관련하여 알게 되었습니다.
 - InputStream, OutputStream 키워드 관련하여 알게 되었습니다.
 - `java.net.ServerSocket`, `java.net.Socket` 키워드 관련하여 알게 되었습니다.
+
+## 2단계. GET 으로 회원가입 기능 구현
+### 기능요구사항
+- [x] “회원가입” 메뉴를 클릭하면 회원가입 폼을 표시
+- [x] 폼을 통해 회원가입
+
+### 프로그래밍 요구사항
+- [x] HTML 과 URL 을 비교해 보고 사용자가 입력한 값을 파싱해 model.User 클래스에 저장
+- [x] 한글이 정확하게 입력되고 있는지 확인

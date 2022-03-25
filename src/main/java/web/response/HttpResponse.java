@@ -9,7 +9,6 @@ import java.nio.file.Files;
 public class HttpResponse {
 
     private DataOutputStream dos;
-    private byte[] body;
 
     public HttpResponse(OutputStream out) {
         dos = new DataOutputStream(out);
@@ -21,15 +20,15 @@ public class HttpResponse {
     }
 
     public void responseStaticResource(String path) throws IOException {
-        body = Files.readAllBytes(new File("./webapp" + path).toPath());
+        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
         dos.writeBytes("HTTP/1.1 200 OK \r\n");
         dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
         dos.writeBytes("Content-Length: " + body.length + "\r\n");
         dos.writeBytes("\r\n");
-        responseBody();
+        responseBody(body);
     }
 
-    private void responseBody() throws IOException {
+    private void responseBody(byte[] body) throws IOException {
         dos.write(body, 0, body.length);
         dos.flush();
     }

@@ -1,5 +1,6 @@
 package util;
 
+import db.DataBase;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -31,12 +32,12 @@ public class Response {
 
 			Map<String, String> parsedBody = request.takeParsedBody();
 			log.debug("POST BODY: {}", parsedBody);
-			User user = new User(
+			DataBase.addUser(new User(
 				parsedBody.get("userId"),
 				parsedBody.get("password"),
 				parsedBody.get("name"),
 				parsedBody.get("email")
-			);
+			));
 			return;
 		}
 		this.body = Files.readAllBytes(new File("./webapp" + request.getPath()).toPath());
@@ -44,7 +45,7 @@ public class Response {
 		responseBody();
 	}
 
-	public void response302Header(String redirectURL) {
+	private void response302Header(String redirectURL) {
 		try {
 			dos.writeBytes("HTTP/1.1 302 Found\r\n");
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
@@ -56,7 +57,7 @@ public class Response {
 		}
 	}
 
-	public void response200Header() {
+	private void response200Header() {
 		try {
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
@@ -67,7 +68,7 @@ public class Response {
 		}
 	}
 
-	public void responseBody() {
+	private void responseBody() {
 		try {
 			dos.write(body, 0, body.length);
 			dos.flush();

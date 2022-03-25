@@ -10,4 +10,5 @@ public class SpecialCharacters {
     public static final String ENTER = "\r\n";
     public static final String EQUAL = "=";
     public static final String AND = "&";
+    public static final String QUESTION_MARK = "?";
 }

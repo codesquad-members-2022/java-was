@@ -44,7 +44,7 @@ public class RequestHandler extends Thread {
             String requestUrl = request.getHeaderType(REQUEST_URL);
 
             if (requestUrl.startsWith(JOIN_PATH)) {
-                int index = requestUrl.indexOf("?");
+                int index = requestUrl.indexOf(QUESTION_MARK);
 
                 String queryString = requestUrl.substring(index + 1);
                 Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);

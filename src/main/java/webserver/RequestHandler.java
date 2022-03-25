@@ -61,13 +61,11 @@ public class RequestHandler extends Thread {
 	private Request createRequest(InputStream in) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 		List<String> rawHeader = new ArrayList<>();
-		String line = br.readLine();
-		String requestLine = line;
 
 		// read Request Header
+		String line = "";
 		int contentLength = 0;
-		while (!"".equals(line)) {
-			line = br.readLine();
+		while (!"".equals(line = br.readLine())) {
 			rawHeader.add(line);
 
 			if (line.contains("Content-Length")) {
@@ -82,7 +80,7 @@ public class RequestHandler extends Thread {
 			rawBody = IOUtils.readData(br, contentLength);
 		}
 
-		return new Request(requestLine, rawHeader, rawBody);
+		return new Request(rawHeader, rawBody);
 	}
 
 	private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

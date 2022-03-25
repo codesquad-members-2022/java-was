@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
 class RequestTest {
 
 	@Nested
-	@DisplayName("생성자는(new Request(String requestLine, List<String> rawHeader, String rawBody))")
+	@DisplayName("생성자는(new Request(List<String> rawHeader, String rawBody))")
 	class Describe_constructor {
 	    @Nested
 	    @DisplayName("만약 간단한 GET 요청이라면")
@@ -26,13 +26,13 @@ class RequestTest {
 	        @DisplayName("Request 객체를 생성한다.")
 	        void It_returns_object_request() {
 				List<String> rawData = new ArrayList<>();
-				String requestLine = "GET /user/create HTTP/1.1";
+				rawData.add("GET /user/create HTTP/1.1");
 				rawData.add("Host: localhost:8080");
 				rawData.add("Connection: keep-alive");
 				rawData.add("Accept: */*");
  				String rawBody = "";
 
-				Request result = new Request(requestLine, rawData, rawBody);
+				Request result = new Request(rawData, rawBody);
 				Map<String, String> headerMap = result.getRequestHeaderMap();
 
 				assertThat(result.getMethod()).isEqualTo("GET");
@@ -52,13 +52,13 @@ class RequestTest {
 			@DisplayName("Request 객체를 생성한다.")
 			void It_returns_object_request() {
 				List<String> rawData = new ArrayList<>();
-				String requestLine = "GET /user/create?username=kukim&password=1234 HTTP/1.1";
+				rawData.add("GET /user/create?username=kukim&password=1234 HTTP/1.1");
 				rawData.add("Host: localhost:8080");
 				rawData.add("Connection: keep-alive");
 				rawData.add("Accept: */*");
 				String rawBody = "";
 
-				Request result = new Request(requestLine, rawData, rawBody);
+				Request result = new Request(rawData, rawBody);
 				Map<String, String> headerMap = result.getRequestHeaderMap();
 
 				assertThat(result.getMethod()).isEqualTo("GET");
@@ -81,14 +81,14 @@ class RequestTest {
 			@DisplayName("Request 객체를 생성한다.")
 			void It_returns_object_request() {
 				List<String> rawData = new ArrayList<>();
-				String requestLine = "POST /user/create HTTP/1.1";
+				rawData.add("POST /user/create HTTP/1.1");
 				rawData.add("Host: localhost:8080");
 				rawData.add("Connection: keep-alive");
 				rawData.add("Content-Type: application/x-www-form-urlencoded");
 				rawData.add("Accept: */*");
 				String rawBody = "userId=test&password=1234&name=test&email=test%40com";
 
-				Request result = new Request(requestLine, rawData, rawBody);
+				Request result = new Request(rawData, rawBody);
 
 				assertThat(result.getParam("userId")).isEqualTo("test");
 				assertThat(result.getParam("password")).isEqualTo("1234");

@@ -12,11 +12,12 @@ import java.nio.file.Files;
 
 public class IndexController {
     private static final Logger log = LoggerFactory.getLogger(IndexController.class);
+    public static final String INDEX_PAGE_URL = "/index.html";
 
     public HttpResponse main(HttpRequest request) {
         HttpResponse response = new HttpResponse(request.getVersion(), HttpStatus.OK);
         try {
-            response.addBody(Files.readAllBytes(new File("./webapp" + "/index.html").toPath()));
+            response.addBody(Files.readAllBytes(new File("./webapp" + INDEX_PAGE_URL).toPath()));
         } catch (IOException e) {
             log.error(e.getMessage());
         }

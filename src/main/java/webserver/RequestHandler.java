@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 import util.HttpRequestUtils.Pair;
 import util.IOUtils;
-import webserver.controller.ControllerFactory;
+import webserver.controller.UrlMapper;
 import webserver.http.HttpRequest;
 import webserver.http.HttpResponse;
 
@@ -51,7 +51,7 @@ public class RequestHandler extends Thread {
 
             HttpRequest request = new HttpRequest(method, url, version, requestHeader, requestBody);
 
-            HttpResponse response = ControllerFactory.getResponse(request);
+            HttpResponse response = UrlMapper.getResponse(request);
 
             byte[] responseBody = response.getResponseBody();
             writeHeaders(dos, responseBody.length, response);

@@ -11,7 +11,7 @@ public class ResponseWriter {
 
     private static final Logger log = LoggerFactory.getLogger(ResponseWriter.class);
 
-    private DataOutputStream dos;
+    private final DataOutputStream dos;
 
     public ResponseWriter(DataOutputStream dos) {
         this.dos = dos;

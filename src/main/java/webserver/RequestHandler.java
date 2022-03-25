@@ -1,25 +1,25 @@
 package webserver;
 
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.handler.PathMapper;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.util.Map;
 
 public class RequestHandler extends Thread {
 
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String WEBAPP_PATH = "./webapp";
 
-    private Socket connection;
+    private final Socket connection;
+    private final PathMapper pathMapper;
+
     private RequestReader requestReader;
     private ResponseWriter responseWriter;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, PathMapper pathMapper) {
         this.connection = connectionSocket;
+        this.pathMapper = pathMapper;
     }
 
     public void run() {
@@ -45,38 +45,8 @@ public class RequestHandler extends Thread {
         responseWriter.from(response);
     }
 
-    private Response handlePath(Request request) throws IOException {
-
-        // create
-        if (request.getMethod().equals("GET") && request.parsePath().equals("/user/create")) {
-            createUser(request);
-            return new Response.Builder(Status.FOUND)
-                    .addHeader("Location", "http://localhost:8080/index.html")
-                    .build();
-        }
-
-        // default
-        byte[] body = readFile(request);
-        return new Response.Builder(Status.OK)
-                .addHeader("Content-Type", request.getContentType().getMime())
-                .addHeader("Content-Length", String.valueOf(body.length))
-                .body(body)
-                .build();
+    private Response handlePath(Request request) {
+        return pathMapper.callHandler(request);
     }
 
-    private byte[] readFile(Request request) throws IOException {
-        return Files.readAllBytes(new File(WEBAPP_PATH + request.parsePath()).toPath());
-    }
-
-    private void createUser(Request request) {
-        Map<String, String> body = request.getBody();
-
-        User user = new User(
-                body.get("userId"),
-                body.get("password"),
-                body.get("name"),
-                body.get("email")
-        );
-        log.info("user={}", user);
-    }
 }

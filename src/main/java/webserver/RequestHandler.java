@@ -38,14 +38,18 @@ public class RequestHandler extends Thread {
         String path = request.getPath();
         MyHttpMethod method = request.getMethod();
         if (path.equals("/user/create") && method.isPost()) {
-            User user = new User(request.getParameter("userId"),
-                    request.getParameter("password"),
-                    request.getParameter("name"),
-                    request.getParameter("email"));
-            log.debug("user created : {}", user);
-            response.redirectTo("/index.html");
-            return;
+            userJoin(request, response);
+        } else {
+            response.responseStaticResource(path);
         }
-        response.responseStaticResource(path);
+    }
+
+    private void userJoin(MyHttpRequest request, MyHttpResponse response) throws IOException {
+        User user = new User(request.getParameter("userId"),
+                request.getParameter("password"),
+                request.getParameter("name"),
+                request.getParameter("email"));
+        log.debug("user created : {}", user);
+        response.redirectTo("/index.html");
     }
 }

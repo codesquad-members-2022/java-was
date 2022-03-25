@@ -30,13 +30,13 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest request = buildRequest(in);
             HttpResponse response = buildResponse(out);
-            controlResourcePath(request, response); // TODO 이름 다시 생각해보기
+            controlServlet(request, response);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void controlResourcePath(HttpRequest request, HttpResponse response) throws IOException {
+    private void controlServlet(HttpRequest request, HttpResponse response) throws IOException {
         String resourcePath = request.getPath();
 
         if (resourcePath.startsWith("/user/create")) {

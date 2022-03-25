@@ -22,14 +22,14 @@ public class HandlerMethodMapper {
     private static final Map<Pair, HandlerMethod> mapper = new HashMap<>();
 
     private static final HandlerMethod resourceHandlerMethod = (request) -> {
-        HttpResponse response = new HttpResponse();
-        response.setStatusLine(request.getProtocol(), HttpStatus.OK);
-
         FileReader resources= new FileReader("src/main/resources/env.properties");
         Properties properties = new Properties();
         properties.load(resources);
 
         byte[] body = Files.readAllBytes(new File(properties.getProperty("webapp_path") + request.getRequestURI()).toPath());
+
+        HttpResponse response = new HttpResponse();
+        response.setStatusLine(request.getProtocol(), HttpStatus.OK);
         response.setHeader("Content-Length", Integer.toString(body.length));
         response.setBody(body);
 
@@ -45,12 +45,22 @@ public class HandlerMethodMapper {
             logger.debug("user: {}", DataBase.findAll());
 
             HttpResponse response = new HttpResponse();
-            response.setStatusLine(request.getProtocol(), HttpStatus.OK);
+            response.setStatusLine(request.getProtocol(), HttpStatus.CREATED);
 
             return response;
         });
 
         mapper.put(new Pair("POST", "/user/create"), (request) -> {
+            if (DataBase.findUserById(request.getParameter("userId")) != null) {
+                logger.debug("Duplicate userId!");
+
+                HttpResponse response = new HttpResponse();
+                response.setStatusLine(request.getProtocol(), HttpStatus.FOUND);
+                response.setHeader("Location", "/user/form.html");
+
+                return response;
+            }
+
             User user = new User(request.getParameter("userId"), request.getParameter("password"),
                     request.getParameter("name"), request.getParameter("email"));
 
@@ -86,6 +96,7 @@ public class HandlerMethodMapper {
             Pair pair = (Pair) o;
             return Objects.equals(method, pair.method) && Objects.equals(this.uri, pair.uri);
         }
+
         @Override
         public int hashCode() {
             return Objects.hash(method, uri);

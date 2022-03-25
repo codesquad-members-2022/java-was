@@ -25,8 +25,13 @@ public class UserCreateServlet extends HttpServlet {
             queryParameter.get("name"),
             queryParameter.get("email")
         );
+        if (DataBase.isDuplicateUserId(user.getUserId())) {
+            response.setHttpStatus(HttpStatus.FOUND);
+            response.setRedirectUrl("/user/form.html");
+            return response;
+        }
         DataBase.addUser(user);
-        response.setHttpStatus(HttpStatus.SEE_OTHER);
+        response.setHttpStatus(HttpStatus.FOUND);
         response.setRedirectUrl("/index.html");
         return response;
     }

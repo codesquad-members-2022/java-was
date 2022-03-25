@@ -91,7 +91,7 @@ public class RequestHandler extends Thread {
 
         Map<String, String> headers = new HashMap<>();
 
-        if (response.getHttpStatus().equals(HttpStatus.SEE_OTHER)) {
+        if (response.getHttpStatus().equals(HttpStatus.FOUND)) {
             headers.put("Location", response.getRedirectUrl());
         }
 

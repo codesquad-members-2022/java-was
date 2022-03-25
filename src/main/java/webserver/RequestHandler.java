@@ -59,9 +59,30 @@ public class RequestHandler extends Thread {
                 signUpUser(dos);
             }
 
+            // 3) 유저 로그인 요청
+            if (httpMethod.equals("POST") && requestUrl.startsWith("/user/login")) {
+                signInUser(dos);
+            }
+
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void signInUser(DataOutputStream dos) {
+        String userId = requestBody.get("userId");
+        String password = requestBody.get("password");
+        User user = DataBase.findUserById(userId);
+        byte[] body = "".getBytes();
+        if (user == null || !password.equals(user.getPassword())) {
+            log.debug("로그인을 실패하였습니다!");
+            response302Header(dos, "/user/login_failed.html", body.length);
+        }
+        if (password.equals(user.getPassword())) {
+            log.debug("로그인을 성공했습니다!");
+            response302HeaderWithCookie(dos, "/index.html", body.length);
+        }
+        responseBody(dos, body);
     }
 
     private void responseStaticPage(DataOutputStream dos) throws IOException {
@@ -143,6 +164,19 @@ public class RequestHandler extends Thread {
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("Location: " + redirectUrl + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302HeaderWithCookie(DataOutputStream dos, String redirectUrl, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Location: " + redirectUrl + "\r\n");
+            dos.writeBytes("Set-Cookie: logined=true; Path=/");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

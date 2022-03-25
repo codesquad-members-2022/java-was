@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,20 @@ public class RequestHandler extends Thread {
                 request.getParameter("password"),
                 request.getParameter("name"),
                 request.getParameter("email"));
-        log.debug("user created : {}", user);
-        response.redirectTo("/index.html");
+        try {
+            validateDuplicateUser(user);
+            DataBase.addUser(user);
+        } catch (IllegalStateException e) {
+            log.error(e.getMessage());
+        } finally {
+            response.redirectTo("/index.html");
+        }
+    }
+
+    private void validateDuplicateUser(User user) {
+        DataBase.findUserById(user.getUserId())
+                .ifPresent(duplicateUser -> {
+                    throw new IllegalStateException("중복된 회원이름이 존재합니다.");
+                });
     }
 }

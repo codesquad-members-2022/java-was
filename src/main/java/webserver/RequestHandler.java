@@ -53,17 +53,17 @@ public class RequestHandler extends Thread {
         try {
             validateDuplicateUser(user);
             DataBase.addUser(user);
+            response.redirectTo("/index.html");
         } catch (IllegalStateException e) {
             log.error(e.getMessage());
-        } finally {
-            response.redirectTo("/index.html");
+            response.redirectTo("/user/form.html");
         }
     }
 
     private void validateDuplicateUser(User user) {
         DataBase.findUserById(user.getUserId())
                 .ifPresent(duplicateUser -> {
-                    throw new IllegalStateException("중복된 회원이름이 존재합니다.");
+                    throw new IllegalStateException("중복된 아이디가 존재합니다.");
                 });
     }
 }

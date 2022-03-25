@@ -199,3 +199,34 @@ HTTP_VERSION_NOT_SUPPORTED(505, Series.SERVER_ERROR, "HTTP Version not supported
         }
     }
 ```
+---
+
+# 웹 서버 3단계 - POST로 회원가입 기능 구현
+
+## 요구사항
+
+- [x] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
+- [x] POST로 회원가입 기능이 정상적으로 동작하도록 구현한다.
+- [x] 가입 후 페이지 이동을 위해 redirection 기능을 구현한다.
+- [x] 같은 ID로 가입을 시도할 경우 가입되지 않고 가입 페이지로 이동한다.
+
+## 주요코드
+```java
+mapper.put(new Pair("POST", "/user/create"), (request) -> {
+    if (DataBase.findUserById(request.getParameter("userId")) != null) {
+        logger.debug("Duplicate userId!");
+        HttpResponse response = new HttpResponse();
+        response.setStatusLine(request.getProtocol(), HttpStatus.FOUND);
+        response.setHeader("Location", "/user/form.html");
+        return response;
+    }
+    User user = new User(request.getParameter("userId"), request.getParameter("password"),
+        request.getParameter("name"), request.getParameter("email"));
+    DataBase.addUser(user);
+    logger.debug("user: {}", DataBase.findAll());
+    HttpResponse response = new HttpResponse();
+    response.setStatusLine(request.getProtocol(), HttpStatus.FOUND);
+    response.setHeader("Location", "/index.html");
+    return response;
+});
+```

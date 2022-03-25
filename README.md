@@ -1,6 +1,8 @@
 # java-was project by Riako_Ader
 Java Web Server Project for CodeSquad Members 2022
 
+# 웹 서버 1단계 - HTTP GET 응답
+
 ## 프로젝트 구조
 > ![1_tree](https://user-images.githubusercontent.com/29879110/159228887-f413bbd2-37a9-4311-8fed-386bc2d5588d.JPG)  
 
@@ -118,4 +120,82 @@ SERVICE_UNAVAILABLE(503, Series.SERVER_ERROR, "Service Unavailable"); // 서비�
 GATEWAY_TIMEOUT(504, Series.SERVER_ERROR, "Gateway Timeout"); // 게이트웨이 시간 초과, 서버가 게이트웨이나 프록시 역할을 하고 있거나 업스트림 서버에서 제 때 요청을 받지 못한 경우 즉, 게이트웨이가 연결된 서버로부터 응답을 받을 수 없었을 때 사용된다.
 HTTP_VERSION_NOT_SUPPORTED(505, Series.SERVER_ERROR, "HTTP Version not supported"); // 서버가 요청에 사용된 HTTP 프로토콜 버전을 지원하지 않는 경우, 브라우저는 서버가 처리 가능한 HTTP 버전을 자동으로 선택하므로 보기 드문 오류
 
+```
+
+---
+
+# 웹 서버 2단계 - GET으로 회원가입 기능 구현
+
+## 요구사항
+
+- [x] index.html의 “회원가입” 메뉴를 클릭하면 http://localhost:8080/user/form.html 으로 이동하면서 회원가입 폼을 표시한다.
+- [x] 이 폼을 통해서 회원가입을 할 수 있다.
+
+## 주요코드
+
+```java
+    /**
+     * 1. `receiveRequest` 메서드를 사용하여 클라이언트가 보낸 데이터 스트림을 읽어 요청 객체로 변환한다.
+     * 2. `HandlerMethodMapper` 로 요청 URI 값으로 매핑된 `HandlerMethod` 를 찾아 해당 요청을 수행하도록 한다.
+     * 3. `HandlerMethod` 가 반환한 결과 값을 받아 클라이언트에게 응답한다.
+     *
+     */
+    public void run() {
+        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
+
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+            HttpRequest request = receiveRequest(in);
+
+            HandlerMethod handlerMethod = HandlerMethodMapper.getHandlerMethod(request.getRequestURI());
+            HttpResponse response = handlerMethod.service(request);
+
+            sendResponse(out, response);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 클라이언트가 보낸 데이터 스트림을 `RequestLine`, `RequestHeaders`, (+ RequestMessageBody) 로 구분 지어 읽어들인다.
+     * 읽어들인 메시지들을 사용하여 HttpRequest 객체를 생성하고 이를 반환한다.
+     *
+     * @param in
+     * @return `InputStream` 에서 읽어온 데이터로 HttpRequest 객체를 생성하여 반환한다.
+     * @throws IOException
+     */
+    private HttpRequest receiveRequest(InputStream in) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        String line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+        String requestLine = line;
+
+        logger.debug("request line : {}", line);
+
+        List<HttpRequestUtils.Pair> headers = new ArrayList<>();
+        while (!Strings.isNullOrEmpty(line)) {
+            line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+
+            HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(line);
+            headers.add(pair);
+
+            logger.debug("header : {}", line);
+        }
+
+        return new HttpRequest(requestLine, headers);
+    }
+
+    /**
+     * 매칭시킨 `HandlerMethod` 가 반환한 결과 값을 OutputStream 을 통해 클라이언트에게 응답한다.
+     *
+     * @param out
+     * @param response
+     */
+    private void sendResponse(OutputStream out, HttpResponse response) {
+        DataOutputStream dos = new DataOutputStream(out);
+        try {
+            dos.write(response.toByteArray());
+            dos.flush();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
 ```

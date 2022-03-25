@@ -18,8 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static model.HeaderType.REQUEST_URL;
 import static util.HttpRequestUtils.getPath;
-import static util.Pathes.JOIN_PATH;
-import static util.Pathes.WEBAPP_ROOT;
+import static util.Pathes.*;
 import static util.SpecialCharacters.*;
 
 public class RequestHandler extends Thread {
@@ -43,7 +42,7 @@ public class RequestHandler extends Thread {
 
             String requestUrl = request.getHeaderType(REQUEST_URL);
 
-            if (requestUrl.startsWith(JOIN_PATH)) {
+            if (requestUrl.startsWith(JOIN_PATH) && requestUrl.endsWith(Extention.HTML.getType())) {
                 int index = requestUrl.indexOf(QUESTION_MARK);
 
                 String queryString = requestUrl.substring(index + 1);

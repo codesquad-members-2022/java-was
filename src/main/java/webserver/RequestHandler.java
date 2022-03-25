@@ -23,17 +23,13 @@ public class RequestHandler extends Thread {
     private final int HTTP_VERSION = 2;
     private final int KEY = 0;
     private final int VALUE = 1;
-    public static final String RESET = "\u001B[0m";
-    public static final String FONT_RED = "\u001B[31m";
-    public static final String FONT_BLUE = "\u001B[34m";
 
     private Socket connection;
-    private String requestLine;
     private String httpMethod;
     private String requestUrl;
+    private String httpVersion;
     private Map<String, String> requestHeaderField;
     private Map<String, String> requestBody;
-    private StringBuilder response = new StringBuilder();
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -91,13 +87,14 @@ public class RequestHandler extends Thread {
     }
 
     private void setRequestLine(BufferedReader br) throws IOException {
-        requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
-        log.debug(FONT_RED + "<<<<<request start>>>>>" + RESET);
+        String requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+        log.debug("<<<<<request start>>>>>");
         log.debug("[request line] : {}", requestLine);
 
         String[] requestInfo = HttpRequestUtils.getRequestInfo(requestLine);
         httpMethod = requestInfo[METHOD];
         requestUrl = requestInfo[URL];
+        httpVersion = requestInfo[HTTP_VERSION];
     }
 
     private void setRequestHeader(BufferedReader br) throws IOException {
@@ -106,14 +103,14 @@ public class RequestHandler extends Thread {
             if (line == null) {
                 return;
             }
-            String[] header = line.split(": ");
-            requestHeaderField.put(header[KEY], header[VALUE]);
+            HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(line);
+            requestHeaderField.put(pair.getKey(), pair.getValue());
         }
 
         requestHeaderField.entrySet().forEach(e -> {
             log.debug("{} : {}", e.getKey(), e.getValue());
         });
-        log.debug(FONT_RED + "<<<<<request end>>>>>" + RESET);
+        log.debug("<<<<<request end>>>>>");
     }
 
     private void setRequestBody(BufferedReader br) throws IOException {
@@ -125,13 +122,9 @@ public class RequestHandler extends Thread {
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            response.append("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            response.append("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            response.append("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
-            response.append("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -140,13 +133,9 @@ public class RequestHandler extends Thread {
     private void response302Header(DataOutputStream dos, String redirectUrl, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
-            response.append("HTTP/1.1 302 Found \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            response.append("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            response.append("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("Location: " + redirectUrl + "\r\n");
-            response.append("Location: " + redirectUrl + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -156,9 +145,6 @@ public class RequestHandler extends Thread {
     private void responseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);
-            log.debug(FONT_BLUE + "<<<<<response start>>>>>" + RESET);
-            log.debug(response.toString());
-            log.debug(FONT_BLUE + "<<<<<response end>>>>>" + RESET);
             dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());

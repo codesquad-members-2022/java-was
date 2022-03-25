@@ -125,7 +125,8 @@ public class RequestHandler extends Thread {
         return headers;
     }
 
-    private void staticResponse(OutputStream out, byte[] body, String contentType, HttpStatus httpStatus) throws IOException {
+    private void staticResponse(OutputStream out, byte[] body, String contentType, HttpStatus httpStatus) throws
+        IOException {
         DataOutputStream dos = new DataOutputStream(out);
 
         Map<String, String> headers = new HashMap<>();
@@ -141,7 +142,7 @@ public class RequestHandler extends Thread {
         try {
             dos.writeBytes(String.format("HTTP/1.1 %d %s \r\n", httpStatus.getStatusCode(), httpStatus.name()));
             for (String key : headers.keySet()) {
-                dos.writeBytes(key + ": " + headers.get(key) +"\r\n");
+                dos.writeBytes(key + ": " + headers.get(key) + "\r\n");
             }
             dos.writeBytes("\r\n");
         } catch (IOException e) {

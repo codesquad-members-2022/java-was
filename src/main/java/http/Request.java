@@ -15,9 +15,9 @@ public class Request {
 
     public static Request of(HttpRequestData requestData) {
         HttpRequestLine httpRequestLine = requestData.getHttpRequestLine();
-        Request request = new Request();
         String queryString = httpRequestLine.getQueryString();
         HttpMethod httpMethod = httpRequestLine.getHttpMethod();
+        Request request = new Request();
         request.setHttpMethod(httpMethod);
 
         if (isGetRequest(queryString, httpMethod)) {

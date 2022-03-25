@@ -28,23 +28,32 @@ public class ResponseBuilder {
 
     public void sendResponse() {
         try {
-            dos.writeBytes(response.getStatusLine() + "\r\n");
-
-            Map<String, String> header = response.getHeader();
-            List<String> keySet = new ArrayList<>(header.keySet());
-            for (int i = 0; i < header.size(); i++) {
-                String key = keySet.get(i);
-                dos.writeBytes(key + ": " + header.get(key) + "\r\n");
-            }
-            dos.writeBytes("\r\n");
-            byte[] body = response.getBody();
-            if (body == null) {
-                return;
-            }
-            dos.write(body, 0, body.length);
+            writeStatusLine(response.getStatusLine());
+            writeHeader(response.getHeader());
+            writeBody(response.getBody());
             dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void writeStatusLine(String response) throws IOException {
+        dos.writeBytes(response + "\r\n");
+    }
+
+    private void writeHeader(Map<String, String> header) throws IOException {
+        List<String> keySet = new ArrayList<>(header.keySet());
+        for (int i = 0; i < header.size(); i++) {
+            String key = keySet.get(i);
+            dos.writeBytes(key + ": " + header.get(key) + "\r\n");
+        }
+        dos.writeBytes("\r\n");
+    }
+
+    private void writeBody(byte[] body) throws IOException {
+        if (body == null) {
+            return;
+        }
+        dos.write(body, 0, body.length);
     }
 }

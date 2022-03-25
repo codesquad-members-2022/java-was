@@ -9,9 +9,11 @@
 
 - [x] RequestParser 만들기
 
-- [ ] Response 객체 만들기
-- [ ] response에 값 setting 해주기
-- [ ]
+- [x] Response 객체 만들기
+- [x] response에 값 setting 해주기
+- [x] ResponseBuilder 메서드 분리하기
+- [ ] 회원 저장 하기 (Map형태)
+-
 
 ## Step01 TODO List
 

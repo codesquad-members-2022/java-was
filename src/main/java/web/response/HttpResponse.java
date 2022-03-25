@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 
-public class MyHttpResponse {
+public class HttpResponse {
 
     private DataOutputStream dos;
     private byte[] body;
 
-    public MyHttpResponse(OutputStream out) {
+    public HttpResponse(OutputStream out) {
         dos = new DataOutputStream(out);
     }
 

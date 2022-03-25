@@ -1,14 +1,14 @@
 package web.request;
 
-public enum MyHttpMethod {
+public enum HttpMethod {
     GET,
     POST;
 
     public boolean isPost() {
-        return this == MyHttpMethod.POST;
+        return this == HttpMethod.POST;
     }
 
     public boolean isGet() {
-        return this == MyHttpMethod.GET;
+        return this == HttpMethod.GET;
     }
 }

@@ -12,21 +12,21 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class MyHttpRequest {
+public class HttpRequest {
 
-    private static final Logger log = LoggerFactory.getLogger(MyHttpRequest.class);
-    private MyRequestLine requestLine;
+    private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
+    private RequestLine requestLine;
 
     private Map<String, String> parameters;
     private int contentLength;
     private String body;
 
-    public MyHttpRequest(InputStream in) throws IOException {
+    public HttpRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         String line = br.readLine();
         validateRequestExistence(line);
         log.debug("requestLine = {}", line);
-        this.requestLine = new MyRequestLine(line);
+        this.requestLine = new RequestLine(line);
 
         while (!"".equals(line)) {
             line = br.readLine();
@@ -55,7 +55,7 @@ public class MyHttpRequest {
 
     private Map<String, String> initParameters() {
         //method가 Get일 경우
-        MyHttpMethod method = requestLine.getMethod();
+        HttpMethod method = requestLine.getMethod();
         if (method.isGet()) {
             return requestLine.getQueryParameters();
         }
@@ -71,7 +71,7 @@ public class MyHttpRequest {
         return requestLine.getPath();
     }
 
-    public MyHttpMethod getMethod() {
+    public HttpMethod getMethod() {
         return requestLine.getMethod();
     }
 

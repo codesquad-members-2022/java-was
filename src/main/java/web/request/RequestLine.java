@@ -4,19 +4,19 @@ import util.HttpRequestUtils;
 
 import java.util.Map;
 
-public class MyRequestLine {
-    private MyHttpMethod method;
+public class RequestLine {
+    private HttpMethod method;
     private String path;
     private Map<String, String> queryParameters;
     private String protocol;
 
-    public MyRequestLine(String requestLineString) {
+    public RequestLine(String requestLineString) {
         parseRequestLine(requestLineString);
     }
 
     private void parseRequestLine(String requestLineString) {
         String[] tokens = requestLineString.split(" ");
-        this.method = MyHttpMethod.valueOf(tokens[0]);
+        this.method = HttpMethod.valueOf(tokens[0]);
         initPathAndQueryParameters(tokens[1]);
         this.protocol = tokens[2];
     }
@@ -36,7 +36,7 @@ public class MyRequestLine {
         this.queryParameters = HttpRequestUtils.parseQueryString(queryString);
     }
 
-    public MyHttpMethod getMethod() {
+    public HttpMethod getMethod() {
         return method;
     }
 

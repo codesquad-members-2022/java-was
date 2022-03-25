@@ -4,9 +4,9 @@ import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import web.request.MyHttpMethod;
-import web.request.MyHttpRequest;
-import web.response.MyHttpResponse;
+import web.request.HttpMethod;
+import web.request.HttpRequest;
+import web.response.HttpResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,17 +27,17 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            MyHttpRequest request = new MyHttpRequest(in);
-            MyHttpResponse response = new MyHttpResponse(out);
+            HttpRequest request = new HttpRequest(in);
+            HttpResponse response = new HttpResponse(out);
             sendResponse(request, response);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void sendResponse(MyHttpRequest request, MyHttpResponse response) throws IOException {
+    private void sendResponse(HttpRequest request, HttpResponse response) throws IOException {
         String path = request.getPath();
-        MyHttpMethod method = request.getMethod();
+        HttpMethod method = request.getMethod();
         if (path.equals("/user/create") && method.isPost()) {
             userJoin(request, response);
         } else {
@@ -45,7 +45,7 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void userJoin(MyHttpRequest request, MyHttpResponse response) throws IOException {
+    private void userJoin(HttpRequest request, HttpResponse response) throws IOException {
         User user = new User(request.getParameter("userId"),
                 request.getParameter("password"),
                 request.getParameter("name"),

@@ -8,20 +8,20 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MyRequestLineTest {
+class RequestLineTest {
 
     @Test
     @DisplayName("GET 메서드를 정상적으로 반환하는 지 테스트")
     void getMethodTest() {
         // given
         String requestLineString = "GET /index.html HTTP/1.1";
-        MyRequestLine requestLine = new MyRequestLine(requestLineString);
+        RequestLine requestLine = new RequestLine(requestLineString);
 
         // when
-        MyHttpMethod method = requestLine.getMethod();
+        HttpMethod method = requestLine.getMethod();
 
         // then
-        assertThat(method).isSameAs(MyHttpMethod.GET);
+        assertThat(method).isSameAs(HttpMethod.GET);
     }
 
     @Test
@@ -29,13 +29,13 @@ class MyRequestLineTest {
     void postMethodTest() {
         // given
         String requestLineString = "POST /index.html HTTP/1.1";
-        MyRequestLine requestLine = new MyRequestLine(requestLineString);
+        RequestLine requestLine = new RequestLine(requestLineString);
 
         // when
-        MyHttpMethod method = requestLine.getMethod();
+        HttpMethod method = requestLine.getMethod();
 
         // then
-        assertThat(method).isSameAs(MyHttpMethod.POST);
+        assertThat(method).isSameAs(HttpMethod.POST);
     }
 
     @Test
@@ -43,7 +43,7 @@ class MyRequestLineTest {
     void protocolTest() {
         // given
         String requestLineString = "GET /index.html HTTP/1.1";
-        MyRequestLine requestLine = new MyRequestLine(requestLineString);
+        RequestLine requestLine = new RequestLine(requestLineString);
 
         // when
         String protocol = requestLine.getProtocol();
@@ -57,7 +57,7 @@ class MyRequestLineTest {
     void no_queryString_pathTest() {
         // given
         String requestLineString = "GET /index.html HTTP/1.1";
-        MyRequestLine requestLine = new MyRequestLine(requestLineString);
+        RequestLine requestLine = new RequestLine(requestLineString);
 
         // when
         String path = requestLine.getPath();
@@ -71,7 +71,7 @@ class MyRequestLineTest {
     void has_queryString_pathTest() {
         // given
         String requestLineString = "GET /index.html?name=땃쥐 HTTP/1.1";
-        MyRequestLine requestLine = new MyRequestLine(requestLineString);
+        RequestLine requestLine = new RequestLine(requestLineString);
 
         // when
         String path = requestLine.getPath();
@@ -85,7 +85,7 @@ class MyRequestLineTest {
     void queryParametersTest() {
         // given
         String requestLineString = "GET /index.html?name=땃쥐&age=20 HTTP/1.1";
-        MyRequestLine requestLine = new MyRequestLine(requestLineString);
+        RequestLine requestLine = new RequestLine(requestLineString);
 
         // when
         Map<String, String> queryParameters = requestLine.getQueryParameters();

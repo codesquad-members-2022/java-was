@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 
+import db.DataBase;
 import model.User;
 import util.HttpRequestUtils;
 import util.IOUtils;
@@ -37,6 +38,7 @@ public class RequestHandler extends Thread {
             BufferedReader buf = new BufferedReader(new InputStreamReader(in));
             String httpHeader = buf.readLine();
             String token = parseUrl(httpHeader);
+            DataOutputStream dos = new DataOutputStream(out);
             if (httpHeader.contains("POST")) {
                 int length = 0;
                 while (!httpHeader.equals("")) {
@@ -48,11 +50,12 @@ public class RequestHandler extends Thread {
                 }
                 String url = urlDecoding(IOUtils.readData(buf, length));
                 User user = createUser(separateUserInfo(url));
+                DataBase.addUser(user);
                 log.debug("user={}", user);
+                response302Header(dos);
             }
             log.debug("Http httpHeaderLine={}", httpHeader);
             readHeader(buf, httpHeader);
-            DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + token).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -95,6 +98,16 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html; charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: http://localhost:8080/index.html \r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

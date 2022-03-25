@@ -51,7 +51,7 @@ public class RequestHandler extends Thread {
 
     private String getRequestLine(InputStream in) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        String requestLine = bufferedReader.readLine();
+        String requestLine = HttpRequestUtils.UrlDecode(bufferedReader.readLine());
         log.debug("request header : {}", requestLine);
         printHeaderLogs(bufferedReader);
         return requestLine;

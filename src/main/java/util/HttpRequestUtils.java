@@ -1,5 +1,7 @@
 package util;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,6 +10,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
+
+    public static String UrlDecode(String line) {
+        return URLDecoder.decode(line, StandardCharsets.UTF_8);
+    }
 
     public static String parseUrl(String requestLine) {
         String uri = splitRequestLine(requestLine);

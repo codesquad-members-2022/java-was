@@ -1,15 +1,19 @@
 package webserver;
 
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.HttpRequestUtils.Pair;
+import util.IOUtils;
+import webserver.controller.ControllerFactory;
+import webserver.http.HttpRequest;
+import webserver.http.HttpResponse;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 
 public class RequestHandler extends Thread {
@@ -28,54 +32,62 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
-            String url = getUrl(in);
-            String route = url;
-            String queryParameter = null;
-            if (url.contains("?")) {
-                route = url.split("\\?")[0];
-                queryParameter = HttpRequestUtils.parseUrl(url);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+            String[] tokens = readRequestLine(br);
+            String method = tokens[0];
+            String url = tokens[1];
+            String version = tokens[2];
+            Map<String, String> requestHeader = readRequestHeader(br);
+            String requestBody = null;
+
+            if (method.equals("POST")) {
+                int contentLength = Integer.parseInt(requestHeader.get("Content-Length"));
+                requestBody = IOUtils.readData(br, contentLength);
+
+                log.debug("Body: {}", requestBody);
+                log.debug("Content-Length: {}", requestBody.length());
             }
 
-            log.debug("route: {}", route);
+            HttpRequest request = new HttpRequest(method, url, version, requestHeader, requestBody);
 
-            if (url.startsWith("/user/create")) {
-                createUser(queryParameter);
-                route = "/index.html";
-            }
+            HttpResponse response = ControllerFactory.getResponse(request);
 
-            byte[] body = Files.readAllBytes(new File("./webapp" + route).toPath());
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            byte[] responseBody = response.getResponseBody();
+            writeHeaders(dos, responseBody.length, response);
+            responseBody(dos, responseBody);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void createUser(String queryString) {
-        Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);
-        User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
-        log.debug(user.toString());
+    private String[] readRequestLine(BufferedReader br) throws IOException {
+        String l = br.readLine();
+        log.debug("Request Line: {}", l);
+        String line = URLDecoder.decode(l, StandardCharsets.UTF_8);
+        return line.split(" ");
     }
 
-    private String getUrl(InputStream in) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        String line = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
-        String[] tokens = line.split(" ");
-        showHeaders(br);
-        return tokens[1];
-    }
-
-    private void showHeaders(BufferedReader br) throws IOException {
+    private Map<String, String> readRequestHeader(BufferedReader br) throws IOException {
         String line;
-        while (!(line = br.readLine()).equals("")) {
-            log.debug("line : {}", line);
+        Map<String, String> requestHeaderMap = new HashMap<>();
+        while (!(line = br.readLine()).isBlank()) {
+            Pair pair = HttpRequestUtils.parseHeader(line);
+            requestHeaderMap.put(pair.getKey(), pair.getValue());
         }
+        return requestHeaderMap;
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void writeHeaders(DataOutputStream dos, int lengthOfBodyContent, HttpResponse response) {
         try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes(String.format("%s %d %s %s",
+                    response.getVersion(), response.getHttpStatusCode(), response.getHttpStatusMessage(), System.lineSeparator()));
+            Map<String, String> responseHeaders = response.getResponseHeaders();
+
+            for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
+                dos.writeBytes(String.format("%s: %s %s", entry.getKey(), entry.getValue(), System.lineSeparator()));
+            }
+
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {

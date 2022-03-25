@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,6 @@ import java.util.Map;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -22,19 +22,18 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+        try (InputStream in = connection.getInputStream();
+             OutputStream out = connection.getOutputStream();
+             ) {
             DataOutputStream dos = new DataOutputStream(out);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            HttpRequest request = new HttpRequest(br);
+            HttpRequest request = new HttpRequest(in);
 
             if (request.getHttpMethod().equals("POST")) {
                 Map<String, String> userInfo = request.getParams();
-                User user = new User(userInfo.get("userId"), userInfo.get("password"), userInfo.get("name"), userInfo.get("email"));
-                log.debug("{}", user);
-
+                DataBase.addUser(User.from(userInfo));
                 sendPostResponse(dos);
             } else {
-                sendGetResponse(new DataOutputStream(dos), request.getAbsPath());
+                sendGetResponse(dos, request.getPath());
             }
         } catch (IOException e) {
             log.error(e.getMessage());

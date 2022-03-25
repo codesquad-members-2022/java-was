@@ -28,38 +28,42 @@ public class RequestHandler extends Thread {
 			connection.getPort());
 
 		try (InputStream in = connection.getInputStream();
-			OutputStream out = connection.getOutputStream()) {
-			Request request = createRequest(in);
+			OutputStream out = connection.getOutputStream();
+			BufferedReader br = new BufferedReader(
+				new InputStreamReader(in, StandardCharsets.UTF_8));
+			DataOutputStream dos = new DataOutputStream(out)) {
 
-			byte[] body = null;
-			DataOutputStream dos = new DataOutputStream(out);
+			Request request = createRequest(br);
+			Response response = new Response();
+
+			// /user/create Controller
 			if ("/user/create".equals(request.getUri())) {
-
 				User findUser = DataBase.findUserById(request.getParam("userId"));
 				if (findUser == null) { // 회원가입
 					User user = new User(request.getParam("userId"),
-							request.getParam("password"),
-							request.getParam("name"),
-							request.getParam("email"));
+						request.getParam("password"),
+						request.getParam("name"),
+						request.getParam("email"));
 					DataBase.addUser(user);
 					log.debug("회원가입완료 {}", user);
-					response302Header(dos, "http://localhost:8080/index.html");
+					response.setRedirect(StatusCode.REDIRECTION_302,
+						"http://localhost:8080/index.html");
 				} else { // 중복회원
-					response302Header(dos, "http://localhost:8080/user/form.html");
+					response.setRedirect(StatusCode.REDIRECTION_302,
+						"http://localhost:8080/user/form.html");
 				}
-
-			} else {
+			} else { // 그 외 Controller
+				byte[] body = null;
 				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
-				response200Header(dos, body.length);
-				responseBody(dos, body);
+				response.setBody(body, "text/html");
 			}
+			sendResponse(dos, response);
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
 
-	private Request createRequest(InputStream in) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+	private Request createRequest(BufferedReader br) throws IOException {
 		List<String> rawHeader = new ArrayList<>();
 
 		// read Request Header
@@ -83,29 +87,11 @@ public class RequestHandler extends Thread {
 		return new Request(rawHeader, rawBody);
 	}
 
-	private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+	private void sendResponse(DataOutputStream dos, Response response) {
 		try {
-			dos.writeBytes("HTTP/1.1 200 OK \r\n");
-			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-			dos.writeBytes("\r\n");
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-	}
-
-	private void response302Header(DataOutputStream dos, String redirectionUrl) {
-		try {
-			dos.writeBytes("HTTP/1.1 302 Found \r\n");
-			dos.writeBytes("Location: " + redirectionUrl + "\r\n");
-			dos.writeBytes("\r\n");
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-	}
-
-	private void responseBody(DataOutputStream dos, byte[] body) {
-		try {
+			String header = response.toHeader();
+			byte[] body = response.toBody().getBytes(StandardCharsets.UTF_8);
+			dos.writeBytes(header);
 			dos.write(body, 0, body.length);
 			dos.flush();
 		} catch (IOException e) {

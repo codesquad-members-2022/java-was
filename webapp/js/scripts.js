@@ -7,3 +7,10 @@ String.prototype.format = function() {
         ;
   });
 };
+
+console.log("this script is running");
+document.querySelector('#navbar-collapse2 .nav :nth-child(4) a').href = "../user/logout";
+// $(document).ready(function () {
+//
+// });
+

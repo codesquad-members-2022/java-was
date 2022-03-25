@@ -50,7 +50,12 @@ public class RequestHandler extends Thread {
             }
 
             if (httpRequest.hasPathEqualTo("/user/login") && httpRequest.hasMethodEqualTo("POST")) {
-                processUserLogin(dos, httpRequest.getParameters());
+                processUserLogin(dos, httpRequest.getParameters(), httpRequest.getCookies());
+                return;
+            }
+
+            if (httpRequest.hasPathEqualTo("/user/logout")) {
+                processUserLogout(dos, httpRequest.getCookies());
                 return;
             }
 
@@ -65,12 +70,25 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void processUserLogin(DataOutputStream dos, Map<String, String> loginForm) {
+    private void processUserLogout(DataOutputStream dos, Map<String, String> cookies) {
+        String sessionId = cookies.get("sessionId");
+
+        if (sessionId == null) {
+            response302Header(dos, "/index.html");
+            return;
+        }
+
+        Sessions.remove(sessionId);
+        response302HeaderAfterLogout(dos, "/index.html", sessionId);
+    }
+
+    private void processUserLogin(DataOutputStream dos, Map<String, String> loginForm, Map<String, String> cookies) {
         String userId = loginForm.get("userId");
         String password = loginForm.get("password");
 
         if (DataBase.matchesExistingUser(userId, password)) {
-            String sessionId = UUID.randomUUID().toString();
+            String sessionId = cookies.containsKey("sessionId") ?
+                    cookies.get("sessionId") : UUID.randomUUID().toString();
             Sessions.getSession(sessionId)
                     .setAttribute("user", DataBase.findUserById(userId));
             response302HeaderAfterLogin(dos, "/index.html", sessionId);
@@ -116,9 +134,20 @@ public class RequestHandler extends Thread {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             dos.writeBytes("Location: " + redirectPath + "\r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Set-Cookie: sessionId=" + sessionId + "; Path=/\r\n");
             dos.writeBytes("Set-Cookie: logged_in=true; Path=/\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302HeaderAfterLogout(DataOutputStream dos, String redirectPath, String sessionId) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: " + redirectPath + "\r\n");
+            dos.writeBytes("Set-Cookie: sessionId=" + sessionId + "; Max-Age=0; Path=/\r\n");
+            dos.writeBytes("Set-Cookie: logged_in=false; Path=/\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

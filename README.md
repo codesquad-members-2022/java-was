@@ -104,8 +104,14 @@ Java Web Server Project for CodeSquad Members 2022
 
 ### 추가 요구 사항
 
-- [ ] (선택) 로그아웃을 구현한다.
+- [x] (선택) 로그아웃을 구현한다.
 
 ### 학습 메모
 
-- 
+- 쿠키는 name만으로 특정할 수 없다. 
+  - domain이나 path 속성이 다르면 별개의 쿠키로 취급된다. 
+  - http 응답을 통해 쿠키를 만료시킬 때에도 대상 쿠키와 동일한 path를 명시해 주어야 정상적으로 만료시킬 수 있다.
+
+### TODO
+
+- Response Header를 전송하는 메서드들의 중복과 파편화가 심하다. HttpResponse 클래스를 만들어 HTTP 응답에 관련된 내용을 객체로 묶도록 해야겠다. 

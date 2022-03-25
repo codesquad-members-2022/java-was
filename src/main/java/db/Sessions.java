@@ -22,6 +22,7 @@ public class Sessions {
     }
 
     public static void remove(String sessionId) {
+        getSession(sessionId).invalidate();
         sessions.remove(sessionId);
     }
 }

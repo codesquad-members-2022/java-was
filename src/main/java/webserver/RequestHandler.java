@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +34,20 @@ public class RequestHandler extends Thread {
 			byte[] body = null;
 			DataOutputStream dos = new DataOutputStream(out);
 			if ("/user/create".equals(request.getUri())) {
-				User user = new User(request.getParam("userId"),
-					request.getParam("password"),
-					request.getParam("name"),
-					request.getParam("email"));
-				log.debug("회원가입완료 {}", user);
 
-				response302Header(dos, "http://localhost:8080/index.html");
+				User findUser = DataBase.findUserById(request.getParam("userId"));
+				if (findUser == null) { // 회원가입
+					User user = new User(request.getParam("userId"),
+							request.getParam("password"),
+							request.getParam("name"),
+							request.getParam("email"));
+					DataBase.addUser(user);
+					log.debug("회원가입완료 {}", user);
+					response302Header(dos, "http://localhost:8080/index.html");
+				} else { // 중복회원
+					response302Header(dos, "http://localhost:8080/user/form.html");
+				}
+
 			} else {
 				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
 				response200Header(dos, body.length);

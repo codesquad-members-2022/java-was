@@ -8,11 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 import util.RequestParser;
-import util.ResponseBuilder;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.util.Map;
 
 public class RequestHandler extends Thread {
@@ -31,15 +29,15 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest request = buildRequest(in);
-            controlResourcePath(request, out); // TODO 이름 다시 생각해보기
+            HttpResponse response = buildResponse(out);
+            controlResourcePath(request, response); // TODO 이름 다시 생각해보기
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void controlResourcePath(HttpRequest request, OutputStream out) throws IOException {
+    private void controlResourcePath(HttpRequest request, HttpResponse response) throws IOException {
         String resourcePath = request.getPath();
-        HttpResponse response = null;
 
         if (resourcePath.startsWith("/user/create")) {
             User user = createUser(request.getBody());
@@ -52,41 +50,19 @@ public class RequestHandler extends Thread {
             }
 
             log.debug("[USER] : {}", user);
-            response = status302(nextPath);
-            sendResponse(response, out);
+            response.redirection(nextPath);
             return;
         }
 
-        response = status200(viewResolver(resourcePath));
-        sendResponse(response, out);
-    }
-
-    private HttpResponse status200(byte[] body) {
-        return new HttpResponse.Builder()
-                .status("HTTP/1.1 200 OK")
-                .setHeader("Content-Type", "text/html;charset=utf-8")
-                .setHeader("Content-Length", String.valueOf(body.length))
-                .body(body)
-                .build();
-    }
-
-    private HttpResponse status302(String path) {
-        return new HttpResponse.Builder()
-                .status("HTTP/1.1 302 Found")
-                .setHeader("Location", path)
-                .build();
-    }
-
-    private void sendResponse(HttpResponse response, OutputStream out) {
-        new ResponseBuilder(response, out).sendResponse();
+        response.forward(resourcePath);
     }
 
     private HttpRequest buildRequest(InputStream in) throws IOException {
         return new RequestParser(in).createRequest();
     }
 
-    private byte[] viewResolver(String resourcePath) throws IOException {
-        return Files.readAllBytes(new File("./webapp" + resourcePath).toPath());
+    private HttpResponse buildResponse(OutputStream out) {
+        return new HttpResponse(out);
     }
 
     private User createUser(String resourcePath) throws UnsupportedEncodingException {

@@ -1,69 +1,60 @@
 package http;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Files;
 
 public class HttpResponse {
+    private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
-    private OutputStream out;
-    private String statusLine;
-    private Map<String, String> header;
-    private byte[] body;
+    private DataOutputStream dos;
 
     public HttpResponse(OutputStream out) {
-        this.out = out;
+        this.dos = new DataOutputStream(out);
     }
 
-    public HttpResponse(Builder builder) {
-        this.statusLine = builder.statusLine;
-        this.header = builder.header;
-        this.body = builder.body;
-    }
-
-    public String getStatusLine() {
-        return statusLine;
-    }
-
-    public Map<String, String> getHeader() {
-        return header;
-    }
-
-    public byte[] getBody() {
-        return body;
-    }
-
-    public static class Builder {
-
-        private String statusLine;
-        private Map<String, String> header = new HashMap<>();
-        private byte[] body;
-
-        public Builder status(String status) {
-            this.statusLine = status;
-            return this;
-        }
-
-        public Builder setHeader(String key, String value) {
-            this.header.put(key, value);
-            return this;
-        }
-
-        public Builder body(byte[] body) {
-            this.body = body;
-            return this;
-        }
-
-        public HttpResponse build() {
-            return new HttpResponse(this);
+    public void forward(String url) throws IOException {
+        try {
+            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(body.length);
+            responseBody(body);
+            dos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    @Override
-    public String toString() {
-        return "HttpResponse{" +
-                "statusLine='" + statusLine + '\'' +
-                ", body='" + body + '\'' +
-                '}';
+    public void redirection(String location) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: " + location + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response200Header(int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void responseBody(byte[] body) {
+        try {
+            dos.write(body, 0, body.length);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
     }
 }

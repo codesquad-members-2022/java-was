@@ -38,14 +38,14 @@ public class RequestHandler extends Thread {
 
             Request request = new Request(br);
 
-            // Request Message
-            request.outputLog();
+            // URL init
+            URL url = request.getURL();
 
-            // URL decode
-            String url = URLDecoder.decode(request.getURL(), StandardCharsets.UTF_8);
-
-            // URL query check
-            url = queryCheck(url);
+            // user save
+            if (request.checkPostMethod() && url.comparePath("/user/create")) {
+                String messageBody = request.getMessageBody();
+                userSave(messageBody, url);
+            }
 
             // Response Message
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());

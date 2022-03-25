@@ -4,8 +4,11 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
 import com.google.common.base.Strings;
+import db.DataBase;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -24,17 +27,13 @@ public class RequestHandler extends Thread {
         connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            DataOutputStream dos = new DataOutputStream(out);
-            String headerLine = bufferedReader.readLine();
-            String requestLine = headerLine;
-
-            while(!Strings.isNullOrEmpty(headerLine)) {
-                log.debug("request header : {}", headerLine);
-                headerLine = bufferedReader.readLine();
-            }
-
+            String requestLine = getRequestLine(in);
             String url = HttpRequestUtils.parseUrl(requestLine);
+            String queryString = HttpRequestUtils.getQueryString(requestLine);
+
+            url = findView(url, queryString);
+
+            DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
 
             if(url.endsWith(".css")) {
@@ -49,6 +48,38 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
+
+    private String getRequestLine(InputStream in) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        String requestLine = HttpRequestUtils.UrlDecode(bufferedReader.readLine());
+        log.debug("request header : {}", requestLine);
+        printHeaderLogs(bufferedReader);
+        return requestLine;
+    }
+
+    private void printHeaderLogs(BufferedReader bufferedReader) throws IOException {
+        String headerLine = bufferedReader.readLine();
+        while(!Strings.isNullOrEmpty(headerLine)) {
+            log.debug("request header : {}", headerLine);
+            headerLine = bufferedReader.readLine();
+        }
+    }
+
+    private String findView(String url, String queryString) {
+        if (url.equals("/user/create")) {
+            signUp(queryString);
+            return "/index.html";
+        }
+
+        return url;
+    }
+
+    private void signUp(String queryString) {
+        Map<String, String> map = HttpRequestUtils.parseQueryString(queryString);
+        User user = new User(map.get("userId"), map.get("password"), map.get("name"), map.get("email"));
+        DataBase.addUser(user);
+    }
+
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {

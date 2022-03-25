@@ -5,10 +5,10 @@ import webserver.http.HttpResponse;
 
 public class UrlMapper {
     private UrlMapper() {
-        
+
     }
 
-    private static final JoinController joinController = new JoinController();
+    private static final UserController userController = new UserController();
     private static final IndexController indexController = new IndexController();
 
     public static HttpResponse getResponse(HttpRequest request) {
@@ -20,11 +20,11 @@ public class UrlMapper {
         HttpResponse response = null;
         switch (url) {
             case "/user/create":
-                return joinController.join(request);
+                return userController.join(request);
             case "/index.html":
                 return indexController.main(request);
             case "/user/form.html":
-                return indexController.userForm(request);
+                return userController.joinForm(request);
             default:
                 return response;
         }

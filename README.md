@@ -80,3 +80,8 @@ Java Web Server Project for CodeSquad Members 2022
 - 상태코드가 40x일 경우라도 html 등 리소스를 응답하면 웹 브라우저 단에서 웹 페이지는 정상적으로 출력된다.
 - form 태그로 POST 요청 시 default로 Content-Type Header가 application/x-www-form-urlencoded로 설정되어 쿼리 스트링이 바디에 입력되어 전송된다.
   - 따라서 쿼리 스트링이 URL에 노출되지 않는다.
+
+### 고민했던 부분
+
+- 기존에 주어진 DataBase의 경우 static Map을 가진 Util 클래스인데, 이번 단계에서는 이를 그대로 사용하였습니다. 
+  - 다만, DataBase를 static 필드와 static 메서드로 관리함에 있어서 어떤 문제가 발생할 수 있을지에 대해 좀 더 공부가 필요할 것 같습니다.

@@ -5,21 +5,24 @@ import util.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequest {
     private String httpMethod;
-    private String absPath;
+    private String path;
     private Map<String, String> header;
     private Map<String, String> params;
 
-    public HttpRequest(BufferedReader br) throws IOException {
+    public HttpRequest(InputStream in) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String[] requestLine = IOUtils.readRequestLine(br).split(" ");
 
         httpMethod = requestLine[0];
-        absPath = requestLine[1];
+        path = requestLine[1];
         header = IOUtils.readRequestHeader(br);
         if (httpMethod.equals("POST")) {
             params = parseBody(IOUtils.readData(br, Integer.parseInt(header.get("Content-Length"))));
@@ -32,8 +35,8 @@ public class HttpRequest {
         return httpMethod;
     }
 
-    public String getAbsPath() {
-        return absPath;
+    public String getPath() {
+        return path;
     }
 
     public Map<String, String> getHeader() {

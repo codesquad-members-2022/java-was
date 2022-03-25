@@ -29,7 +29,10 @@ public class RequestHandler extends Thread {
 
     private Socket connection;
     private String requestLine;
+    private String httpMethod;
+    private String requestUrl;
     private Map<String, String> requestHeaderField;
+    private Map<String, String> requestBody;
     private StringBuilder response = new StringBuilder();
 
     public RequestHandler(Socket connectionSocket) {
@@ -45,60 +48,56 @@ public class RequestHandler extends Thread {
              OutputStream out = connection.getOutputStream();
              BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
              DataOutputStream dos = new DataOutputStream(out)) {
-            requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
-            log.debug(FONT_RED + "<<<<<request start>>>>>" + RESET);
-            log.debug("[request line] : {}", requestLine);
-
-            String[] requestInfo = HttpRequestUtils.getRequestInfo(requestLine);
-            String httpMethod = requestInfo[METHOD];
-            String url = requestInfo[URL];
-
-            if (url.contains(".css") || url.contains(".js") || url.contains("ico")) {
-                return;
-            }
-
+            
+            setRequestLine(br);
             setRequestHeader(br);
-            requestHeaderField.entrySet().forEach(e -> {
-                log.debug("{} : {}", e.getKey(), e.getValue());
-            });
-            log.debug(FONT_RED + "<<<<<request end>>>>>" + RESET);
+            setRequestBody(br);
 
-            byte[] body = "".getBytes();
-
-            if (httpMethod.equals("GET") && url.endsWith(".html")) {
-                body = Files.readAllBytes(new File("./webapp" + url).toPath());
-                response200Header(dos, body.length);
+            // 1) 정적 페이지 요청
+            if (httpMethod.equals("GET") && requestUrl.endsWith(".html")) {
+                responseStaticPage(dos);
+            }
+            
+            // 2) 유저 회원가입 요청
+            if (httpMethod.equals("POST") && requestUrl.startsWith("/user/create")) {
+                sighUpUser(dos);
             }
 
-            if (url.startsWith("/user/create")) {
-                String userId, password, name, email;
-                if (httpMethod.equals("GET")) {
-                    String queryString = HttpRequestUtils.getQueryString(url);
-                    Map<String, String> queryParameters = HttpRequestUtils.parseQueryString(queryString);
-                    userId = queryParameters.get("userId");
-                    password = queryParameters.get("password");
-                    name = queryParameters.get("name");
-                    email = queryParameters.get("email");
-                } else { // "POST"
-                    String data = IOUtils.readData(br, Integer.parseInt(requestHeaderField.get("Content-Length")));
-                    String requestBody = URLDecoder.decode(data, StandardCharsets.UTF_8);
-                    Map<String, String> bodyMap = HttpRequestUtils.parseRequestBody(requestBody);
-                    userId = bodyMap.get("userId");
-                    password = bodyMap.get("password");
-                    name = bodyMap.get("name");
-                    email = bodyMap.get("email");
-                }
-                User user = new User(userId, password, name, email);
-                log.debug("User : {}", user);
-                DataBase.addUser(user);
-                response302Header(dos, "/index.html", body.length);
-            }
-            responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         } catch (NullPointerException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void responseStaticPage(DataOutputStream dos) throws IOException {
+        byte[] body;
+        body = Files.readAllBytes(new File("./webapp" + requestUrl).toPath());
+        response200Header(dos, body.length);
+        responseBody(dos, body);
+    }
+
+    private void sighUpUser(DataOutputStream dos) throws IOException {
+        byte[] body = "".getBytes();
+        User user = new User(
+                requestBody.get("userId"),
+                requestBody.get("password"),
+                requestBody.get("name"),
+                requestBody.get("email"));
+        log.debug("User : {}", user);
+        DataBase.addUser(user);
+        response302Header(dos, "/index.html", body.length);
+        responseBody(dos, body);
+    }
+
+    private void setRequestLine(BufferedReader br) throws IOException {
+        requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
+        log.debug(FONT_RED + "<<<<<request start>>>>>" + RESET);
+        log.debug("[request line] : {}", requestLine);
+
+        String[] requestInfo = HttpRequestUtils.getRequestInfo(requestLine);
+        httpMethod = requestInfo[METHOD];
+        requestUrl = requestInfo[URL];
     }
 
     private void setRequestHeader(BufferedReader br) throws IOException {
@@ -110,6 +109,17 @@ public class RequestHandler extends Thread {
             String[] header = line.split(": ");
             requestHeaderField.put(header[KEY], header[VALUE]);
         }
+
+        requestHeaderField.entrySet().forEach(e -> {
+            log.debug("{} : {}", e.getKey(), e.getValue());
+        });
+        log.debug(FONT_RED + "<<<<<request end>>>>>" + RESET);
+    }
+
+    private void setRequestBody(BufferedReader br) throws IOException {
+        String data = IOUtils.readData(br, Integer.parseInt(requestHeaderField.get("Content-Length")));
+        String decodedData = URLDecoder.decode(data, StandardCharsets.UTF_8);
+        requestBody = HttpRequestUtils.parseRequestBody(decodedData);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

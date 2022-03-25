@@ -86,3 +86,7 @@ CRLF
    - [x] Request Body의 값 추출하기
    - [X] redirect 구현 (HTTP 응답 해더의 status code를 200이 아닌 302로 한다.)
    
+   리팩토링해야 할 부분
+   - [x] Run를 여러 메소드로 쪼갠다.
+   
+

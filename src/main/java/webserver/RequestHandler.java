@@ -43,18 +43,14 @@ public class RequestHandler extends Thread {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              OutputStream out = connection.getOutputStream()) {
 
+            String firstLine = br.readLine();
+            HttpRequestLine requestLine = HttpRequestUtils.parseHttpRequestLine(firstLine);
             HttpRequestData requestData = new HttpRequestData();
-
-            String requestLine = br.readLine();
-            requestData.setHttpRequestLine(HttpRequestUtils.parseHttpRequestLine(requestLine));
+            requestData.setHttpRequestLine(requestLine);
             requestData.setHeader(readHeaders(br));
 
-            if (requestLine.contains(HttpMethod.POST.name())) {
-                Map<String, String> headers = requestData.getHeader();
-
-                int length = Integer.parseInt(headers.get(CONTENT_LENGTH));
-                String decodedRequestBody = URLDecoder.decode(IOUtils.readData(br, length), StandardCharsets.UTF_8);
-                Map<String, String> requestBody = HttpRequestUtils.parseQueryString(decodedRequestBody);
+            if (requestLine.getHttpMethod().equals(HttpMethod.POST)) {
+                Map<String, String> requestBody = readRequestBody(br, requestData);
                 requestData.setRequestBody(requestBody);
             }
             processRequest(out, requestData);
@@ -64,21 +60,28 @@ public class RequestHandler extends Thread {
         }
     }
 
+    private Map<String, String> readRequestBody(BufferedReader br, HttpRequestData requestData) throws IOException {
+        Map<String, String> headers = requestData.getHeader();
+        int length = Integer.parseInt(headers.get(CONTENT_LENGTH));
+        String decodedRequestBody = URLDecoder.decode(IOUtils.readData(br, length), StandardCharsets.UTF_8);
+        return HttpRequestUtils.parseQueryString(decodedRequestBody);
+    }
+
     private void processRequest(OutputStream out, HttpRequestData requestData) throws Exception {
         HttpRequestLine httpRequestLine = requestData.getHttpRequestLine();
-
-        String contentType = HttpRequestUtils.extractContentType(httpRequestLine.getUrl());
 
         printHeaders(requestData.getHeader());
 
         if (RequestMapping.contains(httpRequestLine.getUrl())) {
-            processDynamicRequest(out, requestData, contentType);
+            processDynamicRequest(out, requestData);
             return;
         }
+
+        String contentType = HttpRequestUtils.extractContentType(httpRequestLine.getUrl());
         processStaticRequest(out, requestData.getHttpRequestLine(), contentType);
     }
 
-    private void processDynamicRequest(OutputStream out, HttpRequestData requestData, String contentType) throws
+    private void processDynamicRequest(OutputStream out, HttpRequestData requestData) throws
         Exception {
         Dispatcher dispatcher = Dispatcher.getInstance();
         Response response = dispatcher.handleRequest(requestData);
@@ -115,9 +118,8 @@ public class RequestHandler extends Thread {
     private Map<String, String> readHeaders(BufferedReader br) throws IOException {
         Map<String, String> headers = new HashMap<>();
         String line;
-        Pair pair;
         while (((line = br.readLine()) != null) && !line.equals("")) {
-            pair = HttpRequestUtils.parseHeader(line);
+            Pair pair = HttpRequestUtils.parseHeader(line);
             headers.put(pair.getKey(), pair.getValue());
         }
         return headers;

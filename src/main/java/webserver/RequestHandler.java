@@ -23,7 +23,7 @@ import static util.SpecialCharacters.*;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private static final int REQUEST_INDEX = 1;
+    private static final int URL_INDEX = 1;
 
     private Socket connection;
     private Configuration configuration = new Configuration();
@@ -95,7 +95,7 @@ public class RequestHandler extends Thread {
 
     private String getRequestUrl(BufferedReader bufferedReader) throws IOException {
         String[] requestLine = bufferedReader.readLine().split(BLANK);
-        return requestLine[REQUEST_INDEX];
+        return requestLine[URL_INDEX];
     }
 
     private void printHeaders(BufferedReader bufferedReader) throws IOException {
@@ -121,10 +121,10 @@ public class RequestHandler extends Thread {
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String type) {
         try {
-            dos.writeBytes("HTTP/1.1 200 OK" + ENTER);
-            dos.writeBytes("Content-Type:" + Extention.of(type) + ENTER);
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + ENTER);
-            dos.writeBytes(ENTER);
+            dos.writeBytes("HTTP/1.1 200 OK" + NEW_LINE);
+            dos.writeBytes("Content-Type:" + Extention.of(type) + NEW_LINE);
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
+            dos.writeBytes(NEW_LINE);
         } catch (IOException e) {
             log.error(e.getMessage());
         }

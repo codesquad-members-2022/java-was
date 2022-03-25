@@ -5,23 +5,20 @@ import java.util.function.Supplier;
 
 public enum Extention {
 
-    HTML("html", "text/html;charset=utf-8", "html관련 확장자"),
-    CSS("css", "text/css;charset=utf-8", "css관련 확장자"),
-    NONE("", "", "");
+    HTML("html", "text/html;charset=utf-8"),
+    CSS("css", "text/css;charset=utf-8"),
+    NONE("", "");
 
     private final String extension;
-    private final String type;
-    private final String description;
-
-    Extention(String extension, String type, String description) {
+    private final String mimeType;
+    Extention(String extension, String mimeType) {
         this.extension = extension;
-        this.type = type;
-        this.description = description;
+        this.mimeType = mimeType;
     }
 
     public static String of(String inputType) {
         return Arrays.stream(values())
-                .filter(headerType -> euqalTo(headerType.type, inputType))
+                .filter(headerType -> euqalTo(headerType.mimeType, inputType))
                 .map(Extention::getType)
                 .findAny()
                 .orElseGet(none());
@@ -32,7 +29,7 @@ public enum Extention {
     }
 
     public String getType() {
-        return type;
+        return mimeType;
     }
 
     private static Supplier<String> none() {

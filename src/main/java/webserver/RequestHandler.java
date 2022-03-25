@@ -12,6 +12,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class RequestHandler extends Thread {
     private void response302Header(DataOutputStream dos, String url) {
         try {
             dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
-            dos.writeBytes("Location: /index.html \r\n");
+            dos.writeBytes("Location: " + url + " \r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

@@ -12,8 +12,8 @@
 - [x] Response 객체 만들기
 - [x] response에 값 setting 해주기
 - [x] ResponseBuilder 메서드 분리하기
-- [ ] 회원 저장 하기 (Map형태)
--
+- [x] 회원 저장 하기 (Map형태)
+- [ ] 중복 회원 방지
 
 ## Step01 TODO List
 

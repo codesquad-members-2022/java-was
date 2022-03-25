@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponse;
 import model.User;
@@ -40,6 +41,7 @@ public class RequestHandler extends Thread {
 
         if (resourcePath.startsWith("/user/create")) {
             User user = createUser(request.getBody());
+            DataBase.addUser(user);
             log.debug("[USER] : {}", user);
             //response302Header(dos, HOME);
             HttpResponse response = new HttpResponse.Builder()

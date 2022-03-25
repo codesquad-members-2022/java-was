@@ -15,6 +15,7 @@ import webserver.controller.UserCreateController;
 public class RequestHandler extends Thread {
 
 	private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+	private static final FrontController frontController = FrontController.getInstance();
 
 	private Socket connection;
 
@@ -35,14 +36,7 @@ public class RequestHandler extends Thread {
 			Request request = createRequest(br);
 			Response response = new Response();
 
-			// /user/create Controller
-			if ("/user/create".equals(request.getUri())) {
-				UserCreateController userController = new UserCreateController(request, response);
-				userController.service();
-			} else { // 그 외 Controller
-				DefaultController defaultController = new DefaultController(request, response);
-				defaultController.service();
-			}
+			frontController.service(request, response);
 
 			sendResponse(dos, response);
 		} catch (IOException e) {

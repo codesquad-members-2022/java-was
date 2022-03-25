@@ -27,22 +27,33 @@ public class Response {
 		if (request.isPOST() && request.getPath().equals("/user/create")) {
 
 			this.body = Files.readAllBytes(new File("./webapp/index.html").toPath());
-			response302Header("http://localhost:8080/index.html");
-			responseBody();
 
 			Map<String, String> parsedBody = request.takeParsedBody();
 			log.debug("POST BODY: {}", parsedBody);
-			DataBase.addUser(new User(
+			User user = new User(
 				parsedBody.get("userId"),
 				parsedBody.get("password"),
 				parsedBody.get("name"),
 				parsedBody.get("email")
-			));
+			);
+			saveUser(user);
 			return;
 		}
 		this.body = Files.readAllBytes(new File("./webapp" + request.getPath()).toPath());
 		response200Header();
 		responseBody();
+	}
+
+	private void saveUser(User user) {
+		if (DataBase.validateDuplicatedId(user)){
+			DataBase.addUser(user);
+			response302Header("http://localhost:8080/index.html");
+			responseBody();
+			return;
+		}
+		response302Header("http://localhost:8080/user/form.html");
+		responseBody();
+		return;
 	}
 
 	private void response302Header(String redirectURL) {

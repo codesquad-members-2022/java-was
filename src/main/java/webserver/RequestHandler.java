@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -58,6 +59,7 @@ public class RequestHandler extends Thread {
                 userCreationForm.get("password"),
                 userCreationForm.get("name"),
                 userCreationForm.get("email"));
+        DataBase.addUser(user);
         log.debug("New User has been created: {}", user);
 
         response302Header(dos, "/index.html");

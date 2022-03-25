@@ -5,10 +5,11 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import java.util.concurrent.ConcurrentHashMap;
 import model.User;
 
 public class DataBase {
-    private static Map<String, User> users = Maps.newHashMap();
+    private static Map<String, User> users = new ConcurrentHashMap<>();
 
     public static void addUser(User user) {
         users.put(user.getUserId(), user);

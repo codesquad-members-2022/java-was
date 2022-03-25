@@ -74,11 +74,11 @@ public class RequestHandler extends Thread {
         String password = requestBody.get("password");
         User user = DataBase.findUserById(userId);
         byte[] body = "".getBytes();
-        if (user == null || !password.equals(user.getPassword())) {
+        if (user == null || !user.isCorrectPassword(password)) {
             log.debug("로그인을 실패하였습니다!");
             response302Header(dos, "/user/login_failed.html", body.length);
         }
-        if (password.equals(user.getPassword())) {
+        if (user.isCorrectPassword(password)) {
             log.debug("로그인을 성공했습니다!");
             response302HeaderWithCookie(dos, "/index.html", body.length);
         }
@@ -141,7 +141,8 @@ public class RequestHandler extends Thread {
     }
 
     private void setRequestBody(BufferedReader br) throws IOException {
-        int contentLength  = requestHeaderField.get("Content-Length") == null ? 0 : Integer.parseInt(requestHeaderField.get("Content-Length"));
+        int contentLength = (requestHeaderField.get("Content-Length") == null) ?
+                0 : Integer.parseInt(requestHeaderField.get("Content-Length"));
         String data = IOUtils.readData(br, contentLength);
         String decodedData = URLDecoder.decode(data, StandardCharsets.UTF_8);
         requestBody = HttpRequestUtils.parseRequestBody(decodedData);

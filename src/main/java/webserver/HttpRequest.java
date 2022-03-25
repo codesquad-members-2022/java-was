@@ -4,8 +4,6 @@ import util.HttpRequestUtils;
 import util.HttpRequestUtils.Pair;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +28,7 @@ public class HttpRequest {
     private Map<String, String> parseParams(String httpUrl) {
         String[] splitUrl = httpUrl.split("\\?");
         if (hasQueryString(splitUrl)) {
-            return HttpRequestUtils.parseQueryString(URLDecoder.decode(splitUrl[1], StandardCharsets.UTF_8));
+            return HttpRequestUtils.parseQueryString(splitUrl[1]);
         }
 
         return new HashMap<>();
@@ -43,5 +41,6 @@ public class HttpRequest {
     public String getParameter(String key) {
         return params.get(key);
     }
+
 
 }

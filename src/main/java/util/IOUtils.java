@@ -5,6 +5,8 @@ import util.HttpRequestUtils.Pair;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ public class IOUtils {
     public static String readData(BufferedReader br, int contentLength) throws IOException {
         char[] body = new char[contentLength];
         br.read(body, 0, contentLength);
-        return String.copyValueOf(body);
+        return URLDecoder.decode(String.copyValueOf(body), StandardCharsets.UTF_8);
     }
 
     public static List<Pair> readRequestHeader(BufferedReader br) throws IOException {

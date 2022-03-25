@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +36,23 @@ public class RequestHandler extends Thread {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
-            String requestLine = br.readLine();
+            String requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
             String url = HttpRequestUtils.getUrl(requestLine);
 
             List<Pair> headers = IOUtils.readRequestHeader(br);
+
+            int contentLength = 0;
+            for (int i = 0; i < headers.size(); i++) {
+                if (headers.get(i).getKey().equals("Content-Length")) {
+                    contentLength = Integer.parseInt(headers.get(i).getValue());
+                }
+            }
+
+            String queryString = IOUtils.readData(br, contentLength);
+            Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
+            String userId = parameters.get("userId");
+            log.debug("userId = {}", userId);
+
 
             HttpRequest httpRequest = new HttpRequest(requestLine, headers);
 

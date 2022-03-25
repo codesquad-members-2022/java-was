@@ -3,15 +3,14 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import db.DataBase;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.IOUtils;
+import webserver.controller.DefaultController;
+import webserver.controller.UserCreateController;
 
 public class RequestHandler extends Thread {
 
@@ -38,25 +37,13 @@ public class RequestHandler extends Thread {
 
 			// /user/create Controller
 			if ("/user/create".equals(request.getUri())) {
-				User findUser = DataBase.findUserById(request.getParam("userId"));
-				if (findUser == null) { // 회원가입
-					User user = new User(request.getParam("userId"),
-						request.getParam("password"),
-						request.getParam("name"),
-						request.getParam("email"));
-					DataBase.addUser(user);
-					log.debug("회원가입완료 {}", user);
-					response.setRedirect(StatusCode.REDIRECTION_302,
-						"http://localhost:8080/index.html");
-				} else { // 중복회원
-					response.setRedirect(StatusCode.REDIRECTION_302,
-						"http://localhost:8080/user/form.html");
-				}
+				UserCreateController userController = new UserCreateController(request, response);
+				userController.service();
 			} else { // 그 외 Controller
-				byte[] body = null;
-				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
-				response.setBody(body, "text/html");
+				DefaultController defaultController = new DefaultController(request, response);
+				defaultController.service();
 			}
+
 			sendResponse(dos, response);
 		} catch (IOException e) {
 			log.error(e.getMessage());

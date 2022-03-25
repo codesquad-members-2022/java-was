@@ -29,6 +29,10 @@ public class User {
         return email;
     }
 
+    public boolean isSameId(String userId){
+        return this.userId.equals(userId);
+    }
+
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";

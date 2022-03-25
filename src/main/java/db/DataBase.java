@@ -1,24 +1,26 @@
 package db;
 
-import java.util.Collection;
-import java.util.Map;
-
-import com.google.common.collect.Maps;
-
 import model.User;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class DataBase {
-    private static Map<String, User> users = Maps.newHashMap();
+    private static List<User> users = new ArrayList<>();
 
     public static void addUser(User user) {
-        users.put(user.getUserId(), user);
+        users.add(user);
     }
 
     public static User findUserById(String userId) {
-        return users.get(userId);
+        return users.stream()
+                .filter(user -> user.isSameId(userId))
+                .findAny()
+                .orElseThrow();
     }
 
     public static Collection<User> findAll() {
-        return users.values();
+        return new ArrayList<>(users);
     }
 }

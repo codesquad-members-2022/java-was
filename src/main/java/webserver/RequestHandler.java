@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import model.Extention;
 import model.HeaderType;
 import model.User;
@@ -17,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static model.HeaderType.REQUEST_URL;
 import static util.HttpRequestUtils.getPath;
+import static util.Pathes.JOIN_PATH;
 import static util.Pathes.WEBAPP_ROOT;
 import static util.SpecialCharacters.*;
 
@@ -41,15 +43,18 @@ public class RequestHandler extends Thread {
 
             String requestUrl = request.getHeaderType(REQUEST_URL);
 
-            if (requestUrl.startsWith("/user/create")) {
+            if (requestUrl.startsWith(JOIN_PATH)) {
                 int index = requestUrl.indexOf("?");
 
                 String queryString = requestUrl.substring(index + 1);
                 Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);
                 User user = new User(params.get("userId"), params.get("password"), URLDecoder.decode(params.get("name"), StandardCharsets.UTF_8), params.get("email"));
 
+                DataBase.addUser(user);
+
                 makeResponseBody(out, requestUrl);
                 log.debug("User : {}", user);
+
             } else {
                 makeResponseBody(out, requestUrl);
             }

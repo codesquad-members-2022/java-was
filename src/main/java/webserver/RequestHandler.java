@@ -18,6 +18,7 @@ import java.util.Map;
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
     public static final String HOME = "/index.html";
+    public static final String USER_REGISTRY_FORM = "/user/form.html";
 
     private Socket connection;
 
@@ -38,40 +39,50 @@ public class RequestHandler extends Thread {
 
     private void controlResourcePath(HttpRequest request, OutputStream out) throws IOException {
         String resourcePath = request.getPath();
+        HttpResponse response = null;
 
         if (resourcePath.startsWith("/user/create")) {
             User user = createUser(request.getBody());
-            DataBase.addUser(user);
+            String nextPath = HOME;
+
+            try {
+                DataBase.addUser(user);
+            } catch (RuntimeException e) {
+                nextPath = USER_REGISTRY_FORM;
+            }
+
             log.debug("[USER] : {}", user);
-            //response302Header(dos, HOME);
-            HttpResponse response = new HttpResponse.Builder()
-                    .status("HTTP/1.1 302 Found")
-                    .setHeader("Location", HOME)
-                    .build();
-            ResponseBuilder responseBuilder = new ResponseBuilder(response, out);
-            responseBuilder.sendResponse();
+            response = status302(nextPath);
+            sendResponse(response, out);
             return;
         }
 
-        byte[] body = viewResolver(resourcePath);
-        HttpResponse response = new HttpResponse.Builder()
+        response = status200(viewResolver(resourcePath));
+        sendResponse(response, out);
+    }
+
+    private HttpResponse status200(byte[] body) {
+        return new HttpResponse.Builder()
                 .status("HTTP/1.1 200 OK")
                 .setHeader("Content-Type", "text/html;charset=utf-8")
                 .setHeader("Content-Length", String.valueOf(body.length))
                 .body(body)
                 .build();
+    }
 
-        ResponseBuilder responseBuilder = new ResponseBuilder(response, out);
-        responseBuilder.sendResponse();
+    private HttpResponse status302(String path) {
+        return new HttpResponse.Builder()
+                .status("HTTP/1.1 302 Found")
+                .setHeader("Location", path)
+                .build();
+    }
+
+    private void sendResponse(HttpResponse response, OutputStream out) {
+        new ResponseBuilder(response, out).sendResponse();
     }
 
     private HttpRequest buildRequest(InputStream in) throws IOException {
         return new RequestParser(in).createRequest();
-    }
-
-    private String getResourcePath(BufferedReader reader) throws IOException {
-        String requestLine = reader.readLine();
-        return HttpRequestUtils.getUrlFromRequestLine(requestLine);
     }
 
     private byte[] viewResolver(String resourcePath) throws IOException {
@@ -83,35 +94,4 @@ public class RequestHandler extends Thread {
         Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
         return new User(parameters.get("userId"), parameters.get("password"), parameters.get("name"), parameters.get("email"));
     }
-
-//    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-//        try {
-//            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-//            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-//            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-//            dos.writeBytes("\r\n");
-//        } catch (IOException e) {
-//            log.error(e.getMessage());
-//        }
-//    }
-//
-//    private void response302Header(DataOutputStream dos, String path) {
-//        try {
-//            dos.writeBytes("HTTP/1.1 302 Found \r\n");
-//            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-//            dos.writeBytes("Location: " + path + "\r\n");
-//            dos.writeBytes("\r\n");
-//        } catch (IOException e) {
-//            log.error(e.getMessage());
-//        }
-//    }
-//
-//    private void responseBody(DataOutputStream dos, byte[] body) {
-//        try {
-//            dos.write(body, 0, body.length);
-//            dos.flush();
-//        } catch (IOException e) {
-//            log.error(e.getMessage());
-//        }
-//    }
 }

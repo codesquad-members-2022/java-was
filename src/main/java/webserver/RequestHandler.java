@@ -1,11 +1,13 @@
 package webserver;
 
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.Map;
 
 public class RequestHandler extends Thread {
 
@@ -13,6 +15,8 @@ public class RequestHandler extends Thread {
     private static final String WEBAPP_PATH = "./webapp";
 
     private Socket connection;
+    private RequestReader requestReader;
+    private ResponseWriter responseWriter;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -23,49 +27,57 @@ public class RequestHandler extends Thread {
             connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리
             Request request = parseRequest(in);
-
-            ContentType contentType = ContentType.from(request.parseExt());
-
-            // TODO 사용자 응답에 대한 처리
-            responseFile(out, request, contentType);
+            Response response = handlePath(request);
+            sendResponse(out, response);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
     private Request parseRequest(InputStream in) throws IOException {
-        RequestReader requestReader = new RequestReader(in);
+        requestReader = new RequestReader(in);
         return requestReader.create();
     }
 
-    private void responseFile(OutputStream out, Request request, ContentType contentType)
-        throws IOException {
-        DataOutputStream dos = new DataOutputStream(out);
-        byte[] body = Files.readAllBytes(new File(WEBAPP_PATH + request.getUrl()).toPath());
-        response200Header(dos, body.length, contentType.getMime());
-        responseBody(dos, body);
+    private void sendResponse(OutputStream out, Response response) {
+        responseWriter = new ResponseWriter(new DataOutputStream(out));
+        responseWriter.from(response);
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent,
-        String contentType) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + contentType + "\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
+    private Response handlePath(Request request) throws IOException {
+
+        // create
+        if (request.getMethod().equals("GET") && request.parsePath().equals("/user/create")) {
+            createUser(request);
+            return new Response.Builder(Status.FOUND)
+                    .addHeader("Location", "http://localhost:8080/index.html")
+                    .build();
         }
+
+        // default
+        byte[] body = readFile(request);
+        return new Response.Builder(Status.OK)
+                .addHeader("Content-Type", request.getContentType().getMime())
+                .addHeader("Content-Length", String.valueOf(body.length))
+                .body(body)
+                .build();
     }
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
+    private byte[] readFile(Request request) throws IOException {
+        return Files.readAllBytes(new File(WEBAPP_PATH + request.parsePath()).toPath());
     }
+
+    private void createUser(Request request) {
+        Map<String, String> queryString = request.getQueryString();
+
+        User user = new User(
+            queryString.get("userId"),
+            queryString.get("password"),
+            queryString.get("name"),
+            queryString.get("email")
+        );
+        log.info("user={}", user);
+    }
+
 }

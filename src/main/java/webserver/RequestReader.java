@@ -9,31 +9,27 @@ import java.util.Map;
 
 public class RequestReader {
 
-    private final BufferedReader br;
+    private final BufferedReader bufferedReader;
 
     public RequestReader(InputStream in) {
-        this.br = new BufferedReader(new InputStreamReader(in));
+        this.bufferedReader = new BufferedReader(new InputStreamReader(in));
     }
 
     public Request create() throws IOException {
-        return new Request(readLine(), parseHeader());
-    }
-
-    private String readLine() throws IOException {
-        return br.readLine();
+        return new Request(bufferedReader.readLine(), parseHeader());
     }
 
     private Map<String, String> parseHeader() throws IOException {
         String line;
-        Map<String, String> header = new HashMap<>();
+        Map<String, String> headers = new HashMap<>();
 
-        while (!(line = br.readLine()).equals("")) {
+        while (!(line = bufferedReader.readLine()).equals("")) {
             String[] tokens = line.split(": ");
 
             if (tokens.length == 2) {
-                header.put(tokens[0], tokens[1]);
+                headers.put(tokens[0], tokens[1]);
             }
         }
-        return header;
+        return headers;
     }
 }

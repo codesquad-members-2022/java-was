@@ -2,8 +2,11 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -27,16 +30,27 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             String requestLine = reader.readLine();
+            System.out.println("requestLine = " + requestLine);
             String resourcePath = HttpRequestUtils.parseRequestLine(requestLine);
-            byte[] body = Files.readAllBytes(new File("./webapp" + resourcePath).toPath());
 
-            HttpRequestUtils.printRequest(reader);
+            if(resourcePath.startsWith("/user/create")) {
+                User user = createUser(resourcePath);
+                System.out.println("user = " + user);
+            }
+
+           byte[] body = Files.readAllBytes(new File("./webapp" + resourcePath).toPath());
 
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private User createUser(String resourcePath) throws UnsupportedEncodingException {
+        String queryString = HttpRequestUtils.getQueryString(resourcePath);
+        Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
+        return new User(parameters.get("userId"), parameters.get("password"), parameters.get("name"), parameters.get("email"));
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

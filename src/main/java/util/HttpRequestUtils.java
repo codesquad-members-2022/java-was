@@ -3,6 +3,8 @@ package util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
@@ -65,6 +67,11 @@ public class HttpRequestUtils {
 
     public static String parseRequestLine(String url) throws IOException {
         return url.split(" ")[1];
+    }
+
+    public static String getQueryString(String resourcePath) throws UnsupportedEncodingException {
+        int firstLen = resourcePath.indexOf("?");
+        return URLDecoder.decode(resourcePath.substring(firstLen + 1), "UTF-8");
     }
 
     public static void printRequest(BufferedReader reader) throws IOException {

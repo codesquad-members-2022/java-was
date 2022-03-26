@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IOUtils {
+
+    public static final String STATIC_RESOURCE_PATH = "./webapp";
+
     /**
      * @param BufferedReader는 Request Body를 시작하는 시점이어야
      * @param contentLength는  Request Header의 Content-Length 값이다.
@@ -32,6 +35,9 @@ public class IOUtils {
     }
 
     public static byte[] readRequestResource(String url) throws IOException {
-        return Files.readAllBytes(new File("./webapp" + url).toPath());
+        if (url.equals("/")) {
+            url = "/index.html";
+        }
+        return Files.readAllBytes(new File(STATIC_RESOURCE_PATH + url).toPath());
     }
 }

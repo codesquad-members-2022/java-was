@@ -1,11 +1,11 @@
 package util;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
 
@@ -32,7 +32,7 @@ public class HttpRequestUtils {
 
         String[] tokens = values.split(separator);
         return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
-            .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
 
     static Pair getKeyValue(String keyValue, String regex) {
@@ -53,11 +53,8 @@ public class HttpRequestUtils {
     }
 
 
-    public static String getUrl(String firstHeadLine) {
-        String[] tokens = firstHeadLine.split(" ");
-        if (tokens[1].equals("/")) {
-            return "/index.html";
-        }
+    public static String getUrl(String requestLine) {
+        String[] tokens = requestLine.split(" ");
 
         return tokens[1];
     }

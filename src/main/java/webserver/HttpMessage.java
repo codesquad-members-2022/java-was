@@ -5,7 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,11 @@ public class HttpMessage {
 
 	public String getQueryParams() {
 		String path = this.readFirstOfHeader();
-		return path.substring(path.indexOf(SEPARATOR_OF_QUERY_STRINGS)+1);
+		String params = path.substring(path.indexOf(SEPARATOR_OF_QUERY_STRINGS) + 1);
+		return toDecode(params);
+	}
+
+	private String toDecode(String url) {
+		return URLDecoder.decode(url, StandardCharsets.UTF_8);
 	}
 }

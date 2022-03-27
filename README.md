@@ -62,3 +62,15 @@ Java Web Server Project for CodeSquad Members 2022
       public abstract class Reader implements Readable, Closeable { }
       public class BufferedReader extends Reader {}
     ```
+
+
+
+#### 한글이 깨지는 이유
+- URL은 ISO-8859-1으로 인코딩 - 한글 지원 X
+  - ISO-8859-1 방식은 한 글자를 1바이트씩 해석
+  - 한글은 한 글자가 2바이트이고, 1 바이트씩 해석하면 깨지는 현상
+- 응답 헤더에 Content-Type으로 파일 형식과 인코딩을 정해줘야 하는 이유?
+  - 브라우저 마다 해석하는 문서형식의 기본값이 다르다.
+  - 브라우저 마다 인코딩 형식이 다를 수 있다. (EUC-KR 등)
+  
+  - [Servlet에서 인코딩방식과 출력방식 지정](https://develop-writing.tistory.com/25?category=830583)

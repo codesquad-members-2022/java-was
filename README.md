@@ -27,6 +27,12 @@ Java Web Server Project for CodeSquad Members 2022
   - 쿼리파라미터 전달 : localhost:8080/user/create?userId=test&password=asdf -> ? + userId=test&password=asdf
 
 
+<br>
+
+#### POST 요청처리
+- 위의 회원가입 요청을 <form>내에서 post 로 변경
+- Request Header 첫째줄 내용 되에는 `:`를 중심으로 key, value로 데이터가 담겨 있다.
+- POST 요청시 Content-Length 의 값 만큼 body를 읽어 입력된 회원정보로 User 객체를 생성한다.
 
 
 
@@ -50,7 +56,7 @@ Java Web Server Project for CodeSquad Members 2022
 
 ## STUDY
 
-#### try-with-resources
+#### 💬 try-with-resources
   - JDK 7
   - try에 자원객체 전달시, try 코드 블록 종료시 자동으로 자원 종료 해주는 기능
     - 별도의 catch 블록, finally 블록에 close()의 종료 확인 및 종료 처리를 해주지 않아도 된다.
@@ -63,9 +69,10 @@ Java Web Server Project for CodeSquad Members 2022
       public class BufferedReader extends Reader {}
     ```
 
+<br>
 
 
-#### 한글이 깨지는 이유
+#### 💬 한글이 깨지는 이유
 - URL은 ISO-8859-1으로 인코딩 - 한글 지원 X
   - ISO-8859-1 방식은 한 글자를 1바이트씩 해석
   - 한글은 한 글자가 2바이트이고, 1 바이트씩 해석하면 깨지는 현상
@@ -74,3 +81,21 @@ Java Web Server Project for CodeSquad Members 2022
   - 브라우저 마다 인코딩 형식이 다를 수 있다. (EUC-KR 등)
   
   - [Servlet에서 인코딩방식과 출력방식 지정](https://develop-writing.tistory.com/25?category=830583)
+
+
+<br>
+
+#### 💬 BufferedReader - read()
+Reads characters into a portion of an array. [docs](https://docs.oracle.com/javase/8/docs/api/java/io/BufferedReader.html)
+
+``` java
+public int read(char[] cbuf,
+                int off,
+                int len)
+         throws IOException
+```
+- cbuf : 목적지 buffer
+- off : 저장된 characters의 시작 default 값
+- len : characters 를 읽을 최대 개수
+
+<br>

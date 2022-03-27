@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import model.User;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -41,12 +42,21 @@ public class RequestHandler extends Thread {
                 log.debug("request file: {}", path);
             }
 
-            //TODO 2nd
-            if (path.contains("?")) {
+            //TODO 2nd -> 3rd POST
+            /*if (path.contains("?")) {
                 String queryParams = httpMessage.getQueryParams();
                 Map<String, String> params = parseQueryString(queryParams);
                 User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
                 log.debug("register new user: {}", user);
+            }*/
+
+            if (path.contains("/user/create")) {
+                int length = httpMessage.contentLength();
+                String body = IOUtils.readData(bufferedReader, length);
+
+                Map<String, String> params = parseQueryString(httpMessage.toDecode(body));
+                User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
+                log.debug("post body : {}", user);
             }
 
             String responseUrl = (path.contains("html")) ? path : "/index.html";

@@ -29,6 +29,10 @@ public class HttpRequestUtils {
         return parseValues(cookies, ";");
     }
 
+    public static String decodeUrl(String urlEncodedString) {
+        return URLDecoder.decode(urlEncodedString, StandardCharsets.UTF_8);
+    }
+
     private static Map<String, String> parseValues(String values, String separator) {
         if (Strings.isNullOrEmpty(values)) {
             return Maps.newHashMap();
@@ -54,12 +58,6 @@ public class HttpRequestUtils {
 
     public static Pair parseHeader(String header) {
         return getKeyValue(header, ": ");
-    }
-
-    public static String parseUrl(String requestLine) throws UnsupportedEncodingException {
-        String[] tokens = requestLine.split(" ");
-        String encodedUrl = tokens[1];
-        return URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8);
     }
 
     public static class Pair {

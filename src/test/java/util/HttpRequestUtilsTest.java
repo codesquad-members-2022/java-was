@@ -23,19 +23,6 @@ public class HttpRequestUtilsTest {
     }
 
     @Test
-    @DisplayName("parseUrl 메서드는 requestLine의 URL 전체를 반환해야한다.")
-    public void parseUrlTest() throws Exception {
-        //given
-        String requestLine = "GET /index.html HTTP/1.1";
-
-        //when
-        String parseUrl = HttpRequestUtils.parseUrl(requestLine);
-
-        //then
-        assertThat(parseUrl).isEqualTo("/index.html");
-    }
-
-    @Test
     public void parseQueryString_null() {
         Map<String, String> parameters = HttpRequestUtils.parseQueryString(null);
         assertThat(parameters.isEmpty()).isTrue();
@@ -81,5 +68,18 @@ public class HttpRequestUtilsTest {
         String header = "Content-Length: 59";
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
+    }
+
+    @Test
+    @DisplayName("decodeUrl메서드는 넘어온 URL을 UTF-8로 디코딩할 수 있어야 한다.")
+    public void decodeUrl() throws Exception {
+        //given
+        String urlEncodedString = "userId=%EB%95%83%EB%95%83%EB%95%83";
+
+        //when
+        String decodedString = HttpRequestUtils.decodeUrl(urlEncodedString);
+
+        //then
+        assertThat(decodedString).contains("땃땃땃");
     }
 }

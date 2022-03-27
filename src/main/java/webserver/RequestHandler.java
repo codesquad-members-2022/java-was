@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +17,6 @@ import java.util.Map;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
 
@@ -36,31 +35,31 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             DataOutputStream dos = new DataOutputStream(out);
-            String requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
-            String targetURI = HttpRequestUtils.getRequestURI(requestLine);
-            String targetPath = HttpRequestUtils.getRequestPath(targetURI);
 
-            if (targetPath.equals("/user/create")) {
-                String queryString = HttpRequestUtils.getQueryString(targetURI);
-                processUserCreation(dos, queryString);
+            HttpRequest httpRequest = HttpRequest.receive(br);
+
+            if (httpRequest.hasPathEqualTo("/user/create") && httpRequest.hasMethodEqualTo("POST")) {
+                processUserCreation(dos, httpRequest.getParameters());
                 return;
             }
 
-            byte[] body = Files.readAllBytes(Path.of(WEBAPP + targetPath));
+            byte[] body = Files.readAllBytes(Path.of(WEBAPP + httpRequest.getPath()));
 
             response200Header(dos, body.length);
             responseBody(dos, body);
+
+            connection.close();
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void processUserCreation(DataOutputStream dos, String queryString) {
-        Map<String, String> userCreationForm = HttpRequestUtils.parseQueryString(queryString);
+    private void processUserCreation(DataOutputStream dos,  Map<String, String> userCreationForm) {
         User user = new User(userCreationForm.get("userId"),
                 userCreationForm.get("password"),
                 userCreationForm.get("name"),
                 userCreationForm.get("email"));
+        DataBase.addUser(user);
         log.debug("New User has been created: {}", user);
 
         response302Header(dos, "/index.html");

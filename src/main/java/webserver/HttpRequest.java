@@ -26,7 +26,7 @@ public class HttpRequest {
         header = IOUtils.readRequestHeader(br);
         if (httpMethod.equals("POST")) {
             params = parseBody(IOUtils.readData(br, Integer.parseInt(header.get("Content-Length"))));
-        }else{
+        } else {
             params = new HashMap<>();
         }
     }

@@ -33,6 +33,15 @@ Java Web Server Project for CodeSquad Members 2022
 - 위의 회원가입 요청을 <form>내에서 post 로 변경
 - Request Header 첫째줄 내용 되에는 `:`를 중심으로 key, value로 데이터가 담겨 있다.
 - POST 요청시 Content-Length 의 값 만큼 body를 읽어 입력된 회원정보로 User 객체를 생성한다.
+- PRG 패턴 예시로 리다이렉트 반환하기
+  - 클라이언트 POST 요청에 대해 서버엣 아래와 같이 응답하여, 리다이렉트 되도록 한다 
+  - [리다이렉트 302 응답코드](https://en.wikipedia.org/wiki/HTTP_302)
+  - **Location** : 클라이언트를 지정한 URI로 리다이렉트 한다.
+
+  ```
+  HTTP/1.1 302 Found
+  Location: http://www.iana.org/domains/example/
+  ```
 
 
 

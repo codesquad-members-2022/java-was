@@ -57,18 +57,32 @@ public class RequestHandler extends Thread {
                 Map<String, String> params = parseQueryString(httpMessage.toDecode(body));
                 User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
                 log.debug("post body : {}", user);
+
+                DataOutputStream dos = new DataOutputStream(out);
+                response302Header(dos, "http://localhost:8080/index.html");
+                return;
             }
+
 
             String responseUrl = (path.contains("html")) ? path : "/index.html";
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + responseUrl).toPath());
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            response200Header(dos, body.length); //  201 Created
+            responseBody(dos, body); responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
+    private void response302Header(DataOutputStream dos, String redirectedUrl) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: " + redirectedUrl + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");

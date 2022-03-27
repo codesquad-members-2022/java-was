@@ -18,6 +18,9 @@ public class RequestHeader {
 	public static final String SEPARATOR_OF_SPACE = "\\p{Blank}";
 	public static final String SEPARATOR_OF_QUERY_STRINGS = "?";
 	public static final String SEPARATOR_OF_COLON = ":";
+	public static final String ROOT = "/";
+	public static final String ROOT_PATH = ROOT + "index.html";
+	public static final String CONTENT_LENGTH = "Content-Length";
 
 	private String method;
 	private String path;
@@ -41,8 +44,8 @@ public class RequestHeader {
 	}
 
 	private void setPath(String path) {
-		if (path.trim().equals("/") || Strings.isNullOrEmpty(path)) {
-			this.path = "/index.html";
+		if (path.trim().equals(ROOT) || Strings.isNullOrEmpty(path)) {
+			this.path = ROOT_PATH;
 			return;
 		}
 		this.path = path.trim();
@@ -87,7 +90,7 @@ public class RequestHeader {
 
 	// POST
 	public int contentLength() {
-		return Integer.parseInt(this.header.get("Content-Length"));
+		return Integer.parseInt(this.header.get(CONTENT_LENGTH));
 	}
 
 	public String getPath() {

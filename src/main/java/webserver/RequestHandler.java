@@ -36,25 +36,29 @@ public class RequestHandler extends Thread {
             httpMessage.write(bufferedReader);
 
             //TODO header의 첫번째 라인에서 path 추출 : GET /index.html HTTP/1.1
-            String path = httpMessage.readFirstOfHeader();
-
-            if (path.contains("html")) {
-                log.debug("request file: {}", path);
+            /*  GET
+                default 경로 요청  -> default path 반환  = file path
+                html 등 파일 요청   -> 해당 file 반환     = file path
+                ?로 쿼리스트링 요청   -> 201 Created
+             */
+            if (httpMessage.getMapping()) {
+                String path = httpMessage.getPath();
+                DataOutputStream dos = new DataOutputStream(out);
+                if (path.startsWith("/user/create")) {
+                    Map<String, String> params = httpMessage.getQueryString();
+                    User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
+                    log.debug("register new user: {}", user);
+                    response201Header(dos); //  201 Created
+                    return;
+                }
+                byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+                response200Header(dos, body.length);
+                responseBody(dos, body); responseBody(dos, body);
+                return;
             }
 
-            //TODO 2nd -> 3rd POST
-            /*if (path.contains("?")) {
-                String queryParams = httpMessage.getQueryParams();
-                Map<String, String> params = parseQueryString(queryParams);
-                User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
-                log.debug("register new user: {}", user);
-            }*/
-
-            if (path.contains("/user/create")) {
-                int length = httpMessage.contentLength();
-                String body = IOUtils.readData(bufferedReader, length);
-
-                Map<String, String> params = parseQueryString(httpMessage.toDecode(body));
+            if (httpMessage.postMapping()) {
+                Map<String, String> params = httpMessage.getBody(bufferedReader);
                 User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
                 log.debug("post body : {}", user);
 
@@ -63,12 +67,16 @@ public class RequestHandler extends Thread {
                 return;
             }
 
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
 
-            String responseUrl = (path.contains("html")) ? path : "/index.html";
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + responseUrl).toPath());
-            response200Header(dos, body.length); //  201 Created
-            responseBody(dos, body); responseBody(dos, body);
+    private void response201Header(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 201 Created \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }

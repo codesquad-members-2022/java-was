@@ -48,5 +48,4 @@ public class RequestHandler extends Thread {
     private Response handlePath(Request request) {
         return pathMapper.callHandler(request);
     }
-
 }

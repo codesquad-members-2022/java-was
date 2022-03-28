@@ -25,6 +25,11 @@ public class Response {
 
 	public void writeResponse() throws IOException {
 		log.debug("requestLine: {}", request.getRequestLine());
+		if (HttpMethod.isGet(request) && request.getPath().equals("/user/logout")) {
+			logoutHeader("http://localhost:8080/index.html");
+			responseBody();
+			return;
+		}
 
 		if (HttpMethod.isPost(request) && request.getPath().equals("/user/create")) {
 
@@ -91,7 +96,20 @@ public class Response {
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
 			dos.writeBytes("Content-Length: " + body.length + "\r\n");
 			dos.writeBytes("Location: " + redirectURL + "\r\n");
-			dos.writeBytes("Set-Cookie: sessionId=" + userId + "; Path=/");
+			dos.writeBytes("Set-Cookie: sessionId=" + userId + "; max-age=20; Path=/; HttpOnly\r\n");
+			dos.writeBytes("\r\n");
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	private void logoutHeader(String redirectURL) {
+		try {
+			dos.writeBytes("HTTP/1.1 302 Found\r\n");
+			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+			dos.writeBytes("Content-Length: " + body.length + "\r\n");
+			dos.writeBytes("Location: " + redirectURL + "\r\n");
+			dos.writeBytes("Set-Cookie: sessionId=; max-age=-1; Path=/\r\n");
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
 			log.error(e.getMessage());

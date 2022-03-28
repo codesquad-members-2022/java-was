@@ -73,3 +73,17 @@
 - orElseGet
   - Supplier로 wrapping한 값을 받는다.
   - **`null`일 경우에만** 뒤의 로직이 실행된다.(lazy)
+
+---
+
+## Step4 : 웹서버 4단계 - 쿠키를 이용한 로그인 구현
+
+- 302, 304 차이
+- response body가 없어도 되는 상태 코드(302, 304, 204)
+- 로그아웃 방법(Cookie 생명주기 설정, session의 역할 ~ store(Map))
+- Post -> Redirect -> Get
+- [Set-Cookie] HTTP/1.1 vs. HTTP/2 : 세미콜론(;)으로 결합이 가능한지 아닌지
+- [Set-Cookie] 작성 순서
+- [Set-Cookie] Path value default는 없는건가?
+  - 참고 : https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+  - 참고2: https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request

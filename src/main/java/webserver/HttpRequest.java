@@ -38,9 +38,16 @@ public class HttpRequest {
         return params.length > 1;
     }
 
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
     public String getParameter(String key) {
         return params.get(key);
     }
 
+    public void setParameters(Map<String, String> params) {
+        this.params = params;
+    }
 
 }

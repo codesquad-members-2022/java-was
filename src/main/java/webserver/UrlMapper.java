@@ -14,28 +14,27 @@ public class UrlMapper {
     private static UserController userController = new UserController();
 
     private UrlMapper() {
-
     }
 
     public static HttpResponse getResponse(HttpRequest httpRequest, BufferedReader bufferedReader) {
-        HttpResponse response = null;
         String url = httpRequest.getPath();
-
+        log.debug(url);
+        HttpResponse httpResponse = new HttpResponse(httpRequest.httpVersion());
         if (httpRequest.getMapping()) {
             Map<String, String> queryString = httpRequest.getQueryString();
             switch (url) {
                 case "/index.html":
-                    return mainController.main(url);
+                    return mainController.main(url, httpResponse);
                 case "/user/form.html":
-                    return userController.joinForm(url);
+                    return userController.joinForm(url, httpResponse);
             }
         } else if (httpRequest.postMapping()) {
             Map<String, String> body = httpRequest.getBody(bufferedReader);
             switch (url) {
-                case "/user/create/":
-                    return userController.join(body);
+                case "/user/create":
+                    return userController.join(body, httpResponse);
             }
         }
-        return response;
+        return httpResponse.badRequest();
     }
 }

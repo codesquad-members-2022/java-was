@@ -96,4 +96,8 @@ public class RequestHeader {
 	public String getPath() {
 		return this.path;
 	}
+
+	public String getVersion() {
+		return version;
+	}
 }

@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.Optional;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -27,70 +28,34 @@ public class RequestHandler extends Thread {
             HttpRequest httpRequest = new HttpRequest();
             httpRequest.write(bufferedReader);
 
-            //TODO header의 첫번째 라인에서 path 추출 : GET /index.html HTTP/1.1
-            /*  GET
-                default 경로 요청  -> default path 반환  = file path
-                html 등 파일 요청   -> 해당 file 반환     = file path
-                ?로 쿼리스트링 요청   -> 201 Created
-             */
-            if (httpRequest.getMapping()) {
-                String path = httpRequest.getPath();
-                HttpResponse response = UrlMapper.getResponse(httpRequest, bufferedReader);
+            HttpResponse httpResponse = UrlMapper.getResponse(httpRequest, bufferedReader);
 
-                DataOutputStream dos = new DataOutputStream(out);
-                if (path.startsWith("/user/create")) {
-                    Map<String, String> params = httpRequest.getQueryString();
-                    User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
-                    log.debug("register new user: {}", user);
-                    response201Header(dos); //  201 Created
-                    return;
-                }
-                byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
-                response200Header(dos, body.length);
-                responseBody(dos, body);
-                responseBody(dos, body);
+            DataOutputStream dos = new DataOutputStream(out);
+            Optional<byte[]> response = httpResponse.getResponseBody();
+
+            if (response.isEmpty()) {
+                writeHeaders(dos, 0, httpResponse);
+                dos.flush();
                 return;
             }
+            byte[] responseBody = response.get();
+            writeHeaders(dos, responseBody.length, httpResponse);
+            responseBody(dos, responseBody);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
 
-            if (httpRequest.postMapping()) {
-                Map<String, String> params = httpRequest.getBody(bufferedReader);
-                User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
-                log.debug("post body : {}", user);
+    private void writeHeaders(DataOutputStream dos, int lengthOfBodyContent, HttpResponse response) {
+        try {
+            dos.writeBytes(String.format("%s %d %s %s",
+                response.getVersion(), response.getHttpStatusCode(), response.getHttpStatusMessage(), System.lineSeparator()));
+            Map<String, String> responseHeaders = response.getResponseHeaders();
 
-                DataOutputStream dos = new DataOutputStream(out);
-                response302Header(dos, "http://localhost:8080/index.html");
-                return;
+            for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
+                dos.writeBytes(String.format("%s: %s %s", entry.getKey(), entry.getValue(), System.lineSeparator()));
             }
 
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response201Header(DataOutputStream dos) {
-        try {
-            dos.writeBytes("HTTP/1.1 201 Created \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response302Header(DataOutputStream dos, String redirectedUrl) {
-        try {
-            dos.writeBytes("HTTP/1.1 302 Found \r\n");
-            dos.writeBytes("Location: " + redirectedUrl + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {

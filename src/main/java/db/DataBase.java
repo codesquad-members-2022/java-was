@@ -11,10 +11,15 @@ public class DataBase {
     }
 
     private static Map<String, User> users = Maps.newHashMap();
+    private static Map<String, User> session = Maps.newHashMap();
 
     public static void addUser(User user) {
         isDuplicatedUser(user);
         users.put(user.getUserId(), user);
+    }
+
+    public static void addUserToSession(User user) {
+        session.put(user.getUserId(), user);
     }
 
     private static void isDuplicatedUser(User user) {
@@ -29,5 +34,9 @@ public class DataBase {
 
     public static Collection<User> findAll() {
         return users.values();
+    }
+
+    public static boolean isLoginUser(String userId) {
+        return session.containsKey(userId);
     }
 }

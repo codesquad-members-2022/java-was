@@ -44,10 +44,6 @@ public class HttpRequest {
         return requestLine.isPost();
     }
 
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
     public String getParameter(String key) {
         return parameters.get(key);
     }

@@ -2,7 +2,6 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.controller.FrontController;
@@ -36,7 +35,7 @@ public class RequestHandler extends Thread {
             Response response = frontController.handleRequest(request);
             responseWriter = new ResponseWriter(response, out);
             responseWriter.writeResponse();
-
+          
         } catch (IOException e) {
             log.error(e.getMessage());
         }

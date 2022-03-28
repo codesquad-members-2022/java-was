@@ -5,7 +5,7 @@
 - [x] Database.addUser 리턴 제거하기
 - [x] HttpRequest의 header 명칭 변경
 - [ ] HttpResponse 이름 고민해보기
-- [ ] createRequest 이름 변경하기 -> parseRequest
+- [x] createRequest 이름 변경하기 -> parse
 - [ ] requestLineTokens 객체 만들기
 - [ ] RequestHandler Parser 스태틱으로 만들기
 - [ ] RequestHandler.createUser 위치 고민 해보기

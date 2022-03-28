@@ -20,7 +20,7 @@ public class RequestParser {
         this.reader = new BufferedReader(new InputStreamReader(in));
     }
 
-    public HttpRequest createRequest() throws IOException {
+    public HttpRequest parse() throws IOException {
         String[] requestLine = reader.readLine().split(" ");
         Map<String, String> header = parseHttpHeader();
         return buildRequest(header, requestLine);

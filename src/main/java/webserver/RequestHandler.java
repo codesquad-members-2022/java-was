@@ -58,7 +58,7 @@ public class RequestHandler extends Thread {
     }
 
     private HttpRequest buildRequest(InputStream in) throws IOException {
-        return new RequestParser(in).createRequest();
+        return new RequestParser(in).parse();
     }
 
     private HttpResponse buildResponse(OutputStream out) {

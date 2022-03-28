@@ -1,6 +1,6 @@
 package webserver;
 
-import db.DataBase;
+import db.SessionDataBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -36,13 +36,19 @@ public class RequestHandler extends Thread {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
             String[] tokens = readRequestLine(br);
+
             String method = tokens[0];
             String url = tokens[1];
             String version = tokens[2];
 
+            if (url.endsWith(".js") || url.endsWith(".css") || url.endsWith(".ico")) {
+                return;
+            }
+
             Map<String, String> requestHeader = readRequestHeader(br);
             boolean isLogin = isValidCookie(requestHeader);
             log.debug("isLogin : {}", isLogin);
+
             String requestBody = null;
 
             if (method.equals("POST")) {
@@ -69,8 +75,9 @@ public class RequestHandler extends Thread {
         if (requestHeader.containsKey("Cookie")) {
             String cookie = requestHeader.get("Cookie");
             Map<String, String> cookieMap = HttpRequestUtils.parseCookies(cookie);
-            String userId = cookieMap.get("userId");
-            return DataBase.isLoginUser(userId);
+            log.debug("cookieMap : {}", cookieMap.toString());
+            String sessionId = cookieMap.get("sessionId");
+            return SessionDataBase.isLoginUser(sessionId);
         }
         return false;
     }

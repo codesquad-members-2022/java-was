@@ -25,6 +25,10 @@ public class UrlMapper {
                 return indexController.main(request);
             case "/user/form.html":
                 return userController.joinForm(request);
+            case "/user/login.html":
+                return userController.loginForm(request);
+            case "/user/login":
+                return userController.login(request);
             default:
                 return response;
         }

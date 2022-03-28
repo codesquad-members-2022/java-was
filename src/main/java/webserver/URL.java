@@ -2,13 +2,19 @@ package webserver;
 
 public class URL {
 
-    private static final String HOME_PAGE = "http://localhost:8080/index.html";
-    private static final String SIGN_UP_PAGE = "http://localhost:8080/user/form.html";
+    private static final String SCHEME = "http://";
+    private static final String HOME_PAGE_PATH = "/index.html";
+    private static final String SINE_UP_PAGE_PATH = "/user/form.html";
+
+    private final String homePage;
+    private final String signUpPage;
 
     private String path;
 
-    public URL(String path) {
+    public URL(String path, String host) {
         this.path = path;
+        homePage = SCHEME + host + HOME_PAGE_PATH;
+        signUpPage = SCHEME + host + SINE_UP_PAGE_PATH;
     }
 
     public String getPath() {
@@ -16,14 +22,14 @@ public class URL {
     }
 
     public void setRedirectHomePage() {
-        path = HOME_PAGE;
+        path = homePage;
     }
 
-    public void setRedirectSignUpPAGE() {
-        path = SIGN_UP_PAGE;
+    public void setRedirectSignUpPage() {
+        path = signUpPage;
     }
 
-    public boolean comparePath(String target) {
-        return path.equals(target);
+    public boolean comparePath(String targetPath) {
+        return path.equals(targetPath);
     }
 }

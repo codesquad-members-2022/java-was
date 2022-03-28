@@ -1,34 +1,35 @@
 package webserver;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import util.RequestLineUtil;
+import java.util.Map;
 
 public class Request {
 
-    private static final Logger log = LoggerFactory.getLogger(Request.class);
-    private final List<String> headers = new ArrayList<>();
+    private String methodType;
+    private String requestLine;
+    private String messageBody;
+    private URL url;
 
-    public Request(BufferedReader bufferedReader) throws IOException {
-        String line;
-        while (!(line = bufferedReader.readLine()).equals("")) {
-            if (line == null) {
-                throw new IllegalArgumentException("Request.bufferedReader.readLine == null 입니다.");
-            }
-            // 로그 띄울 라인을 추가
-            headers.add(line);
-        }
+    public Request(String requestLine, String messageBody, String methodType, URL url) {
+        this.requestLine = requestLine;
+        this.messageBody = messageBody;
+        this.methodType = methodType;
+        this.url = url;
     }
 
-    public String getURL() {
-        return RequestLineUtil.getURL(headers.get(0));
+    public String getMessageBody() {
+        return messageBody;
     }
 
-    public void outputLog() {
-        headers.stream().forEach(s -> log.debug("Request: {}", s));
+    public String getRequestLine() {
+        return requestLine;
+    }
+
+    public URL getURL() {
+        return url;
+    }
+
+    public String getMethodType() {
+        return methodType;
     }
 }
+

@@ -3,7 +3,6 @@ package webserver;
 import db.DataBase;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,12 +11,15 @@ import java.net.Socket;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
+import util.RequestLineUtil;
 
 public class RequestHandler extends Thread {
 
@@ -36,60 +38,105 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
-            Request request = new Request(br);
+            Request request = makeRequest(br);
 
-            // Request Message
-            request.outputLog();
+            // URL init
+            URL url = request.getURL();
 
-            // URL decode
-            String url = URLDecoder.decode(request.getURL(), StandardCharsets.UTF_8);
-
-            // URL query check
-            url = queryCheck(url);
+            // user save
+            if (request.getMethodType().equals("POST") && url.comparePath("/user/create")) {
+                String messageBody = request.getMessageBody();
+                userSave(messageBody, url);
+            }
 
             // Response Message
-            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             DataOutputStream dos = new DataOutputStream(out);
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            Response response = new Response(request.getRequestLine(), url);
+            sendResponse(dos, response);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
+    private void userSave(String messageBody, URL url) {
+        Map<String, String> userInfo = HttpRequestUtils.parseQueryString(messageBody);
+        User user = new User(userInfo.get("userId"), userInfo.get("password"), userInfo.get("name"),
+            userInfo.get("email"));
+
+        if (DataBase.findUserById(userInfo.get("userId")) == null) {
+            DataBase.addUser(user);
+            url.setRedirectHomePage();
+        } else {
+            url.setRedirectSignUpPage();
         }
     }
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
+    private void sendResponse(DataOutputStream dos, Response response) throws IOException {
+        response.action();
+
+        String header = response.getHeaders();
+        dos.writeBytes(header);
+
+        byte[] body = response.getBody();
+        if (body != null) {
             dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            log.error(e.getMessage());
         }
     }
 
-    private void userSave(String url){
-        Map<String, String> userInfo = HttpRequestUtils.parseQueryString(url);
-        User user = new User(userInfo.get("userId"), userInfo.get("password"),userInfo.get("name"),userInfo.get("email"));
-        DataBase.addUser(user);
+
+    private Request makeRequest(BufferedReader bufferedReader) throws IOException {
+        String requestLine = initRequestLine(bufferedReader);
+        Map<String, String> headers = new HashMap<>();
+
+        initRequestHeaders(bufferedReader, headers);
+        outputLog(headers, requestLine);
+
+        URL url = initURL(requestLine, headers);
+
+        String messageBody = "";
+        String methodType = RequestLineUtil.getMethodType(requestLine);
+
+        if (methodType.equals("POST")) {
+            messageBody = IOUtils.readData(bufferedReader,
+                Integer.parseInt(headers.get("Content-Length:")));
+            log.debug(messageBody);
+        }
+
+        return new Request(requestLine, messageBody, methodType, url);
     }
 
-    private String queryCheck(String url){
-        if (url.contains("?")) {
-            url = url.split("\\?")[1];
-            // Model save
-            userSave(url);
-            url = "/index.html";
+    private void outputLog(Map<String, String> headers, String requestLine) {
+        // Request Line Log
+        log.debug(requestLine);
+        // Request Headers Log
+        for (Entry<String, String> entry : headers.entrySet()) {
+            log.debug("Request: {} {}", entry.getKey(), entry.getValue());
         }
-        return url;
+    }
+
+    private String initRequestLine(BufferedReader bufferedReader) throws IOException {
+        String line;
+        if ("".equals(line = bufferedReader.readLine()) || line == null) {
+            throw new IllegalArgumentException("Request.bufferedReader.readLine == null 입니다.");
+        }
+        return line;
+    }
+
+    private void initRequestHeaders(BufferedReader bufferedReader, Map<String, String> headers)
+        throws IOException {
+        String line;
+        while (!"".equals(line = bufferedReader.readLine())) {
+            if (line == null) {
+                throw new IllegalArgumentException("Request.bufferedReader.readLine == null 입니다.");
+            }
+            String[] splitLine = line.split(" ");
+            headers.put(splitLine[0], splitLine[1]);
+        }
+    }
+
+    private URL initURL(String requestLine, Map<String, String> headers) {
+        String decodedUrl = URLDecoder.decode(requestLine, StandardCharsets.UTF_8);
+        String host = headers.get("Host:");
+        return new URL(RequestLineUtil.getURL(decodedUrl), host);
     }
 }

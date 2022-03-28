@@ -59,7 +59,6 @@ Java Web Server Project for CodeSquad Members 2022
 
 ![img.png](img.png)
 
-
 #### 1. RequestHandler
 - 클라이언트 Request를 parsing한 후, 정보를 담고 있는 ``RequestLine`` 객체 생성 
 - 동적 요청일 경우, ``Dispatcher``로 처리 위임
@@ -132,3 +131,59 @@ Java Web Server Project for CodeSquad Members 2022
 #### 알게된 것
 - 이론으로만 듣고 사용하고 있었던 웹 서버였는데, 직접 구현해보는 과정에서 정적 리소스와 동적 리소스의 처리 부분을 분리하여 동작시켜야 할 필요성을 느끼게 되었다.
 - 리플렉션을 통해 런타임에 필요한 객체를 동적으로 생성할 수 있는 방법을 알게 되었다. 이를 통해 기존에 인터페이스 구현체로 관리되는 방법 처럼 미리 객체를 생성해두기보다는, 필요 시점에 특정 클래스를 만들어 사용할 수 있는 장점이 있다.
+
+<br>
+
+---
+
+## 3단계 - POST로 회원 가입
+
+### To-do List
+
+- [X] POST 로 변경
+  - HTTP POST Body parsing
+- [X] form.html 변경
+- [X] Redirection 기능 추가
+  - 동적 요청 후, viewResolver 같은 기능 추가
+- [X] 중복 아이디로 가입 시도할 경우, 가입되지 않고 가입 페이지로 이동
+  - form.html 리다이렉션 추가
+- [X] requestline parsing 하고나서 post 확인할때 String 에서 확인하지 말고, RequestLine 객체에서 확인하기
+
+---
+
+### Jay
+
+#### 알게된 것
+
+- Redirection HTTP Status
+  - `301 Moved Permanently` : 요청된 URL이 (Location: header로 지정된) URL로 완전히 전환된 경우.
+    ![image](https://user-images.githubusercontent.com/45728407/160048481-4c719368-ec56-413e-888c-cb8a086928ec.png)
+  - `302 Found` : HTTP/1.0과 초기 HTTP/1.1과 호환성 유지를 위해 남겨진 코드. 
+    원래는 요청된 URL이 301과는 달리 임시로 변경된 것을 나타내는 것이었으나, 실제 구현이 HTTP 규약의 의도를 벗어나서 303과 307로 분리하여 제정
+  - `303 See Other` : 요청된 URL이 잠시 다른 URL로 바뀐 것을 알림.
+    (Location: header로 지정된) 바뀐 URL은 GET method로 접근해야 함
+
+RFC 공식 문서에 따르면 서버에 구현하는 PRG 패턴의 응답으로 가장 의미가 적절한 응답코드는 303 입니다.
+하지만 HTTP1.1 이전에는 303이 없어서 302를 해당 역할로 사용했었습니다.
+그래서 지금도 호환성을 위해서 303 보다는 302를 사용한다고 합니다.
+
+- 참고
+  - https://datatracker.ietf.org/doc/html/rfc2616#section-10.3.3
+
+---
+
+### Lucid
+
+#### 알게된 것
+
+HTTP status code의 Redirection 의미에 대해서 알아보았다. 현재 필요한 ``Redirection``이 의미 상 ``302 : 일시적 자원의 이동``이라는 의미라기 보다는 특정 처리 요청 후 ``"서버가 반환해주는 경로로 재 요청을 진행해라"``라는 의미이기 때문에 이 시점에``302``를 사용하는게 맞을까라는 의문이 들었다.  
+따라서 찾아보니 ``303: See Other(HTTP 1.1에서 추가)``가 좀 더 와닿게 되어 사용을 시도해 보았는데, 의미상 맞는 의미이긴 하지만 기존 ``HTTP 1.0``과의 호환성을 위해 `302`가 안전한 옵션이라고 한다. 
+
+- 301 : 영구적 이동. browser에서 hard caching을 통해 이후 요청에 대해 캐시의 location 참고하여 보내게 된다.
+- 302 : 일시적 이동. browser에 caching하지 않으며, 서버에서 리다이렉션을 삭제하게 되면 이전 버전에 엑세스가 가능하다.
+- 303 : POST 요구를 GET 으로 redirect 하라는 것을 의미한다. 302와 마찬가지로 캐싱되지 않는다.
+- 대부분의 클라이언트에서 302, 303은 동일한 역할을 수행한다.
+
+<br>
+
+---

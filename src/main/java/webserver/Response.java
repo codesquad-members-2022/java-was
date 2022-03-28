@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.lang.Object;
 import java.util.Map.Entry;
 
 public class Response {
@@ -33,7 +32,21 @@ public class Response {
     public void setBody(byte[] responseBody, String contentType) {
         body = new String(responseBody, StandardCharsets.UTF_8);
         responseHeaderMap.put("Content-Length", responseBody.length);
+
+        contentType = parseContentType(contentType);
         responseHeaderMap.put("Content-Type", contentType);
+    }
+
+    private String parseContentType(String contentType) {
+        if (contentType.equals("html")) {
+            return "text/html";
+        } else if (contentType.equals("js")) {
+            return "application/js";
+        } else if (contentType.equals("css")) {
+            return "text/css";
+        } else {
+            return "";
+        }
     }
 
     public void setBody(String responseBody, String contentType) {

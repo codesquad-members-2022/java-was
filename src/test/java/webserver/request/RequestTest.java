@@ -4,7 +4,6 @@ package webserver.request;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -96,5 +95,36 @@ class RequestTest {
 				assertThat(result.getParam("email")).isEqualTo("test@com");
 			}
 		}
+	}
+
+	@Test
+	void 확장자테스트_있을때() {
+		List<String> rawData = new ArrayList<>();
+		rawData.add("GET /index.html HTTP/1.1");
+		rawData.add("Host: localhost:8080");
+		rawData.add("Connection: keep-alive");
+		rawData.add("Accept: */*");
+		String rawBody = "";
+
+		Request result = new Request(rawData, rawBody);
+
+
+		String fileExtention = result.getFileExtension();
+		assertThat(fileExtention).isEqualTo("html");
+	}
+
+	@Test
+	void 확장자테스트_없을때() {
+		List<String> rawData = new ArrayList<>();
+		rawData.add("GET /user/create HTTP/1.1");
+		rawData.add("Host: localhost:8080");
+		rawData.add("Connection: keep-alive");
+		rawData.add("Accept: */*");
+		String rawBody = "";
+
+		Request result = new Request(rawData, rawBody);
+
+		String fileExtention = result.getFileExtension();
+		assertThat(fileExtention).isEqualTo("");
 	}
 }

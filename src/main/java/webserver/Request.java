@@ -12,6 +12,7 @@ public class Request {
 	private final static String QUERY_FLAG = "\\?";
 	private final String method;
 	private final String uri;
+	private final String fileExtension;
 	private final String version;
 	private final String body;
 	private final Map<String, String> queryStringMap;
@@ -22,6 +23,7 @@ public class Request {
 		String[] tokens = requestLine.split(" ");
 		method = tokens[0];
 		uri = parseUri(tokens[1]);
+		fileExtension = parseFileExtention(uri);
 		version = tokens[2];
 
 		parseRequestHeaderMap(rawHeader.subList(1, rawHeader.size()));
@@ -33,6 +35,14 @@ public class Request {
 			queryStringMap = parseQueryStringMap(tokens[1]);
 			body = rawBody;
 		}
+	}
+
+	private String parseFileExtention(String uri) {
+		String fileExtention = uri.substring(uri.lastIndexOf(".") + 1);
+		if (fileExtention.equals(uri)) {
+			return "";
+		}
+		return fileExtention;
 	}
 
 	private String parseUri(String rawUri) {
@@ -86,5 +96,9 @@ public class Request {
 
 	public String getParam(String keyOfparamMap) {
 		return queryStringMap.get(keyOfparamMap);
+	}
+
+	public String getFileExtension() {
+		return fileExtension;
 	}
 }

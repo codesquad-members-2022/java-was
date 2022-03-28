@@ -23,6 +23,6 @@ public class DefaultController extends Controller {
 	public void process(Request request, Response response) throws IOException {
 		byte[] body = null;
 		body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
-		response.setBody(body, "text/html");
+		response.setBody(body, request.getFileExtension());
 	}
 }

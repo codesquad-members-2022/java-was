@@ -1,8 +1,7 @@
-package model;
+package model.http;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public enum HeaderType {

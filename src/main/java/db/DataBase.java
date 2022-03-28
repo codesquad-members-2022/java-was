@@ -1,6 +1,6 @@
 package db;
 
-import model.User;
+import model.user.User;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,6 +1,7 @@
-package webserver;
+package model.response;
 
-import model.Extention;
+import model.http.Extention;
+import model.request.RequestLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class HttpResponse {
 
     private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, String type) {
         try {
-            dos.writeBytes("HTTP/1.1 200 OK" + NEW_LINE);
+            dos.writeBytes("HTTP/1.1 " + "200" + " OK" + NEW_LINE);
             dos.writeBytes("Content-Type:" + Extention.of(type) + NEW_LINE);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
             dos.writeBytes(NEW_LINE);

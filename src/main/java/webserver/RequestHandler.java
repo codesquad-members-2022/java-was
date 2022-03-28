@@ -1,8 +1,10 @@
 package webserver;
 
 import db.DataBase;
-import model.Extention;
-import model.User;
+import model.http.Extention;
+import model.request.HttpRequest;
+import model.response.HttpResponse;
+import model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -23,7 +25,6 @@ public class RequestHandler extends Thread {
     private static final int URL_INDEX = 1;
 
     private Socket connection;
-    private Configuration configuration = new Configuration();
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -43,8 +44,8 @@ public class RequestHandler extends Thread {
                 int index = requestUrl.indexOf(QUESTION_MARK);
 
                 String queryString = requestUrl.substring(index + 1);
-                Map<String, String> params = HttpRequestUtils.parseQueryString(queryString);
-                User user = new User(params.get("userId"), params.get("password"), URLDecoder.decode(params.get("name"), StandardCharsets.UTF_8), params.get("email"));
+                Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(queryString);
+                User user = new User(joinRequestParams.get("userId"), joinRequestParams.get("password"), URLDecoder.decode(joinRequestParams.get("name"), StandardCharsets.UTF_8), joinRequestParams.get("email"));
 
                 DataBase.addUser(user);
                 log.debug("User : {}", user);

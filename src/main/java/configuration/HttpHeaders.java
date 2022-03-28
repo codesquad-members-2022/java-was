@@ -1,6 +1,6 @@
-package webserver;
+package configuration;
 
-import model.HeaderType;
+import model.http.HeaderType;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

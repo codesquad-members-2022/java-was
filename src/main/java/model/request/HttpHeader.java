@@ -1,6 +1,7 @@
-package webserver;
+package model.request;
 
-import model.HeaderType;
+import configuration.HttpHeaders;
+import model.http.HeaderType;
 
 import java.io.BufferedReader;
 import java.io.IOException;

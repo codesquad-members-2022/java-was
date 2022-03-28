@@ -1,4 +1,7 @@
-package webserver;
+package model.request;
+
+import model.http.HttpMethod;
+import model.http.HttpVersion;
 
 public class RequestLine {
 

@@ -6,9 +6,9 @@
 - [x] HttpRequest의 header 명칭 변경
 - [ ] HttpResponse 이름 고민해보기
 - [x] createRequest 이름 변경하기 -> parse
-- [ ] requestLineTokens 객체 만들기
+- [x] requestLineTokens 객체 만들기
 - [x] RequestHandler Parser 스태틱으로 만들기
-- [ ] RequestHandler.createUser 위치 고민 해보기
+- [x] RequestHandler.createUser 위치 고민 해보기 -> 이후 생성될 createServlet 내부로 이동예정
 
 ## Step03 TODO list
 

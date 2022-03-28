@@ -17,9 +17,14 @@ public class RequestParser {
     public static HttpRequest parse(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-        String[] requestLine = reader.readLine().split(" ");
+        RequestLineTokens token = tokenMaker(reader.readLine());
         Map<String, String> header = parseHttpHeader(reader);
-        return buildRequest(reader, header, requestLine);
+        return buildRequest(reader, header, token);
+    }
+
+    private static RequestLineTokens tokenMaker(String requestLine) {
+        String[] splits = requestLine.split(" ");
+        return new RequestLineTokens(splits[0], splits[1], splits[2]);
     }
 
     private static Map<String, String> parseHttpHeader(BufferedReader reader) throws IOException {
@@ -36,19 +41,31 @@ public class RequestParser {
         return header;
     }
 
-    private static HttpRequest buildRequest(BufferedReader reader, Map<String, String> header, String[] requestLineTokens) throws IOException {
+    private static HttpRequest buildRequest(BufferedReader reader, Map<String, String> header, RequestLineTokens token) throws IOException {
         String body = "";
 
-        if (requestLineTokens[0].toLowerCase().equals("post")) {
+        if (token.method.equals("POST")) {
             int contentLength = Integer.parseInt(header.get("Content-Length"));
             body = IOUtils.readData(reader, contentLength);
         }
 
-        return new HttpRequest.Builder().method(requestLineTokens[0])
-                .path(requestLineTokens[1])
-                .protocol(requestLineTokens[2])
+        return new HttpRequest.Builder().method(token.method)
+                .path(token.path)
+                .protocol(token.protocol)
                 .header(header)
                 .body(body)
                 .build();
+    }
+
+    private static class RequestLineTokens {
+        private String method;
+        private String path;
+        private String protocol;
+
+        public RequestLineTokens(String method, String path, String protocol) {
+            this.method = method;
+            this.path = path;
+            this.protocol = protocol;
+        }
     }
 }

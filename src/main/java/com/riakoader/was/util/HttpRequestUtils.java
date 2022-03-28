@@ -6,10 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -85,8 +82,8 @@ public class HttpRequestUtils {
         String[] tokens = values.split(separator);
         return Arrays.stream(tokens)
                 .map(t -> getKeyValue(t, "="))
-                .filter(p -> p != null)
-                .collect(Collectors.toMap(p -> (String) p.getKey(), p -> (String) p.getValue()));
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
     }
 
     static Pair<String, String> getKeyValue(String keyValue, String regex) {

@@ -54,7 +54,7 @@ public class WebServerConfig implements WebServerConfigurer {
 
             HttpResponse response = new HttpResponse(request.getProtocol());
 
-            FileReader resources = null;
+            FileReader resources;
             try {
                 resources = new FileReader("src/main/resources/env.properties");
             } catch (FileNotFoundException e) {

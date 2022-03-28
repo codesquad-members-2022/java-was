@@ -7,14 +7,14 @@ public class HttpRequest {
     private final String path;
     private final String protocol;
     private final String body;
-    private Map<String, String> header;
+    private Map<String, String> headers;
 
     public HttpRequest(Builder builder) {
         this.method = builder.method;
         this.path = builder.path;
         this.protocol = builder.protocol;
         this.body = builder.body;
-        this.header = builder.header;
+        this.headers = builder.headers;
     }
 
     public static class Builder{
@@ -22,7 +22,7 @@ public class HttpRequest {
         private String path;
         private String protocol;
         private String body;
-        private Map<String, String> header;
+        private Map<String, String> headers;
 
         public Builder method (String method){
             this.method = method;
@@ -45,7 +45,7 @@ public class HttpRequest {
         }
 
         public Builder header (Map<String, String> header){
-            this.header = header;
+            this.headers = header;
             return this;
         }
 
@@ -70,8 +70,8 @@ public class HttpRequest {
         return body;
     }
 
-    public Map<String, String> getHeader() {
-        return header;
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
     @Override

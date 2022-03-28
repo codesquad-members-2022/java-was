@@ -32,7 +32,7 @@ public class HttpRequestTest {
         assertThat(request.getPath()).isEqualTo("/create");
         assertThat(request.getProtocol()).isEqualTo("HTTP/1.1");
         assertThat(request.getBody()).isEqualTo("뽀로로 케이");
-        assertThat(request.getHeader().get("Accept")).isEqualTo("*/*");
-        assertThat(request.getHeader().get("Content-Length")).isEqualTo("35");
+        assertThat(request.getHeaders().get("Accept")).isEqualTo("*/*");
+        assertThat(request.getHeaders().get("Content-Length")).isEqualTo("35");
     }
 }

@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
@@ -15,10 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import util.HttpRequestUtils;
+import util.MimeUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -30,15 +31,16 @@ public class RequestHandler extends Thread {
             connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader br = new BufferedReader(
-                new InputStreamReader(in, StandardCharsets.UTF_8));
-            String line = br.readLine();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            String line = URLDecoder.decode(bufferedReader.readLine(), StandardCharsets.UTF_8);
 
             String url = HttpRequestUtils.getUrl(line);
-            HttpRequestUtils.readRequestHeader(br);
+            HttpRequestUtils.readRequestHeader(bufferedReader);
+
+            UrlHandler urlHandler = UrlHandler.getInstance();
+            urlHandler.mapUrl(url);
 
             DataOutputStream dos = new DataOutputStream(out);
-
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(dos, body.length, url);
             responseBody(dos, body);
@@ -48,13 +50,9 @@ public class RequestHandler extends Thread {
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String url) {
-        String type = "text/html;charset=utf-8";
-        if (url.contains("css")) {
-            type = "text/css";
-        }
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + type + "\r\n");
+            dos.writeBytes("Content-Type: " + MimeUtils.convertToContentType(url) + "\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
@@ -70,4 +68,5 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
+
 }

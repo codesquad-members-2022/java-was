@@ -19,14 +19,14 @@ public class HttpRequestUtils {
         return line.split(" ")[1];
     }
 
-    public static void readRequestHeader(BufferedReader br) throws IOException {
-        String line = br.readLine();
-        while (!"".equals(line)) {
+    public static void readRequestHeader(BufferedReader bufferedReader) throws IOException {
+        String line = bufferedReader.readLine();
+        while (!Strings.isNullOrEmpty(line)) {
             if (line == null) {
-                break;
+                return;
             }
             log.debug("request header ={}", line);
-            line = br.readLine();
+            line = bufferedReader.readLine();
         }
     }
 
@@ -52,9 +52,10 @@ public class HttpRequestUtils {
         if (Strings.isNullOrEmpty(values)) {
             return Maps.newHashMap();
         }
-
         String[] tokens = values.split(separator);
-        return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
+        return Arrays.stream(tokens)
+            .map(t -> getKeyValue(t, "="))
+            .filter(p -> p != null)
             .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
 

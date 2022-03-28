@@ -1,15 +1,13 @@
 package util;
 
-import util.HttpRequestUtils.Pair;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IOUtils {
 
@@ -27,11 +25,12 @@ public class IOUtils {
         return URLDecoder.decode(String.copyValueOf(body), StandardCharsets.UTF_8);
     }
 
-    public static List<Pair> readRequestHeader(BufferedReader br) throws IOException {
+    public static Map<String, String> readRequestHeader(BufferedReader br) throws IOException {
         String headLine;
-        List<Pair> headers = new ArrayList<>();
+        Map<String, String> headers = new HashMap<>();
         while (!(headLine = br.readLine()).equals("") && headLine != null) {
-            headers.add(HttpRequestUtils.parseHeader(headLine));
+            String[] keyAndValue = headLine.split(": ");
+            headers.put(keyAndValue[0], keyAndValue[1]);
         }
         return headers;
     }

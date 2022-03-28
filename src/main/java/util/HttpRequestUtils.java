@@ -2,7 +2,6 @@ package util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,13 +49,6 @@ public class HttpRequestUtils {
 
     public static Pair parseHeader(String header) {
         return getKeyValue(header, ": ");
-    }
-
-
-    public static String getUrl(String requestLine) {
-        String[] tokens = requestLine.split(" ");
-
-        return tokens[1];
     }
 
     public static class Pair {

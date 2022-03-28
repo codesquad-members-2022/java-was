@@ -6,15 +6,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlet.CreateUserServlet;
 import servlet.LoginServlet;
+import servlet.Servlet;
 import util.RequestParser;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    public static final String HOME = "/index.html";
-    public static final String USER_REGISTRY_FORM = "/user/form.html";
+    private static Map<String, Servlet> servletMap = new ConcurrentHashMap<>();
+
+    static {
+        servletMap.put("/user/create", new CreateUserServlet());
+        servletMap.put("/user/login", new LoginServlet());
+    }
 
     private Socket connection;
 
@@ -37,17 +44,11 @@ public class RequestHandler extends Thread {
     private void controlServlet(HttpRequest request, HttpResponse response) throws IOException {
         String path = request.getPath();
         log.debug("[PATH] : {}", path);
-        if (request.getPath().equals("/user/create")) {
-            CreateUserServlet servlet = new CreateUserServlet();
+        if (servletMap.containsKey(path)) {
+            Servlet servlet = servletMap.get(path);
             servlet.service(request, response);
             return;
         }
-        if (request.getPath().equals("/user/login")) {
-            LoginServlet servlet = new LoginServlet();
-            servlet.service(request, response);
-            return;
-        }
-
         response.forward(path);
     }
 

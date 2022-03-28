@@ -10,7 +10,6 @@ import util.HttpRequestUtils;
 
 import java.util.Map;
 
-import static webserver.RequestHandler.USER_REGISTRY_FORM;
 
 public class CreateUserServlet extends BaseServlet {
     private static final Logger log = LoggerFactory.getLogger(CreateUserServlet.class);
@@ -34,7 +33,7 @@ public class CreateUserServlet extends BaseServlet {
                 DataBase.addUser(user);
                 log.debug("[User] : {}", user);
             } catch (RuntimeException e) {
-                nextPath = USER_REGISTRY_FORM;
+                nextPath = "/user/form.html";
             }
 
             response.redirection(nextPath);

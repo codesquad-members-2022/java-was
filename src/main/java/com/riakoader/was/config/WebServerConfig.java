@@ -1,13 +1,13 @@
 package com.riakoader.was.config;
 
-import com.riakoader.was.handler.HandlerMethod;
 import com.riakoader.was.handler.HandlerMethodMapper;
+import com.riakoader.was.httpmessage.HttpMethod;
 import com.riakoader.was.util.Pair;
 import com.riakoader.was.webserver.WebServerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
 
 public class WebServerConfig implements WebServerConfigurer {
 
@@ -15,44 +15,57 @@ public class WebServerConfig implements WebServerConfigurer {
 
     private static volatile WebServerConfig webServerConfig;
 
-    private final WebServerContext webServerContext = WebServerContext.getInstance();
+    private final WebServerContext webServerContext;
 
-    public static WebServerConfig getInstance() {
+    private WebServerConfig() throws NoSuchFieldException, ClassNotFoundException, InvocationTargetException,
+            NoSuchMethodException, InstantiationException, IllegalAccessException {
+
+        logger.debug("WebServerConfig() start");
+
+        webServerContext = WebServerContext.getInstance();
+
+        addHandlerMethod((HandlerMethodRegistry) webServerContext.getBean("handlerMethodRegistry"));
+        configureHandlerMethodMapper((HandlerMethodMapper) webServerContext.getBean("handlerMethodMapper"));
+
+        logger.debug("WebServerConfig() end");
+    }
+
+    public static WebServerConfig getInstance() throws NoSuchFieldException, ClassNotFoundException,
+            InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+
         if (webServerConfig == null) {
             webServerConfig = new WebServerConfig();
         }
         return webServerConfig;
     }
 
-    private WebServerConfig() {
-        logger.debug("WebServerConfig() start");
-
-        HandlerMethodRegistry handlerMethodRegistry = HandlerMethodRegistry.getInstance();
-        addHandlerMethod(handlerMethodRegistry);
-        configureHandlerMethodMapper(
-                Map.of(
-                        new Pair<>("GET", "/user/create"), handlerMethodRegistry.getHandlerMethod(1),
-                        new Pair<>("POST", "/user/create"), handlerMethodRegistry.getHandlerMethod(2)
-                ));
-
-        logger.debug("WebServerConfig() end");
-    }
-
     public void addHandlerMethod(HandlerMethodRegistry handlerMethodRegistry) {
         logger.debug("addHandlerMethod() start");
 
-        handlerMethodRegistry.setHandlerMethod(webServerContext.resourceHandlerMethod);
-        handlerMethodRegistry.setHandlerMethod(webServerContext.joinHandlerMethodForGet);
-        handlerMethodRegistry.setHandlerMethod(webServerContext.joinHandlerMethodForPost);
+        handlerMethodRegistry.addHandlerMethod(webServerContext.resourceHandlerMethod);
+        handlerMethodRegistry.addHandlerMethod(webServerContext.joinHandlerMethodForGet);
+        handlerMethodRegistry.addHandlerMethod(webServerContext.joinHandlerMethodForPost);
 
         logger.debug("addHandlerMethod() end");
     }
 
-    public void configureHandlerMethodMapper(Map<Pair<String, String>, HandlerMethod> handlerMethods) {
+    public void configureHandlerMethodMapper(HandlerMethodMapper handlerMethodMapper) throws NoSuchFieldException,
+            ClassNotFoundException, InvocationTargetException, NoSuchMethodException,
+            IllegalAccessException {
+
         logger.debug("configureHandlerMethodMapper() start");
 
-        HandlerMethodMapper handlerMethodMapper = HandlerMethodMapper.getInstance();
-        handlerMethodMapper.setHandlerMethodMapper(handlerMethods);
+        HandlerMethodRegistry handlerMethodRegistry = (HandlerMethodRegistry) webServerContext.getBean("handlerMethodRegistry");
+
+        handlerMethodMapper.mappingHandlerMethod(
+                new Pair<>(HttpMethod.GET.name(), "/user/create"),
+                handlerMethodRegistry.getHandlerMethod(1)
+        );
+
+        handlerMethodMapper.mappingHandlerMethod(
+                new Pair<>(HttpMethod.POST.name(), "/user/create"),
+                handlerMethodRegistry.getHandlerMethod(2)
+        );
 
         logger.debug("configureHandlerMethodMapper() end");
     }

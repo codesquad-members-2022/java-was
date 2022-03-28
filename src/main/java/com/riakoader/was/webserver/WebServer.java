@@ -13,8 +13,6 @@ public class WebServer {
 
     private static final int DEFAULT_PORT = 8080;
 
-    private static final WebServerConfig config = WebServerConfig.getInstance();
-
     public static void main(String[] args) throws Exception {
         int port = 0;
         if (args == null || args.length == 0) {
@@ -22,6 +20,8 @@ public class WebServer {
         } else {
             port = Integer.parseInt(args[0]);
         }
+
+        WebServerConfig config = WebServerConfig.getInstance();
 
         try (ServerSocket listenSocket = new ServerSocket(port)) {
             log.info("Web Application Server started {} port.", port);

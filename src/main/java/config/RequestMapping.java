@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import http.HttpServlet;
 import servlet.LoginServlet;
+import servlet.LogoutServlet;
 import servlet.UserCreateServlet;
 
 public class RequestMapping {
@@ -15,6 +16,7 @@ public class RequestMapping {
     static {
         servletMapping.put(new URL("/user/create"), UserCreateServlet.class);
         servletMapping.put(new URL("/user/login"), LoginServlet.class);
+        servletMapping.put(new URL("/user/logout"), LogoutServlet.class);
     }
 
     public static boolean contains(String url) {

@@ -24,9 +24,9 @@ public class LoginServlet extends HttpServlet {
         if (DataBase.isUserIdExist(userId)) {
             User user = DataBase.findByUserId(userId);
             if (user.isPassword(password)) {
-                int sessionId = Session.createSession();
+                String sessionId = Session.createSession();
                 Session.setAttribute(sessionId, "userId", userId);
-                response.addHeader("Set-Cookie", String.format("sessionId= %d; Path=/", sessionId));
+                response.addHeader("Set-Cookie", String.format("sessionId= %s; Path=/", sessionId));
                 response.setRedirectUrl("/index.html");
                 return response;
             }

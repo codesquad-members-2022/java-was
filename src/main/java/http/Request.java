@@ -10,6 +10,9 @@ import webserver.dto.HttpRequestLine;
 
 public class Request {
 
+    private static final String COOKIE = "Cookie";
+    public static final String SESSION_ID = "sessionId";
+
     private HttpMethod httpMethod;
     private Map<String, String> parameters = new HashMap<>();
     private Map<String, String> cookies = new HashMap<>();
@@ -24,11 +27,11 @@ public class Request {
         request.setHttpMethod(httpMethod);
 
         Map<String, String> header = requestData.getHeader();
-        if (header.containsKey("Cookie")) {
-            String cookie = header.get("Cookie");
+        if (header.containsKey(COOKIE)) {
+            String cookie = header.get(COOKIE);
             request.cookies = HttpRequestUtils.parseCookies(cookie);
-            if (request.cookies.containsKey("sessionId")) {
-                request.sessionId = request.cookies.get("sessionId");
+            if (request.cookies.containsKey(SESSION_ID)) {
+                request.sessionId = request.cookies.get(SESSION_ID);
             }
         }
 

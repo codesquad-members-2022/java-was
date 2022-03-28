@@ -6,21 +6,17 @@ import model.User;
 import java.util.Collection;
 import java.util.Map;
 
-public class DataBase {
-    private DataBase() {
+public class UserDataBase {
+    private UserDataBase() {
     }
 
     private static Map<String, User> users = Maps.newHashMap();
-    private static Map<String, User> session = Maps.newHashMap();
 
     public static void addUser(User user) {
         isDuplicatedUser(user);
         users.put(user.getUserId(), user);
     }
 
-    public static void addUserToSession(User user) {
-        session.put(user.getUserId(), user);
-    }
 
     private static void isDuplicatedUser(User user) {
         if (users.containsKey(user.getUserId())) {
@@ -36,7 +32,4 @@ public class DataBase {
         return users.values();
     }
 
-    public static boolean isLoginUser(String userId) {
-        return session.containsKey(userId);
-    }
 }

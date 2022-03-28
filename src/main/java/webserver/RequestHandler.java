@@ -39,10 +39,9 @@ public class RequestHandler extends Thread {
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
             connection.getPort());
-
+        // TODO : 에러 발생시, 오류 response 보내도록 개선
         try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              OutputStream out = connection.getOutputStream()) {
-
             String firstLine = br.readLine();
             HttpRequestLine requestLine = HttpRequestUtils.parseHttpRequestLine(firstLine);
             HttpRequestData requestData = new HttpRequestData();

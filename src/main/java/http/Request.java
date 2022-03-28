@@ -18,6 +18,11 @@ public class Request {
     private Map<String, String> cookies = new HashMap<>();
     private String sessionId;
 
+    /**
+     * TODO : Cookie를 객체로 변경
+     *
+     */
+
     public static Request of(HttpRequestData requestData) {
         HttpRequestLine httpRequestLine = requestData.getHttpRequestLine();
         String queryString = httpRequestLine.getQueryString();

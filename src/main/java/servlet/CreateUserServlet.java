@@ -16,8 +16,15 @@ public class CreateUserServlet extends BaseServlet {
     private static final Logger log = LoggerFactory.getLogger(CreateUserServlet.class);
 
     @Override
+    public void doGet(HttpRequest request, HttpResponse response) {
+        String resourcePath = request.getPath();
+        response.forward(resourcePath);
+    }
+
+    @Override
     public void doPost(HttpRequest request, HttpResponse response) {
         String resourcePath = request.getPath();
+        log.debug("[resourcePath] : {}", resourcePath);
 
         if (resourcePath.startsWith("/user/create")) {
             User user = createUser(request.getBody());

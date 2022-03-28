@@ -38,7 +38,7 @@ public class RequestHandler extends Thread {
     private void sendResponse(HttpRequest request, HttpResponse response) throws IOException {
         String path = request.getPath();
         HttpMethod method = request.getMethod();
-        if (path.equals("/user/create") && method.isPost()) {
+        if (path.equals("/user/create") && method == HttpMethod.POST) {
             userJoin(request, response);
         } else {
             response.responseStaticResource(path);

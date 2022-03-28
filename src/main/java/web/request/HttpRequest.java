@@ -56,7 +56,7 @@ public class HttpRequest {
     private Map<String, String> initParameters() {
         //method가 Get일 경우
         HttpMethod method = requestLine.getMethod();
-        if (method.isGet()) {
+        if (method == HttpMethod.GET) {
             return requestLine.getQueryParameters();
         }
         //method가 Post인 경우

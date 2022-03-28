@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,6 +40,42 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             HttpRequest httpRequest = HttpRequest.receive(br);
+
+            boolean isLoggedIn;
+            Map<String, String> cookies = httpRequest.getCookies();
+            isLoggedIn = Boolean.parseBoolean(cookies.getOrDefault("logged_in", "false"));
+
+            if (httpRequest.hasPathEqualTo("/user/list") && httpRequest.hasMethodEqualTo("GET")) {
+                if (!isLoggedIn) {
+                    response302Header(dos, "/user/login.html");
+                    return;
+                }
+                StringBuilder sb = new StringBuilder();
+                Collection<User> users = DataBase.findAll();
+                sb.append("<table border='2'>")
+                    .append("<tr>")
+                    .append("<th>User Id</th>")
+                    .append("<th>Name</th>")
+                    .append("<th>Email</th>")
+                    .append("</tr>");
+
+                for (User user : users) {
+                    sb.append("<tr>")
+                        .append("<td>").append(user.getUserId()).append("</td>")
+                        .append("<td>").append(user.getName()).append("</td>")
+                        .append("<td>").append(user.getEmail()).append("</td>")
+                        .append("</tr>");
+                }
+
+                sb.append("</table");
+
+                byte[] body = sb.toString().getBytes();
+
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+                return;
+            }
+
 
             if (httpRequest.hasPathEqualTo("/user/create") && httpRequest.hasMethodEqualTo("POST")) {
                 processUserCreation(dos, httpRequest.getParameters());

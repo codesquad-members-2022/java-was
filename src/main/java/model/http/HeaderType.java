@@ -29,8 +29,7 @@ public enum HeaderType {
     COOKIE("Cookie"),
     ACCEPT_LANGUAGE("Accept-Language"),
     REFERER("Referer"),
-    ORIGIN("Origin"),
-    NONE("");
+    ORIGIN("Origin");
 
     private final String value;
 
@@ -42,7 +41,7 @@ public enum HeaderType {
         return Arrays.stream(values())
                 .filter(headerType -> euqalTo(headerType.value, inputType))
                 .findAny()
-                .orElse(NONE);
+                .orElseThrow(() -> new IllegalArgumentException("해당 헤더는 존재하지 않습니다."));
     }
 
     public static List<String> getHeaderTypes() {

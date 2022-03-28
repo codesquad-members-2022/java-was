@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static util.Pathes.JOIN_PATH;
-import static util.SpecialCharacters.QUESTION_MARK;
+import static util.SpecialCharacters.URL_BOUNDARY;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -41,7 +41,7 @@ public class RequestHandler extends Thread {
             String requestUrl = httpRequest.requestUrl();
 
             if (requestUrl.startsWith(JOIN_PATH) && requestUrl.endsWith(Extention.HTML.getType())) {
-                int index = requestUrl.indexOf(QUESTION_MARK);
+                int index = requestUrl.indexOf(URL_BOUNDARY);
 
                 String queryString = requestUrl.substring(index + 1);
                 Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(queryString);

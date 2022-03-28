@@ -5,12 +5,13 @@ import java.util.function.Supplier;
 
 public enum Extention {
 
-    HTML("html", "text/html;charset=utf-8"),
-    CSS("css", "text/css;charset=utf-8"),
+    HTML("html", "text/html;"),
+    CSS("css", "text/css;"),
     NONE("", "");
 
     private final String extension;
     private final String mimeType;
+
     Extention(String extension, String mimeType) {
         this.extension = extension;
         this.mimeType = mimeType;

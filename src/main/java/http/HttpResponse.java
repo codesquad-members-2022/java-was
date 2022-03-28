@@ -18,7 +18,7 @@ public class HttpResponse {
         this.dos = new DataOutputStream(out);
     }
 
-    public void forward(String url) throws IOException {
+    public void forward(String url) {
         try {
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(body.length);

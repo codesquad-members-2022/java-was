@@ -6,6 +6,7 @@ import http.HttpResponse;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import servlet.CreateUserServlet;
 import util.HttpRequestUtils;
 import util.RequestParser;
 
@@ -37,24 +38,8 @@ public class RequestHandler extends Thread {
     }
 
     private void controlServlet(HttpRequest request, HttpResponse response) throws IOException {
-        String resourcePath = request.getPath();
-
-        if (resourcePath.startsWith("/user/create")) {
-            User user = createUser(request.getBody());
-            String nextPath = HOME;
-
-            try {
-                DataBase.addUser(user);
-                log.debug("[USER] : {}", user);
-            } catch (RuntimeException e) {
-                nextPath = USER_REGISTRY_FORM;
-            }
-
-            response.redirection(nextPath);
-            return;
-        }
-
-        response.forward(resourcePath);
+        CreateUserServlet servlet = new CreateUserServlet();
+        servlet.service(request, response);
     }
 
     private HttpRequest buildRequest(InputStream in) throws IOException {
@@ -63,11 +48,5 @@ public class RequestHandler extends Thread {
 
     private HttpResponse buildResponse(OutputStream out) {
         return new HttpResponse(out);
-    }
-
-    private User createUser(String resourcePath) throws UnsupportedEncodingException {
-        String queryString = HttpRequestUtils.getQueryString(resourcePath);
-        Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
-        return new User(parameters.get("userId"), parameters.get("password"), parameters.get("name"), parameters.get("email"));
     }
 }

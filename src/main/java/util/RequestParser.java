@@ -14,19 +14,15 @@ import java.util.Map;
 public class RequestParser {
     private static final Logger log = LoggerFactory.getLogger(RequestParser.class);
 
-    private final BufferedReader reader;
+    public static HttpRequest parse(InputStream in) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-    public RequestParser(InputStream in) {
-        this.reader = new BufferedReader(new InputStreamReader(in));
-    }
-
-    public HttpRequest parse() throws IOException {
         String[] requestLine = reader.readLine().split(" ");
-        Map<String, String> header = parseHttpHeader();
-        return buildRequest(header, requestLine);
+        Map<String, String> header = parseHttpHeader(reader);
+        return buildRequest(reader, header, requestLine);
     }
 
-    private Map<String, String> parseHttpHeader() throws IOException {
+    private static Map<String, String> parseHttpHeader(BufferedReader reader) throws IOException {
         Map<String, String> header = new HashMap<>();
         String line = reader.readLine();
         while (!"".equals(line)) {
@@ -40,7 +36,7 @@ public class RequestParser {
         return header;
     }
 
-    private HttpRequest buildRequest(Map<String, String> header, String[] requestLineTokens) throws IOException {
+    private static HttpRequest buildRequest(BufferedReader reader, Map<String, String> header, String[] requestLineTokens) throws IOException {
         String body = "";
 
         if (requestLineTokens[0].toLowerCase().equals("post")) {

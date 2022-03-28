@@ -1,18 +1,14 @@
 package webserver;
 
-import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponse;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlet.CreateUserServlet;
-import util.HttpRequestUtils;
 import util.RequestParser;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Map;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -38,8 +34,16 @@ public class RequestHandler extends Thread {
     }
 
     private void controlServlet(HttpRequest request, HttpResponse response) throws IOException {
-        CreateUserServlet servlet = new CreateUserServlet();
-        servlet.service(request, response);
+        String path = request.getPath();
+        log.debug("[PATH] : {}", path);
+        if (request.getPath().equals("/user/login.html")) {
+            response.forward("/user/login.html"); // 로그인 폼으로 이동
+        }
+        if (request.getPath().equals("user/form.html")) {
+            CreateUserServlet servlet = new CreateUserServlet();
+            servlet.service(request, response);
+        }
+        response.forward(path);
     }
 
     private HttpRequest buildRequest(InputStream in) throws IOException {

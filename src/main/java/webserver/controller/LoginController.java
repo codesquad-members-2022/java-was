@@ -2,6 +2,8 @@ package webserver.controller;
 
 import db.DataBase;
 import java.io.IOException;
+
+import db.SessionDataBase;
 import model.User;
 import webserver.Request;
 import webserver.Response;

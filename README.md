@@ -75,10 +75,18 @@
   즉, 엔터 치기 전까지는 모든 텍스트를 버퍼에 저장하는 식이다.
 
 ---
-3. 미션 1 까지의 작동 방식 간단 정리
+- 프로그램 작동 방식 간단 정리
     1. WebServer 클래스에서 ServerSocket 을 생성한 뒤 클라이언트 요청을 기다린다.
     2. 클라이언트 요청이 오면, 새로운 Socket 객체를 생성한 뒤 반환해준다.
     3. 해당 Socket 으로 RequestHandler 스레드를 실행시킨다.
     4. RequestHandler.run() 메서드에서 요청 헤더를 읽고 요청에 알맞게 ResponseHeader, ResponseBody 를 반환해 응답한다.
    
+---
+
+- 미션 3 까지의 작동 방식 간단 정리
+  1. Socket의 InputStream을 통해서 클라이언트의 요청을 RequestReader를 통해서 Request 객체에 저장한다.
+  2. 저장된 Request 객체를 통해서 FrontController로 RequestMapping한다.
+  3. mapping된 컨트롤러가 로직을 처리하고 Response를 반환한다.
+  4. ResponseWriter가 OutputStream과 Response를 통해서 클라이언트에게 응답을 보낸다.
+
 ---

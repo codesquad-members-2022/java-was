@@ -27,7 +27,7 @@ public class HandlerMethodMapper {
         return mapper.getOrDefault(pair, handlerMethodRegistry.getHandlerMethod(0));
     }
 
-    public void mappingHandlerMethod(Pair<String, String> pair, HandlerMethod handlerMethod) {
-        mapper.put(pair, handlerMethod);
+    public void mappingHandlerMethod(Pair<String, String> pair, int handlerMethodIndex) {
+        mapper.put(pair, handlerMethodRegistry.getHandlerMethod(handlerMethodIndex));
     }
 }

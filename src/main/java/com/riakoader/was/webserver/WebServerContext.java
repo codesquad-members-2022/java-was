@@ -11,9 +11,9 @@ public class WebServerContext {
 
     private static volatile WebServerContext webServerContext;
 
-    private final HandlerMethodRegistry handlerMethodRegistry;
+    public final HandlerMethodRegistry handlerMethodRegistry;
 
-    private final HandlerMethodMapper handlerMethodMapper;
+    public final HandlerMethodMapper handlerMethodMapper;
 
     private WebServerContext() {
         handlerMethodRegistry = HandlerMethodRegistry.getInstance();
@@ -31,9 +31,7 @@ public class WebServerContext {
             InvocationTargetException, IllegalAccessException {
 
         Class<?> context = Class.forName(this.getClass().getTypeName());
-
         Field field = context.getDeclaredField(beanName);
-        field.setAccessible(true);
 
         Class<?> clazz = Class.forName(field.getType().getTypeName());
         Method method = clazz.getDeclaredMethod("getInstance");

@@ -24,14 +24,12 @@ public class WebServerConfig implements WebServerConfigurer {
 
     private static volatile WebServerConfig webServerConfig;
 
-    private final WebServerContext webServerContext;
-
     private WebServerConfig() throws NoSuchFieldException, ClassNotFoundException, InvocationTargetException,
             NoSuchMethodException, IllegalAccessException {
 
         logger.debug("WebServerConfig() start");
 
-        webServerContext = WebServerContext.getInstance();
+        WebServerContext webServerContext = WebServerContext.getInstance();
 
         addHandlerMethod((HandlerMethodRegistry) webServerContext.getBean("handlerMethodRegistry"));
         configureHandlerMethodMapper((HandlerMethodMapper) webServerContext.getBean("handlerMethodMapper"));
@@ -40,7 +38,7 @@ public class WebServerConfig implements WebServerConfigurer {
     }
 
     public static WebServerConfig getInstance() throws NoSuchFieldException, ClassNotFoundException,
-            InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+            InvocationTargetException, NoSuchMethodException, IllegalAccessException {
 
         if (webServerConfig == null) {
             webServerConfig = new WebServerConfig();
@@ -48,6 +46,7 @@ public class WebServerConfig implements WebServerConfigurer {
         return webServerConfig;
     }
 
+    @Override
     public void addHandlerMethod(HandlerMethodRegistry handlerMethodRegistry) {
         logger.debug("addHandlerMethod() start");
 
@@ -126,23 +125,12 @@ public class WebServerConfig implements WebServerConfigurer {
         logger.debug("addHandlerMethod() end");
     }
 
-    public void configureHandlerMethodMapper(HandlerMethodMapper handlerMethodMapper) throws NoSuchFieldException,
-            ClassNotFoundException, InvocationTargetException, NoSuchMethodException,
-            IllegalAccessException {
-
+    @Override
+    public void configureHandlerMethodMapper(HandlerMethodMapper handlerMethodMapper) {
         logger.debug("configureHandlerMethodMapper() start");
 
-        HandlerMethodRegistry handlerMethodRegistry = (HandlerMethodRegistry) webServerContext.getBean("handlerMethodRegistry");
-
-        handlerMethodMapper.mappingHandlerMethod(
-                new Pair<>(HttpMethod.GET.name(), "/user/create"),
-                handlerMethodRegistry.getHandlerMethod(1)
-        );
-
-        handlerMethodMapper.mappingHandlerMethod(
-                new Pair<>(HttpMethod.POST.name(), "/user/create"),
-                handlerMethodRegistry.getHandlerMethod(2)
-        );
+        handlerMethodMapper.mappingHandlerMethod(new Pair<>(HttpMethod.GET.name(), "/user/create"), 1);
+        handlerMethodMapper.mappingHandlerMethod(new Pair<>(HttpMethod.POST.name(), "/user/create"), 2);
 
         logger.debug("configureHandlerMethodMapper() end");
     }

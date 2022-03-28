@@ -35,7 +35,7 @@ public class RequestHandler extends Thread {
              */
             if (httpRequest.getMapping()) {
                 String path = httpRequest.getPath();
-                HttpResponse response = UrlMapper.getResponse(httpRequest);
+                HttpResponse response = UrlMapper.getResponse(httpRequest, bufferedReader);
 
                 DataOutputStream dos = new DataOutputStream(out);
                 if (path.startsWith("/user/create")) {

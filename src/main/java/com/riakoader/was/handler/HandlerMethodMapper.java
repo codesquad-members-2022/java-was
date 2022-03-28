@@ -1,10 +1,8 @@
 package com.riakoader.was.handler;
 
-import com.riakoader.was.db.DataBase;
-import com.riakoader.was.httpmessage.HttpMethod;
+import com.riakoader.was.config.HandlerMethodRegistry;
 import com.riakoader.was.httpmessage.HttpResponse;
 import com.riakoader.was.httpmessage.HttpStatus;
-import com.riakoader.was.model.User;
 import com.riakoader.was.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +19,20 @@ public class HandlerMethodMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(HandlerMethodMapper.class);
 
-    private static final Map<Pair<String, String>, HandlerMethod> mapper = new HashMap<>();
+    private static volatile HandlerMethodMapper handlerMethodMapper;
+
+    private final HandlerMethodRegistry handlerMethodRegistry = HandlerMethodRegistry.getInstance();
+
+    private Map<Pair<String, String>, HandlerMethod> mapper = new HashMap<>();
+
+    private HandlerMethodMapper() {}
+
+    public static HandlerMethodMapper getInstance() {
+        if (handlerMethodMapper == null) {
+            handlerMethodMapper = new HandlerMethodMapper();
+        }
+        return handlerMethodMapper;
+    }
 
     private static final HandlerMethod resourceHandlerMethod = (request) -> {
         HttpResponse response = new HttpResponse(request.getProtocol());
@@ -47,46 +58,11 @@ public class HandlerMethodMapper {
         return response;
     };
 
-    static {
-        mapper.put(new Pair<>(HttpMethod.GET.name(), "/user/create"), (request) -> {
-            User user = new User(request.getParameter("userId"), request.getParameter("password"),
-                request.getParameter("name"), request.getParameter("email"));
-
-            DataBase.addUser(user);
-            logger.debug("user: {}", DataBase.findAll());
-
-            HttpResponse response = new HttpResponse(request.getProtocol());
-            response.setStatus(HttpStatus.CREATED);
-
-            return response;
-        });
-
-        mapper.put(new Pair<>(HttpMethod.POST.name(), "/user/create"), (request) -> {
-            if (DataBase.findUserById(request.getParameter("userId")) != null) {
-                logger.debug("Duplicate userId!");
-
-                HttpResponse response = new HttpResponse(request.getProtocol());
-                response.setStatus(HttpStatus.FOUND);
-                response.setHeader("Location", "/user/form.html");
-
-                return response;
-            }
-
-            User user = new User(request.getParameter("userId"), request.getParameter("password"),
-                    request.getParameter("name"), request.getParameter("email"));
-
-            DataBase.addUser(user);
-            logger.debug("user: {}", DataBase.findAll());
-
-            HttpResponse response = new HttpResponse(request.getProtocol());
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("Location", "/index.html");
-
-            return response;
-        });
+    public HandlerMethod getHandlerMethod(Pair<String, String> pair) {
+        return mapper.getOrDefault(pair, handlerMethodRegistry.getHandlerMethod(0));
     }
 
-    public static HandlerMethod getHandlerMethod(Pair<String, String> pair) {
-        return mapper.getOrDefault(pair, resourceHandlerMethod);
+    public void setHandlerMethodMapper(Map<Pair<String, String>, HandlerMethod> handlerMethodMapper) {
+        mapper = handlerMethodMapper;
     }
 }

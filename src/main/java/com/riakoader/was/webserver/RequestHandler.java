@@ -20,6 +20,8 @@ public class RequestHandler extends Thread {
 
     private final Socket connection;
 
+    private final HandlerMethodMapper handlerMethodMapper = HandlerMethodMapper.getInstance();
+
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
     }
@@ -37,7 +39,7 @@ public class RequestHandler extends Thread {
 
             HttpRequest request = receiveRequest(in);
 
-            HandlerMethod handlerMethod = HandlerMethodMapper.getHandlerMethod(
+            HandlerMethod handlerMethod = handlerMethodMapper.getHandlerMethod(
                     new Pair<>(
                             request.getMethod(),
                             request.getRequestURI()

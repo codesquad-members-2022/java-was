@@ -17,7 +17,7 @@ public enum HttpVersion {
         return Arrays.stream(values())
                 .filter(httpVersion -> httpVersion.equalTo(httpVersion.version, version))
                 .findAny()
-                .orElseThrow();
+                .orElseThrow(()->new IllegalArgumentException("해당 버전이 존재하지 않습니다."));
     }
 
     private boolean equalTo(String version, String inputVersion) {

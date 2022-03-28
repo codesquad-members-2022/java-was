@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -38,7 +39,10 @@ public class RequestHandler extends Thread {
             String method = tokens[0];
             String url = tokens[1];
             String version = tokens[2];
+
             Map<String, String> requestHeader = readRequestHeader(br);
+            boolean isLogin = isValidCookie(requestHeader);
+            log.debug("isLogin : {}", isLogin);
             String requestBody = null;
 
             if (method.equals("POST")) {
@@ -49,7 +53,7 @@ public class RequestHandler extends Thread {
                 log.debug("Content-Length: {}", requestBody.length());
             }
 
-            HttpRequest request = new HttpRequest(method, url, version, requestHeader, requestBody);
+            HttpRequest request = new HttpRequest(method, url, version, requestHeader, requestBody, isLogin);
 
             HttpResponse response = UrlMapper.getResponse(request);
 
@@ -59,6 +63,16 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private boolean isValidCookie(Map<String, String> requestHeader) {
+        if (requestHeader.containsKey("Cookie")) {
+            String cookie = requestHeader.get("Cookie");
+            Map<String, String> cookieMap = HttpRequestUtils.parseCookies(cookie);
+            String userId = cookieMap.get("userId");
+            return DataBase.isLoginUser(userId);
+        }
+        return false;
     }
 
     private String[] readRequestLine(BufferedReader br) throws IOException {

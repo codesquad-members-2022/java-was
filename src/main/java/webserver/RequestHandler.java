@@ -2,17 +2,20 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.IOUtils;
+import webserver.controller.DefaultController;
+import webserver.controller.UserCreateController;
 
 public class RequestHandler extends Thread {
 
 	private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+	private static final FrontController frontController = FrontController.getInstance();
 
 	private Socket connection;
 
@@ -25,57 +28,51 @@ public class RequestHandler extends Thread {
 			connection.getPort());
 
 		try (InputStream in = connection.getInputStream();
-			OutputStream out = connection.getOutputStream()) {
-			Request request = createRequest(in);
+			OutputStream out = connection.getOutputStream();
+			BufferedReader br = new BufferedReader(
+				new InputStreamReader(in, StandardCharsets.UTF_8));
+			DataOutputStream dos = new DataOutputStream(out)) {
 
-			byte[] body = null;
-			if ("/user/create".equals(request.getUri())) {
-				User user = new User(request.getParam("userId"),
-					request.getParam("password"),
-					request.getParam("name"),
-					request.getParam("email"));
-				log.debug("회원가입완료 {}",user );
-				body = Files.readAllBytes(new File("./webapp/" + "index.html").toPath());
-			} else {
-				body = Files.readAllBytes(new File("./webapp/" + request.getUri()).toPath());
+			Request request = createRequest(br);
+			Response response = new Response();
+
+			frontController.service(request, response);
+
+			sendResponse(dos, response);
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	private Request createRequest(BufferedReader br) throws IOException {
+		List<String> rawHeader = new ArrayList<>();
+
+		// read Request Header
+		String line = "";
+		int contentLength = 0;
+		while (!"".equals(line = br.readLine())) {
+			rawHeader.add(line);
+
+			if (line.contains("Content-Length")) {
+				String[] data = line.split(": ");
+				contentLength = Integer.parseInt(data[1]);
 			}
-
-			DataOutputStream dos = new DataOutputStream(out);
-			response200Header(dos, body.length);
-			responseBody(dos, body);
-
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-	}
-
-	private Request createRequest(InputStream in) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(in,"UTF-8"));
-		List<String> rawData = new ArrayList<>();
-		String line = br.readLine();
-		String firstLine = line;
-		while (!"".equals(line)) {
-			line = br.readLine();
-			rawData.add(line);
 		}
 
-		Request request = new Request(firstLine, rawData);
-		return request;
+		// read Request Body
+		String rawBody = "";
+		if (contentLength > 0) {
+			rawBody = IOUtils.readData(br, contentLength);
+		}
+
+		return new Request(rawHeader, rawBody);
 	}
 
-	private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+	private void sendResponse(DataOutputStream dos, Response response) {
 		try {
-			dos.writeBytes("HTTP/1.1 200 OK \r\n");
-			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-			dos.writeBytes("\r\n");
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-	}
-
-	private void responseBody(DataOutputStream dos, byte[] body) {
-		try {
+			String header = response.toHeader();
+			byte[] body = response.toBody().getBytes(StandardCharsets.UTF_8);
+			dos.writeBytes(header);
 			dos.write(body, 0, body.length);
 			dos.flush();
 		} catch (IOException e) {

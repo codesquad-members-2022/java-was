@@ -13,16 +13,26 @@ public class Request {
 	private final String method;
 	private final String uri;
 	private final String version;
+	private final String body;
 	private final Map<String, String> queryStringMap;
 	private final Map<String, String> requestHeaderMap = new HashMap<>();
 
-	public Request(String requestLine, List<String> rawData) {
+	public Request(List<String> rawHeader, String rawBody) {
+		String requestLine = rawHeader.get(0);
 		String[] tokens = requestLine.split(" ");
 		method = tokens[0];
 		uri = parseUri(tokens[1]);
-		queryStringMap = parseQueryStringMap(tokens[1]);
 		version = tokens[2];
-		parseRequestHeaderMap(rawData);
+
+		parseRequestHeaderMap(rawHeader.subList(1, rawHeader.size()));
+		if (requestHeaderMap.getOrDefault("Content-Type", "")
+			.equals("application/x-www-form-urlencoded")) {
+			queryStringMap = HttpRequestUtils.parseQueryString(rawBody);
+			body = null;
+		} else {
+			queryStringMap = parseQueryStringMap(tokens[1]);
+			body = rawBody;
+		}
 	}
 
 	private String parseUri(String rawUri) {
@@ -38,7 +48,7 @@ public class Request {
 			String[] uri_tokens = rawUri.split(QUERY_FLAG);
 			return HttpRequestUtils.parseQueryString(uri_tokens[1]);
 		}
-		return null;
+		return new HashMap<>();
 	}
 
 	private boolean isQueryString(String uri) {

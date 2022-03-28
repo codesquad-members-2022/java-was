@@ -51,6 +51,21 @@ public class HttpRequest {
         return requestHeader;
     }
 
+    public String getHeaderValue(String headerKey) {
+        String headerValue;
+        try{
+            headerValue = requestHeader.get(headerKey);
+        }catch (Exception e){
+            log.debug(e.toString());
+            throw new NullPointerException("헤더키가 없습니다");
+        }
+        return headerValue;
+    }
+
+    public String getSessionId() {
+        return getHeaderValue("Cookie").split("=")[1];
+    }
+
     public String getBody() {
         return body;
     }

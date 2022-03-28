@@ -1,6 +1,7 @@
 package webserver.controller;
 
-import db.DataBase;
+import db.SessionDataBase;
+import db.UserDataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +46,17 @@ public class UserController {
         HttpResponse response = null;
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");
-        User user = DataBase.findUserById(userId);
+        User user = UserDataBase.findUserById(userId);
 
         if (user.isMatchPassword(password)) {
             response = new HttpResponse(request.getVersion(), HttpStatus.FOUND);
             response.addHeader("Content-Type", "text/html;charset=utf-8");
             response.addHeader("Location", INDEX_PAGE_URL);
-            Cookie cookie = new Cookie("userId", userId);
-            response.addHeader("Set-Cookie", cookie.getCookieString());
-            DataBase.addUserToSession(user);
+
+            Cookie cookie = new Cookie(user);
+            String sessionId = SessionDataBase.addCookie(cookie);
+            response.addHeader("Set-Cookie", cookie.getCookieString(sessionId));
+            log.debug("cookieString: {}", cookie.getCookieString(sessionId));
             log.debug("Status Code : {}", response.getHttpStatusCode());
             log.debug("Location : {}", response.getHeader("Location"));
         }
@@ -67,7 +70,7 @@ public class UserController {
                     request.getParameter("password"),
                     request.getParameter("name"),
                     request.getParameter("email"));
-            DataBase.addUser(user);
+            UserDataBase.addUser(user);
             response = new HttpResponse(request.getVersion(), HttpStatus.FOUND);
             response.addHeader("Content-Type", "text/html;charset=utf-8");
             response.addHeader("Location", INDEX_PAGE_URL);
@@ -79,4 +82,23 @@ public class UserController {
         response.addHeader("Content-Type", "text/html;charset=utf-8");
         return response;
     }
+
+
+    public HttpResponse logout(HttpRequest request) {
+        HttpResponse response = new HttpResponse(request.getVersion(), HttpStatus.FOUND);
+        response.addHeader("Content-Type", "text/html;charset=utf-8");
+        response.addHeader("Location", INDEX_PAGE_URL);
+        String sessionId = request.getSessionId();
+
+        Cookie cookie = SessionDataBase.findByUUID(sessionId);
+        cookie.expire();
+        log.debug("cookieString : {}", cookie.getCookieString(sessionId));
+        response.addHeader("Set-Cookie", cookie.getCookieString(sessionId));
+
+        SessionDataBase.expire(sessionId);
+
+        log.debug("logout, sessionId: {}", sessionId);
+        return response;
+    }
+
 }

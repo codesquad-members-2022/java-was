@@ -5,6 +5,7 @@ import http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlet.CreateUserServlet;
+import servlet.LoginServlet;
 import util.RequestParser;
 
 import java.io.*;
@@ -37,7 +38,8 @@ public class RequestHandler extends Thread {
         String path = request.getPath();
         log.debug("[PATH] : {}", path);
         if (request.getPath().equals("/user/login.html")) {
-            response.forward("/user/login.html"); // 로그인 폼으로 이동
+            LoginServlet servlet = new LoginServlet();
+            servlet.service(request, response);
         }
         if (request.getPath().equals("user/form.html")) {
             CreateUserServlet servlet = new CreateUserServlet();

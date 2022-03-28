@@ -129,5 +129,9 @@ Java Web Server Project for CodeSquad Members 2022
 
 ### 학습 메모
 
-- 이번 미션의 경우 최소한의 코드로 요구사항을 구현했으나, 추후 템플릿 엔진(머스태치 등)과 같은 유사한 방식으로 태그를 인식하여 렌더링하는 코드도 구현해볼 수 있을 것 같습니다. 
-
+- 이번 미션의 경우 최소한의 코드로 요구사항을 구현했으나, 추후 템플릿 엔진(머스태치 등)과 같은 유사한 방식으로 태그를 인식하여 렌더링하는 코드도 구현해볼 수 있을 것 같습니다.
+- socket에서 getInputStream 또는 getOutputStream으로 반환된 스트림을 닫으면 socket도 같이 닫힌다.
+  - Java docs
+   > Closing the returned Input(Output)Stream will close the associated socket.
+- Controller를 Mapping하면서 다형성을 활용하는 좋은 연습이 되었습니다.
+- HttpResponse를 별도의 객체로 분리했으나 아직 하드코딩 된 부분이 많아 좀 더 동적으로 Response 내용을 생성할 수 있도록 개선해보겠습니다.

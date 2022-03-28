@@ -75,6 +75,10 @@ public class HttpRequest {
         return httpRequest;
     }
 
+    public boolean isLoggedIn() {
+        return Boolean.parseBoolean(cookies.getOrDefault("logged_in", "false"));
+    }
+
     public String getUri() {
         return uri;
     }
@@ -85,10 +89,6 @@ public class HttpRequest {
 
     public boolean hasMethodEqualTo(String method) {
         return this.method.equals(method);
-    }
-
-    public boolean hasPathEqualTo(String path) {
-        return this.path.equals(path);
     }
 
     public String getPath() {

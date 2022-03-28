@@ -1,6 +1,5 @@
 package webserver;
 
-import db.DataBase;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,14 +9,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
-
-import db.Sessions;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,157 +31,11 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             HttpRequest httpRequest = HttpRequest.receive(br);
+            HttpResponse httpResponse = new HttpResponse(dos, WEBAPP);
 
-            boolean isLoggedIn;
-            Map<String, String> cookies = httpRequest.getCookies();
-            isLoggedIn = Boolean.parseBoolean(cookies.getOrDefault("logged_in", "false"));
+            Controller controller = RequestMapping.getController(httpRequest.getPath());
+            controller.process(httpRequest, httpResponse);
 
-            if (httpRequest.hasPathEqualTo("/user/list") && httpRequest.hasMethodEqualTo("GET")) {
-                if (!isLoggedIn) {
-                    response302Header(dos, "/user/login.html");
-                    return;
-                }
-                StringBuilder sb = new StringBuilder();
-                Collection<User> users = DataBase.findAll();
-                sb.append("<table border='2'>")
-                    .append("<tr>")
-                    .append("<th>User Id</th>")
-                    .append("<th>Name</th>")
-                    .append("<th>Email</th>")
-                    .append("</tr>");
-
-                for (User user : users) {
-                    sb.append("<tr>")
-                        .append("<td>").append(user.getUserId()).append("</td>")
-                        .append("<td>").append(user.getName()).append("</td>")
-                        .append("<td>").append(user.getEmail()).append("</td>")
-                        .append("</tr>");
-                }
-
-                sb.append("</table");
-
-                byte[] body = sb.toString().getBytes();
-
-                response200Header(dos, body.length);
-                responseBody(dos, body);
-                return;
-            }
-
-
-            if (httpRequest.hasPathEqualTo("/user/create") && httpRequest.hasMethodEqualTo("POST")) {
-                processUserCreation(dos, httpRequest.getParameters());
-                return;
-            }
-
-            if (httpRequest.hasPathEqualTo("/user/login") && httpRequest.hasMethodEqualTo("POST")) {
-                processUserLogin(dos, httpRequest.getParameters(), httpRequest.getCookies());
-                return;
-            }
-
-            if (httpRequest.hasPathEqualTo("/user/logout")) {
-                processUserLogout(dos, httpRequest.getCookies());
-                return;
-            }
-
-            byte[] body = Files.readAllBytes(Path.of(WEBAPP + httpRequest.getPath()));
-
-            response200Header(dos, body.length);
-            responseBody(dos, body);
-
-            connection.close();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void processUserLogout(DataOutputStream dos, Map<String, String> cookies) {
-        String sessionId = cookies.get("sessionId");
-
-        if (sessionId == null) {
-            response302Header(dos, "/index.html");
-            return;
-        }
-
-        Sessions.remove(sessionId);
-        response302HeaderAfterLogout(dos, "/index.html", sessionId);
-    }
-
-    private void processUserLogin(DataOutputStream dos, Map<String, String> loginForm, Map<String, String> cookies) {
-        String userId = loginForm.get("userId");
-        String password = loginForm.get("password");
-
-        if (DataBase.matchesExistingUser(userId, password)) {
-            String sessionId = cookies.containsKey("sessionId") ?
-                    cookies.get("sessionId") : UUID.randomUUID().toString();
-            Sessions.getSession(sessionId)
-                    .setAttribute("user", DataBase.findUserById(userId));
-            response302HeaderAfterLogin(dos, "/index.html", sessionId);
-        }
-
-        response302Header(dos, "/login_failed.html");
-    }
-
-    private void processUserCreation(DataOutputStream dos,  Map<String, String> userCreationForm) {
-        User user = new User(userCreationForm.get("userId"),
-                userCreationForm.get("password"),
-                userCreationForm.get("name"),
-                userCreationForm.get("email"));
-        DataBase.addUser(user);
-        log.debug("New User has been created: {}", user);
-
-        response302Header(dos, "/index.html");
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response302Header(DataOutputStream dos, String redirectPath) {
-        try {
-            dos.writeBytes("HTTP/1.1 302 Found \r\n");
-            dos.writeBytes("Location: " + redirectPath + "\r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response302HeaderAfterLogin(DataOutputStream dos, String redirectPath, String sessionId) {
-        try {
-            dos.writeBytes("HTTP/1.1 302 Found \r\n");
-            dos.writeBytes("Location: " + redirectPath + "\r\n");
-            dos.writeBytes("Set-Cookie: sessionId=" + sessionId + "; Path=/\r\n");
-            dos.writeBytes("Set-Cookie: logged_in=true; Path=/\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response302HeaderAfterLogout(DataOutputStream dos, String redirectPath, String sessionId) {
-        try {
-            dos.writeBytes("HTTP/1.1 302 Found \r\n");
-            dos.writeBytes("Location: " + redirectPath + "\r\n");
-            dos.writeBytes("Set-Cookie: sessionId=" + sessionId + "; Max-Age=0; Path=/\r\n");
-            dos.writeBytes("Set-Cookie: logged_in=false; Path=/\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }

@@ -1,5 +1,7 @@
 package util;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,32 +11,12 @@ import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
 
-    public static String parseUrl(String requestLine) {
-        String uri = splitRequestLine(requestLine);
-
-        if (uri.contains("?")) {
-            return uri.split("\\?")[0];
-        }
-
-        return uri;
+    public static String[] splitRequestLine(String requestLine) {
+        return requestLine.split(" |\\?");
     }
 
-    public static String getQueryString(String requestLine) {
-        String uri = splitRequestLine(requestLine);
-
-        if (uri.contains("?")) {
-            return uri.split("\\?")[1];
-        }
-
-        return "";
-    }
-
-    public static String getMethod(String requestLine) {
-        return requestLine.split(" ")[0];
-    }
-
-    private static String splitRequestLine(String requestLine) {
-        return requestLine.split(" ")[1];
+    public static String UrlDecode(String url) {
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 
     /**

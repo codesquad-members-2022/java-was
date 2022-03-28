@@ -1,3 +1,15 @@
+## Step03 리뷰 반영
+
+- [ ] 학습한 내용 정리
+- [ ] Database 유저 중복 관련해서 IllegalArgumentException 아닌 다른 Exception으로 변경
+- [ ] Database.addUser 리턴 제거하기
+- [ ] HttpRequest의 header 명칭 변경
+- [ ] HttpResponse 이름 고민해보기
+- [ ] createRequest 이름 변경하기 -> parseRequest
+- [ ] requestLineTokens 객체 만들기
+- [ ] RequestHandler Parser 스태틱으로 만들기
+- [ ] RequestHandler.createUser 위치 고민 해보기
+
 ## Step03 TODO list
 
 - [x] Reqeust 객체 만들기

@@ -2,7 +2,7 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.controller.IndexController;
+import webserver.controller.MainController;
 import webserver.controller.UserController;
 
 import java.io.BufferedReader;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class UrlMapper {
     private static final Logger log = LoggerFactory.getLogger(UrlMapper.class);
-    private static IndexController indexController = new IndexController();
+    private static MainController mainController = new MainController();
     private static UserController userController = new UserController();
 
     private UrlMapper() {
@@ -25,7 +25,7 @@ public class UrlMapper {
             Map<String, String> queryString = httpRequest.getQueryString();
             switch (url) {
                 case "/index.html":
-                    return indexController.main(url);
+                    return mainController.main(url);
                 case "/user/form.html":
                     return userController.joinForm(url);
             }

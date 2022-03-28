@@ -16,9 +16,9 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static model.HeaderType.REQUEST_URL;
 import static util.HttpRequestUtils.getPath;
-import static util.Pathes.*;
+import static util.Pathes.JOIN_PATH;
+import static util.Pathes.WEBAPP_ROOT;
 import static util.SpecialCharacters.*;
 
 public class RequestHandler extends Thread {
@@ -38,9 +38,9 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest httpRequest = new HttpRequest(in);
             log.info("HttpRequest: {}", httpRequest);
-            HttpResponse httpResponse = new HttpResponse();
 
-            String requestUrl = request.getHeaderType(REQUEST_URL);
+
+            String requestUrl = httpRequest.requestUrl();
 
             if (requestUrl.startsWith(JOIN_PATH) && requestUrl.endsWith(Extention.HTML.getType())) {
                 int index = requestUrl.indexOf(QUESTION_MARK);
@@ -50,13 +50,13 @@ public class RequestHandler extends Thread {
                 User user = new User(params.get("userId"), params.get("password"), URLDecoder.decode(params.get("name"), StandardCharsets.UTF_8), params.get("email"));
 
                 DataBase.addUser(user);
+                HttpResponse httpResponse = new HttpResponse();
 
                 makeResponseBody(out, requestUrl);
                 log.debug("User : {}", user);
 
-            } else {
-                makeResponseBody(out, requestUrl);
             }
+            makeResponseBody(out, requestUrl);
         } catch (IOException e) {
             log.error(e.getMessage());
         }

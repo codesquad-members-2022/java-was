@@ -29,4 +29,8 @@ public class HttpRequest {
     private HttpHeader getHttpHeader(BufferedReader bufferedReader) throws IOException {
         return new HttpHeader(bufferedReader);
     }
+
+    public String requestUrl(){
+        return requestLine.getHttpRequestUrl();
+    }
 }

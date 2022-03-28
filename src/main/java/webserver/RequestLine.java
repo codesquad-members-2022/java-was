@@ -28,4 +28,8 @@ public class RequestLine {
     private HttpVersion getHttpVersion(String[] startLine) {
         return HttpVersion.of(startLine[VERSION_INDEX]);
     }
+
+    public String getHttpRequestUrl() {
+        return this.url;
+    }
 }

@@ -45,11 +45,11 @@ public class RequestHandler extends Thread {
 
             try {
                 DataBase.addUser(user);
+                log.debug("[USER] : {}", user);
             } catch (RuntimeException e) {
                 nextPath = USER_REGISTRY_FORM;
             }
 
-            log.debug("[USER] : {}", user);
             response.redirection(nextPath);
             return;
         }
@@ -58,7 +58,7 @@ public class RequestHandler extends Thread {
     }
 
     private HttpRequest buildRequest(InputStream in) throws IOException {
-        return new RequestParser(in).parse();
+        return RequestParser.parse(in);
     }
 
     private HttpResponse buildResponse(OutputStream out) {

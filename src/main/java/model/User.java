@@ -35,6 +35,6 @@ public class User {
     }
 
     public boolean isSamePassword(String password) {
-        return password.equals(password);
+        return this.password.equals(password);
     }
 }

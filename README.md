@@ -2,9 +2,9 @@
 
 - [x] Servlet interface 만들기
 - [x] CreateUserServlet (내부로 createUser 메서드 이동시키기)
-- [ ] 로그인 기능 구현 (http://localhost:8080/user/login.html)
-  - [ ] 성공시 index.html로 이동
-  - [ ] 실패시 /user/login_failed.html로 이동
+- [x] 로그인 기능 구현 (http://localhost:8080/user/login.html)
+  - [x] 성공시 index.html로 이동
+  - [x] 실패시 /user/login_failed.html로 이동
 
 ## Step03 리뷰 반영
 

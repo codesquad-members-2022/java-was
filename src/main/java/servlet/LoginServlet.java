@@ -24,25 +24,36 @@ public class LoginServlet extends BaseServlet {
 
     @Override
     public void doPost(HttpRequest request, HttpResponse response) {
-        String body = request.getBody();
-        String queryString = HttpRequestUtils.getQueryString(body);
-        Map<String, String> parsedMap = HttpRequestUtils.parseQueryString(queryString);
+        Map<String, String> parsedMap = parseRequestBody(request);
 
         String userId = parsedMap.get("userId");
         String password = parsedMap.get("password");
-        log.debug("[User Status] : {}, {}", userId, password);
         Optional<User> findUser = DataBase.findUserById(userId);
+        log.debug("[User Status] : {}, {}", userId, password);
 
-        if (findUser.isPresent() && findUser.get().isSamePassword(password)) {
-            String sessionId = UUID.randomUUID().toString();
-            log.debug("[SessionId] : {}", sessionId);
-            Session.save(sessionId, findUser.get());
-            response.addHeader("Set-Cookie", sessionId + "; Path=/");
+        if (isValidUser(password, findUser)) {
+            createCookie(response, findUser);
             response.redirection("/index.html");
             return;
         }
 
-        log.debug("여기 로그인 !!!!!!!!!!!!!!");
         response.redirection("/user/login_failed.html");
+    }
+
+    private void createCookie(HttpResponse response, Optional<User> findUser) {
+        String sessionId = UUID.randomUUID().toString();
+        log.debug("[SessionId] : {}", sessionId);
+        Session.save(sessionId, findUser.get());
+        response.addHeader("Set-Cookie", sessionId + "; Path=/");
+    }
+
+    private boolean isValidUser(String password, Optional<User> findUser) {
+        return findUser.isPresent() && findUser.get().isSamePassword(password);
+    }
+
+    private Map<String, String> parseRequestBody(HttpRequest request) {
+        String body = request.getBody();
+        String queryString = HttpRequestUtils.getQueryString(body);
+        return HttpRequestUtils.parseQueryString(queryString);
     }
 }

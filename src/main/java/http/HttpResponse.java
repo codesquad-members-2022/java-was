@@ -10,13 +10,16 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class HttpResponse {
     private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
+    Map<String, String> headers;
     private DataOutputStream dos;
 
     public HttpResponse(OutputStream out) {
+        this.headers = new HashMap<>();
         this.dos = new DataOutputStream(out);
     }
 
@@ -35,9 +38,18 @@ public class HttpResponse {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             dos.writeBytes("Location: " + location + "\r\n");
+            setHeaders();
             dos.writeBytes("\r\n");
+            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private void setHeaders() throws IOException {
+        Set<String> keys = headers.keySet();
+        for (String key : keys) {
+            dos.writeBytes(key + ": " + headers.get(key) + "\r\n");
         }
     }
 
@@ -60,7 +72,7 @@ public class HttpResponse {
         }
     }
 
-    public void setHeader(String key, String value) {
-        Map<String, String> headers = new HashMap<>();
+    public void addHeader(String key, String value) {
+        headers.put(key, value);
     }
 }

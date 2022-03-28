@@ -24,7 +24,7 @@ public class Response {
 
 	public void writeResponse() throws IOException {
 		log.debug("requestLine: {}", request.getRequestLine());
-		if (request.isPOST() && request.getPath().equals("/user/create")) {
+		if (HttpMethod.isPost(request) && request.getPath().equals("/user/create")) {
 
 			this.body = Files.readAllBytes(new File("./webapp/index.html").toPath());
 

@@ -28,7 +28,7 @@ public class SessionDataBase {
     public static boolean deleteByCookie(String cookie) {
         String userId = store.remove(cookie);
 
-        if (userId.equals(null)) {
+        if ("".equals(userId)) {
             return false;
         }
         return true;

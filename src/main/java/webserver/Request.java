@@ -3,6 +3,7 @@ package webserver;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import util.HttpRequestUtils;
 import util.HttpRequestUtils.Pair;
@@ -17,6 +18,7 @@ public class Request {
 	private final String body;
 	private final Map<String, String> queryStringMap;
 	private final Map<String, String> requestHeaderMap = new HashMap<>();
+	private final Map<String, String> cookieMap;
 
 	public Request(List<String> rawHeader, String rawBody) {
 		String requestLine = rawHeader.get(0);
@@ -35,6 +37,12 @@ public class Request {
 			queryStringMap = parseQueryStringMap(tokens[1]);
 			body = rawBody;
 		}
+
+		cookieMap = parseCookieMap(requestHeaderMap.get("Cookie"));
+	}
+
+	private Map<String, String> parseCookieMap(String cookie) {
+		return HttpRequestUtils.parseCookies(cookie);
 	}
 
 	private String parseFileExtention(String uri) {
@@ -98,7 +106,15 @@ public class Request {
 		return queryStringMap.get(keyOfparamMap);
 	}
 
+	public String getHeaderValue(String keyofHeader) {
+		return requestHeaderMap.get(keyofHeader);
+	}
+
 	public String getFileExtension() {
 		return fileExtension;
+	}
+
+	public Optional<String> getCookieValue(String cookieName) {
+		return Optional.ofNullable(cookieMap.get(cookieName));
 	}
 }

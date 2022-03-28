@@ -28,7 +28,7 @@ public class HttpRequest {
         log.debug("requestLine = {}", line);
         this.requestLine = new RequestLine(line);
 
-        while (!"".equals(line)) {
+        while (!line.isEmpty()) {
             line = br.readLine();
             log.debug("requestHeader = {}", line);
             if (line.startsWith("Content-Length")) {

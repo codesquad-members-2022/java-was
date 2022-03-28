@@ -11,7 +11,8 @@ public class HandlerMethodRegistry {
 
     private final List<HandlerMethod> registry = new CopyOnWriteArrayList<>();
 
-    private HandlerMethodRegistry() {}
+    private HandlerMethodRegistry() {
+    }
 
     public static HandlerMethodRegistry getInstance() {
         if (handlerMethodRegistry == null) {

@@ -14,7 +14,8 @@ public class HandlerMethodMapper {
 
     private final Map<Pair<String, String>, HandlerMethod> mapper = new ConcurrentHashMap<>();
 
-    private HandlerMethodMapper() {}
+    private HandlerMethodMapper() {
+    }
 
     public static HandlerMethodMapper getInstance() {
         if (handlerMethodMapper == null) {

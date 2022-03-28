@@ -4,7 +4,9 @@ import com.riakoader.was.handler.HandlerMethodMapper;
 
 public interface WebServerConfigurer {
 
-    default void addHandlerMethod(HandlerMethodRegistry handlerMethodRegistry) {}
+    default void addHandlerMethod(HandlerMethodRegistry handlerMethodRegistry) {
+    }
 
-    default void configureHandlerMethodMapper(HandlerMethodMapper handlerMethodMapper) {}
+    default void configureHandlerMethodMapper(HandlerMethodMapper handlerMethodMapper) {
+    }
 }

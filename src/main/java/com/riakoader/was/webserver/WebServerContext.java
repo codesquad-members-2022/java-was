@@ -11,9 +11,9 @@ public class WebServerContext {
 
     private static volatile WebServerContext webServerContext;
 
-    public final HandlerMethodRegistry handlerMethodRegistry;
+    private final HandlerMethodRegistry handlerMethodRegistry;
 
-    public final HandlerMethodMapper handlerMethodMapper;
+    private final HandlerMethodMapper handlerMethodMapper;
 
     private WebServerContext() {
         handlerMethodRegistry = HandlerMethodRegistry.getInstance();

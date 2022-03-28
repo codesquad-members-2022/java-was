@@ -36,9 +36,9 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            Map<HeaderType, String> headerValues = getHeaders(bufferedReader);
-            Request request = new Request(headerValues, "", "", "", "");
+            HttpRequest httpRequest = new HttpRequest(in);
+            log.info("HttpRequest: {}", httpRequest);
+            HttpResponse httpResponse = new HttpResponse();
 
             String requestUrl = request.getHeaderType(REQUEST_URL);
 

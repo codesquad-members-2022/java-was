@@ -65,19 +65,20 @@ public class Request {
         return path;
     }
 
-    public Map<String, String> getQueryString() {
-        return queryString;
+    public String getQueryStringValue(String parameter) {
+        return queryString.get(parameter);
     }
 
     public ContentType getContentType() {
         return contentType;
     }
 
-    public Map<String, String> getHeaders() {
-        return headers;
+    public String getHeaderValue(String key) {
+        return headers.get(key);
     }
 
-    public Map<String, String> getBody() {
-        return body;
+    public String getBodyValue(String key) {
+        return body.get(key);
     }
+
 }

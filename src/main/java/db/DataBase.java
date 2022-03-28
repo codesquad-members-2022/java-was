@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.Maps;
 
+import exception.DuplicatedUserException;
 import model.User;
 
 public class DataBase {
@@ -17,7 +18,7 @@ public class DataBase {
             users.put(user.getUserId(), user);
             return;
         }
-        throw new IllegalArgumentException(ALREADY_REGISTER_USER_ERROR);
+        throw new DuplicatedUserException(ALREADY_REGISTER_USER_ERROR);
     }
 
     public static User findUserById(String userId) {

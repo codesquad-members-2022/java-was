@@ -63,4 +63,8 @@ public class HttpRequest {
             return null;
         }
     }
+
+    public String httpVersion() {
+        return this.requestHeader.getVersion();
+    }
 }

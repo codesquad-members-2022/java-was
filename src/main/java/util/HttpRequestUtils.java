@@ -12,9 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
-import db.DataBase;
-import model.User;
-
 public class HttpRequestUtils {
     private static final Logger log = LoggerFactory.getLogger(HttpRequestUtils.class);
 
@@ -31,20 +28,6 @@ public class HttpRequestUtils {
             log.debug("request header ={}", line);
             line = bufferedReader.readLine();
         }
-    }
-
-    public static User addUserInfo(String url) {
-        String[] requestLine = url.split("\\?");
-        Map<String, String> userData = HttpRequestUtils.parseQueryString(requestLine[1]);
-
-        User user = new User(userData.get("userId")
-            , userData.get("password")
-            , userData.get("name")
-            , userData.get("email"));
-
-        log.debug("user = {}", user);
-        DataBase.addUser(user);
-        return user;
     }
 
     /**

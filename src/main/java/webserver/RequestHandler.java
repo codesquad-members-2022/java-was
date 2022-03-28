@@ -20,7 +20,6 @@ import util.MimeUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -31,17 +30,15 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
             connection.getPort());
 
-        try (InputStream in = connection.getInputStream();
-             OutputStream out = connection.getOutputStream()) {
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String line = URLDecoder.decode(bufferedReader.readLine(), StandardCharsets.UTF_8);
 
             String url = HttpRequestUtils.getUrl(line);
             HttpRequestUtils.readRequestHeader(bufferedReader);
 
-            if (url.contains("/user/create")) {
-                HttpRequestUtils.addUserInfo(url);
-            }
+            UrlHandler urlHandler = UrlHandler.getInstance();
+            urlHandler.mapUrl(url);
 
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
@@ -71,4 +68,5 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
+
 }

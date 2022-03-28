@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import db.DataBase;
-import model.User;
 import util.HttpRequestUtils.Pair;
 
 public class HttpRequestUtilsTest {
@@ -86,15 +84,4 @@ public class HttpRequestUtilsTest {
         assertThat(url).isEqualTo("/index.html");
     }
 
-    @Test
-    @DisplayName("회원가입 정보를 입력하면 User 객체를 생성하여 DB에 저장한다")
-    void addUserInfo() {
-        String url = "/user/create?userId=bckang&password=1234&name=%EA%B0%95%EB%B3%91%EC%B2%A0&email=1111%40naver.com";
-
-        User user = HttpRequestUtils.addUserInfo(url);
-        User dbUser = DataBase.findUserById("bckang");
-        log.debug("user name = {}", user.getName());
-        log.debug("dbUser name = {}", dbUser.getName());
-        assertThat(user.matchesUserId(dbUser.getUserId())).isTrue();
-    }
 }

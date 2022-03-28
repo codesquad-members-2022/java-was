@@ -43,3 +43,13 @@ was는 보통 앞단에 웹 서버를 두고, 요청 -> (웹 서버 -> was -> DB
 
 #### 궁금한 점
 - HttpStatus를 enum으로 관리하는 방법을 채택해봤습니다. 각 상태코드와 응답 메시지를 관리하는 용도로 사용하였는데 적절한 방법일까요? 
+
+
+### Step 04
+
+#### 쿠키의 발급과 소멸
+
+- browser에서 보낸 HttpRequest의 userId와 password가 서버의 것과 일치하면 Cookie를 response에 담아 발행한다.
+- 이 때, cookie는 sessionId로 관리되어 서버에 저장된다.
+- browser에 저장된 cookie는 한 번 발급되면 expire 조건이 만족되기 전까지 HttpRequest에 항상 포함되어 요청된다.
+- Server는 HttpRequest에 담겨온 Cookie 정보를 읽고 sessionId를 통해 쿠키를 조회한 후, 유효하면 response에 cookie 정보를 다시 담아 반환한다.

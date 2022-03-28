@@ -4,7 +4,6 @@ import java.util.Map;
 
 import db.DataBase;
 import http.HttpServlet;
-import http.HttpStatus;
 import http.Request;
 import http.Response;
 import http.Session;
@@ -24,16 +23,14 @@ public class LoginServlet extends HttpServlet {
 
         if (DataBase.isUserIdExist(userId)) {
             User user = DataBase.findByUserId(userId);
-            if (user.getPassword().equals(password)) {
+            if (user.isPassword(password)) {
                 int sessionId = Session.createSession();
                 Session.setAttribute(sessionId, "userId", userId);
-                response.setHttpStatus(HttpStatus.FOUND);
                 response.addHeader("Set-Cookie", String.format("sessionId= %d; Path=/", sessionId));
                 response.setRedirectUrl("/index.html");
                 return response;
             }
         }
-        response.setHttpStatus(HttpStatus.FOUND);
         response.setRedirectUrl("/user/login_failed.html");
         return response;
     }

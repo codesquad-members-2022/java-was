@@ -94,10 +94,6 @@ public class RequestHandler extends Thread {
 
         Map<String, String> headers = new HashMap<>();
 
-        if (response.getHttpStatus().equals(HttpStatus.FOUND)) {
-            headers.put("Location", response.getRedirectUrl());
-        }
-
         for (String key : response.headerKeySet()) {
             headers.put(key, response.findHeader(key));
         }

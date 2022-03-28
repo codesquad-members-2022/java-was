@@ -13,8 +13,8 @@ public class Session {
     private Session() { }
 
     public static int createSession() {
-        int sessionId = sessionIdGenerator.getAndIncrement();
         HashMap<String, Object> sessionAttribute = new HashMap<>();
+        int sessionId = sessionIdGenerator.getAndIncrement();
         sessionMap.put(sessionId, sessionAttribute);
 
         return sessionId;

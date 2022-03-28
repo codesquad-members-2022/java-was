@@ -5,9 +5,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class Response {
+    private final static String LOCATION_HEADER = "Location";
+
     private final Map<String, String> header = new HashMap<>();
     private HttpStatus httpStatus;
-    private String redirectUrl;
 
     public HttpStatus getHttpStatus() {
         return httpStatus;
@@ -18,11 +19,12 @@ public class Response {
     }
 
     public String getRedirectUrl() {
-        return redirectUrl;
+        return header.get(LOCATION_HEADER);
     }
 
     public void setRedirectUrl(String redirectUrl) {
-        this.redirectUrl = redirectUrl;
+        this.httpStatus = HttpStatus.FOUND;
+        header.put(LOCATION_HEADER, redirectUrl);
     }
 
     public void addHeader(String key, String value) {

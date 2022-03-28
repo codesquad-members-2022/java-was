@@ -1,8 +1,9 @@
-package webserver;
+package webserver.request;
 
 import com.google.common.base.Strings;
 import util.HttpRequestUtils;
 import util.IOUtils;
+import webserver.request.Request;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,19 +24,10 @@ public class RequestReader {
     public Request create() throws IOException {
 
         String requestLine = HttpRequestUtils.UrlDecode(bufferedReader.readLine());
-        String[] splitRequestLine = HttpRequestUtils.splitRequestLine(requestLine);
-        String httpMethod = splitRequestLine[0];
-        String url = splitRequestLine[1];
-        String queryString = "";
-
-        if (splitRequestLine.length == 4) {
-            queryString = splitRequestLine[2];
-        }
-
         Map<String, String> headers = createHeader();
         String requestBody = createRequestBody(headers);
 
-        return new Request(httpMethod, url, queryString, headers, requestBody);
+        return new Request(requestLine, headers, requestBody);
     }
 
     private Map<String, String> createHeader() throws IOException {

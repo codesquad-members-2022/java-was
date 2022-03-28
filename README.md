@@ -6,19 +6,23 @@ Java Web Server Project for CodeSquad Members 2022
 
 ## ✍🏻 요구사항
 
-index파일에접속했을 때 webapp 디렉토리의 index.html 파일을 읽어 클라이언트에 응답한다.
+GET방식을 통해 회원가입을 진행할 수 있다.
 
 <br/><br/><br/>
 
 ## To-do List
 
-- [x] client 입력 URL 파싱
-- [x] http request header 출력
-- [x] URL에 맞는 웹페이지 반환
-
+- [x] index.html로 접속하면 회원가입 폼 파일을 내려준다.
+- [x] 이 폼을 통해 회원가입을 할 수 있다.
+- [x] 한글이 정확하게 입력되고 있는지 확인해야 한다.
+- [x] 가입한 회원 데이터는 리스트 형태로 저장한다.
 <br/><br/><br/>
 
 ## 구현 중 학습한 내용
+
+<details>
+<summary>📝 1단계 학습내용</summary>
+<br/>
 
 - HTTP 동작방식에 대해 생각을 정리하는 시간을 가졌습니다. [그림 출처](https://pearlluck.tistory.com/117)
     1. 사용자가 브라우저에 URL 주소 입력<br/><br/>
@@ -57,3 +61,42 @@ index파일에접속했을 때 webapp 디렉토리의 index.html 파일을 읽�
                ​ ​
                <br/><br/>
 
+</details>
+
+<details>
+<summary>📝 2단계 학습내용</summary>
+<br/>
+
+### URL파싱과 데이터 전송까지만 구현했기 때문에 url이 리다이렉션 되지는 않습니다.
+- GET 방식 데이터 전송
+  - URL 뒤에 ? 마크를 통해 데이터를 전송한다.
+  - 2개 이상의 key, value 쌍 데이터를 보낼 때는 & 마크로 구분한다.
+  - GET 방식의 요청은 캐싱 방식을 사용하기 때문에 다른 데이터 전송보다 속도가 빠르다.
+<br/><br/><br/>
+
+`학습하면서 GET 방식이 왜 더 빠를까` 를 고민하다 이것저것 실험해 보았습니다. 아직 구현하지 못했지만 학습한 내용은 다음과 같습니다.
+- 데이터가 변경되지 않는 상황에서 굳이 같은 데이터를 내려줄 필요가 없기 때문에 다양한 캐싱 전략을 사용한다. 캐싱을 위해서는 cache-control과 last-modified-since와 같은 값들을 사용할 수 있다.
+
+`웹 브라우저에는 캐시를 저장하는 저장소가 있는데 이 경우 두 번쨰 요청시 저장소를 통해 네트워크 통신을 하지 않아도 되며, 하드디스크를 통해 바로 데이터를 가져올 수 있다.
+`
+<br/><br/><br/>
+
+
+
+- cache-control, 을 통해 캐시가 유효한 시간을 명시한다.
+- Last modified-since를 통해 데이터가 변경된 지 알 수 있다.
+
+![http이미지](https://user-images.githubusercontent.com/86910955/160075123-4d0d2342-dc94-4703-9f6a-ba5496a007ae.png)
+
+참고자료
+
+- https://itstory.tk/entry/Spring-MVC-LastModified-IfModifiedSince-%EC%BA%90%EC%8B%9C-%EC%84%A4%EC%A0%95
+- https://stackoverflow.com/questions/10498135/last-modified-header-in-mvc
+
+
+<br/><br/><br/><br/>
+
+스프링에서 어떻게 이를 사용할 수 있을까 하고 찾아보던 중 아래와 같은 방식을 찾았지만 아직까지 정확하게 어떻게 사용해야 할지는 감이 잘 잡히지 않습니다.
+3, 4단계 미션을 수행해 가면서 방법을 찾아보겠습니다.
+
+</details>

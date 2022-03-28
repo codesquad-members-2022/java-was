@@ -1,4 +1,4 @@
-package model;
+package model.user;
 
 public class User {
     private String userId;
@@ -27,6 +27,10 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public boolean isSameId(String userId){
+        return this.userId.equals(userId);
     }
 
     @Override

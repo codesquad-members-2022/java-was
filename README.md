@@ -92,5 +92,4 @@ TODO 리스트
 
 ## 리뷰 받은 내용
 - [x] 마크다운 문법에 맞게 README를 작성하기
-   
-
+- [x] HttpRequestUtils에서 getQueryString() 메소드 수정

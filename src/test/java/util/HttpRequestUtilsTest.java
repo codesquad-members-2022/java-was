@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
@@ -82,10 +83,17 @@ public class HttpRequestUtilsTest {
     }
 
     @Test
-    public void getQueryString() {
+    public void getQueryString_present() {
         String url = "/create?userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net";
         assertThat(HttpRequestUtils.getQueryString(url))
-                .isEqualTo("userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net");
+                .isNotEmpty()
+                .hasValue("userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net");
+    }
+
+    @Test
+    public void getQueryString_empty() {
+        String url = "/create";
+        assertThat(HttpRequestUtils.getQueryString(url)).isEmpty();
     }
     
     @Test

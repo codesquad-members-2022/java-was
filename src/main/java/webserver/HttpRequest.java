@@ -33,4 +33,8 @@ public class HttpRequest {
     public String requestUrl(){
         return requestLine.getHttpRequestUrl();
     }
+
+    public RequestLine getRequestLine() {
+        return requestLine;
+    }
 }

@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static util.SpecialCharacters.NULL_STRING;
 
@@ -30,7 +29,7 @@ public class HttpHeader {
     }
 
     private Map<HeaderType, String> getHttpHeader(BufferedReader bufferedReader) throws IOException {
-        Map<HeaderType, String> header = new ConcurrentHashMap<>();
+        Map<HeaderType, String> header = new HashMap<>();
         String line;
         while (!(line = bufferedReader.readLine()).equals(NULL_STRING)) {
             addHeader(header, line);

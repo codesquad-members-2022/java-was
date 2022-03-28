@@ -19,7 +19,7 @@ public class HttpRequest {
 
     public HttpRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        String[] requestLine = IOUtils.readRequestLine(br).split(" ");
+        String[] requestLine = br.readLine().split(" ");
 
         httpMethod = requestLine[0];
         path = requestLine[1];

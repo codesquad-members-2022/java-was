@@ -25,10 +25,6 @@ public class IOUtils {
         return URLDecoder.decode(String.valueOf(body), StandardCharsets.UTF_8);
     }
 
-    public static String readRequestLine(BufferedReader br) throws IOException {
-        return br.readLine();
-    }
-
     public static Map<String, String> readRequestHeader(BufferedReader br) throws IOException {
         Map<String, String> requestHeader = new HashMap<>();
         String line;

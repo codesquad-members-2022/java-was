@@ -15,8 +15,9 @@ public class HttpRequest {
     private final Map<String, String> requestHeader;
     private String body;
     private Map<String, String> params = new HashMap<>();
+    private final boolean isLogin;
 
-    public HttpRequest(String method, String url, String version, Map<String, String> requestHeader, String body) {
+    public HttpRequest(String method, String url, String version, Map<String, String> requestHeader, String body, boolean isLogin) {
         this.method = method;
         if (url.contains("?")) {
             this.url = url.split("\\?")[0];
@@ -29,6 +30,7 @@ public class HttpRequest {
         this.requestHeader = requestHeader;
         this.body = body;
         params.putAll(HttpRequestUtils.parseQueryString(body));
+        this.isLogin = isLogin;
 
         log.debug("params: {}", params);
     }
@@ -56,5 +58,4 @@ public class HttpRequest {
     public String getParameter(String parameterName) {
         return params.get(parameterName);
     }
-
 }

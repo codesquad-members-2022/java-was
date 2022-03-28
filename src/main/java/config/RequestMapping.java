@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import http.HttpServlet;
+import servlet.LoginServlet;
 import servlet.UserCreateServlet;
 
 public class RequestMapping {
@@ -13,6 +14,7 @@ public class RequestMapping {
 
     static {
         servletMapping.put(new URL("/user/create"), UserCreateServlet.class);
+        servletMapping.put(new URL("/user/login"), LoginServlet.class);
     }
 
     public static boolean contains(String url) {

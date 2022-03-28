@@ -98,6 +98,10 @@ public class RequestHandler extends Thread {
             headers.put("Location", response.getRedirectUrl());
         }
 
+        for (String key : response.headerKeySet()) {
+            headers.put(key, response.findHeader(key));
+        }
+
         responseHeader(dos, response.getHttpStatus(), headers);
         flush(dos);
     }

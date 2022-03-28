@@ -17,6 +17,9 @@ public class User {
 
 
     public static User from(Map<String, String> userInfo) {
+        if (userInfo.get("userId") == null || userInfo.get("password") == null || userInfo.get("name") == null || userInfo.get("email") == null) {
+            throw new IllegalArgumentException();
+        }
         return new User(userInfo.get("userId"), userInfo.get("password"), userInfo.get("name"), userInfo.get("email"));
     }
 

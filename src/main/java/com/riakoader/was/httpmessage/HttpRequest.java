@@ -3,7 +3,6 @@ package com.riakoader.was.httpmessage;
 import com.google.common.base.Strings;
 import com.riakoader.was.util.HttpRequestUtils;
 
-import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
@@ -14,12 +13,10 @@ public class HttpRequest {
     private final String method;
     private final String requestURI;
     private final String protocol;
-    private String queryString;
     private Map<String, String> params;
-    private final List<HttpRequestUtils.Pair> headers;
-    private final String requestMessageBody;
+    private final Map<String, String> headers;
 
-    public HttpRequest(String requestLine, List<HttpRequestUtils.Pair> headers, String requestMessageBody) {
+    public HttpRequest(String requestLine, Map<String, String> headers, String requestMessageBody) {
         String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
         String requestURL = requestLineTokens[1];
         int queryStringDelimiterIndex = requestURL.indexOf(QUERYSTRING_DELIMITER);
@@ -31,12 +28,10 @@ public class HttpRequest {
         this.protocol = requestLineTokens[2];
 
         if (queryStringDelimiterIndex != requestURL.length()) {
-            this.queryString = requestURL.substring(queryStringDelimiterIndex + 1);
-            this.params = HttpRequestUtils.parseQueryString(queryString);
+            this.params = HttpRequestUtils.parseQueryString(requestURL.substring(queryStringDelimiterIndex + 1));
         }
 
         this.headers = headers;
-        this.requestMessageBody = requestMessageBody;
 
         if (!Strings.isNullOrEmpty(requestMessageBody)) {
             this.params = HttpRequestUtils.parseQueryString(requestMessageBody);

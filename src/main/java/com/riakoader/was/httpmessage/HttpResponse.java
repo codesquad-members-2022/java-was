@@ -8,20 +8,27 @@ import java.util.stream.Collectors;
 
 public class HttpResponse {
 
-    private String statusLine;
+    private final String protocol;
+    private HttpStatus status;
     private final Map<String, String> headers = new HashMap<>();
     private byte[] body = "".getBytes();
 
-    public void setStatusLine(String protocol, HttpStatus status) {
-        statusLine = protocol + " " + status;
+    public HttpResponse(String protocol) {
+        this.protocol = protocol;
     }
 
     public void setHeader(String name, String value) {
         headers.put(name, value);
     }
 
+    public void setStatus(HttpStatus status) {
+        this.status = status;
+    }
+
     public String getHeaderMessage() {
-        return headers.keySet().stream().map(name -> name + ": " + headers.get(name))
+        return headers.keySet()
+                .stream()
+                .map(name -> name + ": " + headers.get(name))
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
@@ -30,16 +37,10 @@ public class HttpResponse {
     }
 
     public byte[] toByteArray() {
-        String headerMessage = statusLine + System.lineSeparator() +
-                getHeaderMessage() + System.lineSeparator() + System.lineSeparator();
+        String httpRequestMessage = protocol + " " + status + System.lineSeparator() +
+                getHeaderMessage() + System.lineSeparator() + System.lineSeparator() +
+                new String(Arrays.copyOf(body, body.length));
 
-        byte[] headerBytes = headerMessage.getBytes(StandardCharsets.UTF_8);
-        byte[] responseMessageBytes = Arrays.copyOf(body, body.length);
-
-        byte[] httpResponse = new byte[headerBytes.length + responseMessageBytes.length];
-        System.arraycopy(headerBytes, 0, httpResponse, 0, headerBytes.length);
-        System.arraycopy(responseMessageBytes, 0, httpResponse, headerBytes.length, responseMessageBytes.length);
-
-        return httpResponse;
+        return httpRequestMessage.getBytes(StandardCharsets.UTF_8);
     }
 }

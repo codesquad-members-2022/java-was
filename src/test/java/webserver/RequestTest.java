@@ -4,7 +4,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ class RequestTest {
         then(request.getMethod()).isEqualTo("GET");
         then(request.getUrl()).isEqualTo("/index.html");
         then(request.getProtocol()).isEqualTo("HTTP/1.1");
-        then(request.getHeaders().get("Accept")).isEqualTo("*/*");
+        then(request.getHeaderValue("Accept")).isEqualTo("*/*");
     }
 
     @Test

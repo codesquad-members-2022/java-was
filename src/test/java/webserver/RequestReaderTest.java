@@ -1,6 +1,5 @@
 package webserver;
 
-import static org.assertj.core.api.BDDAssertions.entry;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.io.ByteArrayInputStream;
@@ -29,6 +28,6 @@ class RequestReaderTest {
         then(request.getMethod()).isEqualTo("GET");
         then(request.getUrl()).isEqualTo("/index.html");
         then(request.getProtocol()).isEqualTo("HTTP/1.1");
-        then(request.getHeaders()).contains(entry("Accept", "*/*"));
+        then(request.getHeaderValue("Accept")).isEqualTo("*/*");
     }
 }

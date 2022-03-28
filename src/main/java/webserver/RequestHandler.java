@@ -1,22 +1,13 @@
 package webserver;
 
-import static util.HttpRequestUtils.parseQueryString;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.nio.file.Files;
-import java.util.Map;
-
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import model.User;
-import util.IOUtils;
+import java.io.*;
+import java.net.Socket;
+import java.nio.file.Files;
+import java.util.Map;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -27,13 +18,14 @@ public class RequestHandler extends Thread {
         this.connection = connectionSocket;
     }
 
+    @Override
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
 
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream())); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            HttpMessage httpMessage = new HttpMessage();
-            httpMessage.write(bufferedReader);
+            HttpRequest httpRequest = new HttpRequest();
+            httpRequest.write(bufferedReader);
 
             //TODO header의 첫번째 라인에서 path 추출 : GET /index.html HTTP/1.1
             /*  GET
@@ -41,11 +33,13 @@ public class RequestHandler extends Thread {
                 html 등 파일 요청   -> 해당 file 반환     = file path
                 ?로 쿼리스트링 요청   -> 201 Created
              */
-            if (httpMessage.getMapping()) {
-                String path = httpMessage.getPath();
+            if (httpRequest.getMapping()) {
+                String path = httpRequest.getPath();
+                HttpResponse response = UrlMapper.getResponse(httpRequest);
+
                 DataOutputStream dos = new DataOutputStream(out);
                 if (path.startsWith("/user/create")) {
-                    Map<String, String> params = httpMessage.getQueryString();
+                    Map<String, String> params = httpRequest.getQueryString();
                     User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
                     log.debug("register new user: {}", user);
                     response201Header(dos); //  201 Created
@@ -53,12 +47,13 @@ public class RequestHandler extends Thread {
                 }
                 byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
                 response200Header(dos, body.length);
-                responseBody(dos, body); responseBody(dos, body);
+                responseBody(dos, body);
+                responseBody(dos, body);
                 return;
             }
 
-            if (httpMessage.postMapping()) {
-                Map<String, String> params = httpMessage.getBody(bufferedReader);
+            if (httpRequest.postMapping()) {
+                Map<String, String> params = httpRequest.getBody(bufferedReader);
                 User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
                 log.debug("post body : {}", user);
 
@@ -91,6 +86,7 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
+
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");

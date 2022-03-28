@@ -1,6 +1,8 @@
 package webserver;
 
 import db.DataBase;
+import model.ContentType;
+import model.HttpStatus;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,19 +21,21 @@ public class RequestHandler extends Thread {
     }
 
     public void run() {
-        log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
+        log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
 
-        try (InputStream in = connection.getInputStream();
-             OutputStream out = connection.getOutputStream();
-             ) {
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream();) {
             DataOutputStream dos = new DataOutputStream(out);
             HttpRequest request = new HttpRequest(in);
 
             if (request.getHttpMethod().equals("POST")) {
                 Map<String, String> userInfo = request.getParams();
-                DataBase.addUser(User.from(userInfo));
-                sendPostResponse(dos);
+                try {
+                    DataBase.addUser(User.from(userInfo));
+                    sendPostResponse(dos, HttpStatus.REDIRECT);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                    sendPostResponse(dos, HttpStatus.BAD_REQUEST);
+                }
             } else {
                 sendGetResponse(dos, request.getPath());
             }
@@ -40,25 +44,25 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void sendPostResponse(DataOutputStream dos) {
-        HttpResponse response = new HttpResponse(302, dos);
-        try {
-            response.writeLocation("/index.html");
-            response.send();
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void sendPostResponse(DataOutputStream dos, HttpStatus httpStatus) throws IOException {
+        HttpResponse response = new HttpResponse(httpStatus, dos);
+        if (httpStatus.getStatusCode() == 302) {
+            response.setHeader("Location", "/index.html");
         }
+        response.send();
     }
 
-    private void sendGetResponse(DataOutputStream dos, String path) {
-        try {
-            byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
-            HttpResponse response = new HttpResponse(200, dos);
-            response.writeBody(body);
-            response.send();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    private void sendGetResponse(DataOutputStream dos, String path) throws IOException {
+        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+        HttpResponse response = new HttpResponse(HttpStatus.OK, dos);
 
+        if (path.endsWith("html")) {
+            response.setHeader("Content-Type", ContentType.HTML.getType());
+        } else if (path.endsWith("css")) {
+            response.setHeader("Content-Type", ContentType.CSS.getType());
+        } else if (path.endsWith("js")) {
+            response.setHeader("Content-Type", ContentType.JS.getType());
+        }
+        response.sendWithBody(body);
+    }
 }

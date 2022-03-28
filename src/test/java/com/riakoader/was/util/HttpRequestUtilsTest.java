@@ -5,11 +5,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Map;
 
 
-import com.riakoader.was.util.HttpRequestUtils;
 import org.junit.jupiter.api.Test;
-import com.riakoader.was.util.HttpRequestUtils.Pair;
 
 public class HttpRequestUtilsTest {
+
     @Test
     public void parseQueryString() {
         String queryString = "userId=javajigi";

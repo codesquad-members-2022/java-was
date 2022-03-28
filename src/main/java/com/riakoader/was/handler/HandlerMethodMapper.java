@@ -1,35 +1,46 @@
 package com.riakoader.was.handler;
 
 import com.riakoader.was.db.DataBase;
+import com.riakoader.was.httpmessage.HttpMethod;
 import com.riakoader.was.httpmessage.HttpResponse;
 import com.riakoader.was.httpmessage.HttpStatus;
 import com.riakoader.was.model.User;
+import com.riakoader.was.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 public class HandlerMethodMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(HandlerMethodMapper.class);
 
-    private static final Map<Pair, HandlerMethod> mapper = new HashMap<>();
+    private static final Map<Pair<String, String>, HandlerMethod> mapper = new HashMap<>();
 
     private static final HandlerMethod resourceHandlerMethod = (request) -> {
-        FileReader resources= new FileReader("src/main/resources/env.properties");
+        HttpResponse response = new HttpResponse(request.getProtocol());
+
+        FileReader resources = null;
+        try {
+            resources = new FileReader("src/main/resources/env.properties");
+        } catch (FileNotFoundException e) {
+            logger.error(e.getMessage());
+            response.setStatus(HttpStatus.NOT_FOUND);
+            return response;
+        }
+
         Properties properties = new Properties();
         properties.load(resources);
 
         byte[] body = Files.readAllBytes(new File(properties.getProperty("webapp_path") + request.getRequestURI()).toPath());
 
-        HttpResponse response = new HttpResponse();
-        response.setStatusLine(request.getProtocol(), HttpStatus.OK);
+        response.setStatus(HttpStatus.OK);
         response.setHeader("Content-Length", Integer.toString(body.length));
         response.setBody(body);
 
@@ -37,25 +48,25 @@ public class HandlerMethodMapper {
     };
 
     static {
-        mapper.put(new Pair("GET", "/user/create"), (request) -> {
+        mapper.put(new Pair<>(HttpMethod.GET.name(), "/user/create"), (request) -> {
             User user = new User(request.getParameter("userId"), request.getParameter("password"),
                 request.getParameter("name"), request.getParameter("email"));
 
             DataBase.addUser(user);
             logger.debug("user: {}", DataBase.findAll());
 
-            HttpResponse response = new HttpResponse();
-            response.setStatusLine(request.getProtocol(), HttpStatus.CREATED);
+            HttpResponse response = new HttpResponse(request.getProtocol());
+            response.setStatus(HttpStatus.CREATED);
 
             return response;
         });
 
-        mapper.put(new Pair("POST", "/user/create"), (request) -> {
+        mapper.put(new Pair<>(HttpMethod.POST.name(), "/user/create"), (request) -> {
             if (DataBase.findUserById(request.getParameter("userId")) != null) {
                 logger.debug("Duplicate userId!");
 
-                HttpResponse response = new HttpResponse();
-                response.setStatusLine(request.getProtocol(), HttpStatus.FOUND);
+                HttpResponse response = new HttpResponse(request.getProtocol());
+                response.setStatus(HttpStatus.FOUND);
                 response.setHeader("Location", "/user/form.html");
 
                 return response;
@@ -67,39 +78,15 @@ public class HandlerMethodMapper {
             DataBase.addUser(user);
             logger.debug("user: {}", DataBase.findAll());
 
-            HttpResponse response = new HttpResponse();
-            response.setStatusLine(request.getProtocol(), HttpStatus.FOUND);
+            HttpResponse response = new HttpResponse(request.getProtocol());
+            response.setStatus(HttpStatus.FOUND);
             response.setHeader("Location", "/index.html");
 
             return response;
         });
     }
 
-    public static HandlerMethod getHandlerMethod(Pair pair) {
+    public static HandlerMethod getHandlerMethod(Pair<String, String> pair) {
         return mapper.getOrDefault(pair, resourceHandlerMethod);
-    }
-
-    public static class Pair {
-
-        String method;
-        String uri;
-
-        public Pair(String method, String uri) {
-            this.method = method;
-            this.uri = uri;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Pair pair = (Pair) o;
-            return Objects.equals(method, pair.method) && Objects.equals(this.uri, pair.uri);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(method, uri);
-        }
     }
 }

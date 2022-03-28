@@ -37,14 +37,17 @@ public class RequestHandler extends Thread {
     private void controlServlet(HttpRequest request, HttpResponse response) throws IOException {
         String path = request.getPath();
         log.debug("[PATH] : {}", path);
-        if (request.getPath().equals("/user/login.html")) {
-            LoginServlet servlet = new LoginServlet();
-            servlet.service(request, response);
-        }
-        if (request.getPath().equals("user/form.html")) {
+        if (request.getPath().equals("/user/create")) {
             CreateUserServlet servlet = new CreateUserServlet();
             servlet.service(request, response);
+            return;
         }
+        if (request.getPath().equals("/user/login")) {
+            LoginServlet servlet = new LoginServlet();
+            servlet.service(request, response);
+            return;
+        }
+
         response.forward(path);
     }
 

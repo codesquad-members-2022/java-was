@@ -2,14 +2,14 @@ package com.riakoader.was.config;
 
 import com.riakoader.was.handler.HandlerMethod;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class HandlerMethodRegistry {
 
     private static volatile HandlerMethodRegistry handlerMethodRegistry;
 
-    private final List<HandlerMethod> registry = new CopyOnWriteArrayList<>();
+    private final List<HandlerMethod> registry = new ArrayList<>();
 
     private HandlerMethodRegistry() {
     }

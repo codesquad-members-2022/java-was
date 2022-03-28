@@ -3,8 +3,8 @@ package com.riakoader.was.handler;
 import com.riakoader.was.config.HandlerMethodRegistry;
 import com.riakoader.was.util.Pair;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class HandlerMethodMapper {
 
@@ -12,7 +12,7 @@ public class HandlerMethodMapper {
 
     private final HandlerMethodRegistry handlerMethodRegistry = HandlerMethodRegistry.getInstance();
 
-    private final Map<Pair<String, String>, HandlerMethod> mapper = new ConcurrentHashMap<>();
+    private final Map<Pair<String, String>, HandlerMethod> mapper = new HashMap<>();
 
     private HandlerMethodMapper() {
     }

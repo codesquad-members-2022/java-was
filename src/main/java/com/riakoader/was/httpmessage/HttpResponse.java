@@ -1,5 +1,7 @@
 package com.riakoader.was.httpmessage;
 
+import com.google.common.base.Strings;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +40,7 @@ public class HttpResponse {
 
     public byte[] toByteArray() {
         String httpRequestMessage = protocol + " " + status + System.lineSeparator() +
-                getHeaderMessage() + System.lineSeparator() + System.lineSeparator() +
+                getHeaderMessage() + Strings.repeat(System.lineSeparator(), 2) +
                 new String(Arrays.copyOf(body, body.length));
 
         return httpRequestMessage.getBytes(StandardCharsets.UTF_8);

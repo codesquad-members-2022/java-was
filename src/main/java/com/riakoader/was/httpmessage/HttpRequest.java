@@ -10,29 +10,40 @@ public class HttpRequest {
     private static final String REQUEST_LINE_DELIMITER = " ";
     private static final String QUERYSTRING_DELIMITER = "?";
 
-    private final String method;
-    private final String requestURI;
-    private final String protocol;
+    private String method;
+    private String requestURI;
+    private String protocol;
     private Map<String, String> params;
-    private final Map<String, String> headers;
+    private Map<String, String> headers;
 
     public HttpRequest(String requestLine, Map<String, String> headers, String requestMessageBody) {
+        parseRequestLine(requestLine);
+        setHeaders(headers);
+        parseRequestMessageBody(requestMessageBody);
+    }
+
+    private void parseRequestLine(String requestLine) {
         String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
-        String requestURL = requestLineTokens[1];
-        int queryStringDelimiterIndex = requestURL.indexOf(QUERYSTRING_DELIMITER);
-
         this.method = requestLineTokens[0];
-        queryStringDelimiterIndex = queryStringDelimiterIndex != -1 ? queryStringDelimiterIndex : requestURL.length();
-        this.requestURI = requestURL.substring(0, queryStringDelimiterIndex);
-
+        splitQuery(requestLineTokens[1]);
         this.protocol = requestLineTokens[2];
+    }
 
-        if (queryStringDelimiterIndex != requestURL.length()) {
-            this.params = HttpRequestUtils.parseQueryString(requestURL.substring(queryStringDelimiterIndex + 1));
+    private void splitQuery(String requestURI) {
+        int queryStringDelimiterIndex = requestURI.indexOf(QUERYSTRING_DELIMITER);
+        queryStringDelimiterIndex = queryStringDelimiterIndex != -1 ? queryStringDelimiterIndex : requestURI.length();
+        this.requestURI = requestURI.substring(0, queryStringDelimiterIndex);
+
+        if (queryStringDelimiterIndex != requestURI.length()) {
+            this.params = HttpRequestUtils.parseQueryString(requestURI.substring(queryStringDelimiterIndex + 1));
         }
+    }
 
+    private void setHeaders(Map<String, String> headers) {
         this.headers = headers;
+    }
 
+    private void parseRequestMessageBody(String requestMessageBody) {
         if (!Strings.isNullOrEmpty(requestMessageBody)) {
             this.params = HttpRequestUtils.parseQueryString(requestMessageBody);
         }

@@ -9,11 +9,6 @@ public class MainController {
     private static final Logger log = LoggerFactory.getLogger(MainController.class);
 
     public HttpResponse main(String url, HttpResponse httpResponse) {
-        try {
-            return httpResponse.ok(url);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            return httpResponse.badRequest();
-        }
+        return httpResponse.ok(url);
     }
 }

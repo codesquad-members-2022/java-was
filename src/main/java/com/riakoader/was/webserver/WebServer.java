@@ -21,15 +21,17 @@ public class WebServer {
             port = Integer.parseInt(args[0]);
         }
 
+        WebServerContext context = WebServerContext.getInstance();
         WebServerConfig config = WebServerConfig.getInstance();
+
+        FrontHandler frontHandler = FrontHandler.getInstance();
 
         try (ServerSocket listenSocket = new ServerSocket(port)) {
             log.info("Web Application Server started {} port.", port);
 
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                RequestHandler requestHandler = new RequestHandler(connection);
-                requestHandler.start();
+                frontHandler.assign(connection);
             }
         }
     }

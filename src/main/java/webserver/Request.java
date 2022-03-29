@@ -30,6 +30,7 @@ public class Request {
 	private String[] parsedRequestLine;
 	private HttpMethod httpMethod;
 	private String path;
+	private ControllerMapper controllerMapper;
 	private List<Pair> headerPairs;
 	private Map<String, String> parsedQueryString;
 	private String requestBody;
@@ -50,6 +51,7 @@ public class Request {
 		this.parsedRequestLine = requestLine.split(" ");
 		this.httpMethod = HttpMethod.create(parsedRequestLine[HTTP_METHOD]);
 		this.path = parseRequestURL()[PATH];
+		this.controllerMapper = new ControllerMapper(httpMethod, path);
 		this.parsedQueryString = takeParsedQueryString();
 	}
 
@@ -83,6 +85,10 @@ public class Request {
 
 	public HttpMethod getHttpMethod() {
 		return httpMethod;
+	}
+
+	public ControllerMapper getControllerMapper() {
+		return controllerMapper;
 	}
 
 	public List<Pair> getHeaderPairs() {

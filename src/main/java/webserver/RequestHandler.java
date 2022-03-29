@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import db.DataBase;
 import model.User;
@@ -61,8 +60,6 @@ public class RequestHandler extends Thread {
             }
 
         } catch (IOException e) {
-            log.error(e.getMessage());
-        } catch (NullPointerException e) {
             log.error(e.getMessage());
         }
     }

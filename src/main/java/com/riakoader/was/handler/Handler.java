@@ -10,6 +10,8 @@ public class Handler {
 
     private static volatile Handler handler;
 
+    private final HandlerMethodMapper handlerMethodMapper = HandlerMethodMapper.getInstance();
+
     private Handler() {
     }
 
@@ -19,8 +21,6 @@ public class Handler {
         }
         return handler;
     }
-
-    private final HandlerMethodMapper handlerMethodMapper = HandlerMethodMapper.getInstance();
 
     /**
      * 1. 'HandlerMethodMapper' 로 요청 URI 값으로 매핑된 'HandlerMethod' 를 찾아 해당 요청을 수행하도록 한다.

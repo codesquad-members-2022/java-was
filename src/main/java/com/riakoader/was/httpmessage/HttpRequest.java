@@ -25,11 +25,11 @@ public class HttpRequest {
     private void parseRequestLine(String requestLine) {
         String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
         this.method = requestLineTokens[0];
-        splitQuery(requestLineTokens[1]);
+        extractQuery(requestLineTokens[1]);
         this.protocol = requestLineTokens[2];
     }
 
-    private void splitQuery(String requestURI) {
+    private void extractQuery(String requestURI) {
         int queryStringDelimiterIndex = requestURI.indexOf(QUERYSTRING_DELIMITER);
         queryStringDelimiterIndex = queryStringDelimiterIndex != -1 ? queryStringDelimiterIndex : requestURI.length();
         this.requestURI = requestURI.substring(0, queryStringDelimiterIndex);

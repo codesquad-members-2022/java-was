@@ -1,9 +1,8 @@
 package webserver;
 
-import util.HttpRequestUtils;
-
 import java.util.HashMap;
 import java.util.Map;
+import util.HttpRequestUtils;
 
 public class Request {
 
@@ -18,6 +17,8 @@ public class Request {
     private final Map<String, String> headers;
     private final Map<String, String> body;
     private final Map<String, String> cookies;
+
+    private final Map<String, Object> session = new HashMap<>();
 
     public Request(String line, Map<String, String> headers, Map<String, String> body) {
         String[] tokens = line.split(" ");
@@ -102,6 +103,14 @@ public class Request {
 
     public String getCookieValue(String key) {
         return cookies.get(key);
+    }
+
+    public void setSessionAttribute(String key, Object obj) {
+        session.put(key, obj);
+    }
+
+    public Object getSessionAttribute(String key) {
+        return session.get(key);
     }
 
 }

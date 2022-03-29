@@ -68,22 +68,69 @@ FileReader, FileWriter, FileInputStream, FileOutputStream 은 직접적으로 �
 Http 상태 코드
 
 1. 400 Bad Request
+
 - 이 응답은 잘못된 문법으로 인하여 서버가 요청을 이해할 수 없음을 의미합니다.
 
 2. 403 Forbidden
+
 - 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않습니다. 예를들어 그들은 미승인이어서 서버는 거절을 위한 적절한 응답을 보냅니다. 401과 다른 점은 서버가 클라이언트가 누구인지 알고 있습니다.
 
 3. 409 Conflict
+
 - 이 응답은 요청이 현재 서버의 상태와 충돌될 때 보냅니다.
 
 고민 사항
+
 + 아이디가 중복되어 회원가입이 실패했을 때 어떤 상태 코드를 사용해야 할 지 고민했습니다.
 
 결론
+
 + 아이디 중복을 확인하는 것이 미리 저장되어있던 유저와 새로 생성하려는 유저의 충돌로 판단했기에 409 상태코드가 더 적절하다고 생각했습니다.
 + 이번 미션의 경우 같은 ID로 가입을 시도할 경우 가입되지 않고 가입 페이지로 가도록 처리해야 되기 때문에 302 상태코드를 사용했습니다.
 
 [참고자료](https://developer.mozilla.org/ko/docs/Web/HTTP/Status)
+
+<br>
+
+URI(Uniform Resource Identifier)
+
+- Uniform : 리소스를 식별하는 통일된 방식
+- Resource : 자원, URI로 식별할 수 있는 모든 것(제한 없음)
+- Identifier: 다른 항복과 구분하는데 필요한 정보
+- URI는 로케이터(Locator), 이름(Name) 또는 둘 다 추가로 분류될 수 있다.
+    - URL(Uniform Resource Loator) : 리소스가 있는 위치를 지정
+        - `foo://example.com:8042/over/there?name=ferret#nose`
+        - foo - scheme
+        - example.com:8042 - authority
+        - over/there - path
+        - name=ferret - query
+        - nose - fragment
+    - URN(Uniform Resource Name) : 리소스에 이름을 부여
+        - `urn:example:animal:ferret:nose`
+        - urn - scheme
+        - example:animal:ferret:nose - path
+    - 위치는 변할 수 있지만, 이름은 변하지 않는다.
+    - URN 이름만으로 실제 리소스를 찾을 수 있는 방법이 보편화 되지 않았으며, 거의 URL만 사용
+
+URL 전체 문법
+
+- scheme://[userinfo@]host[:port][/path][?query][#fragment]
+    - ex) https://www.google.com:443/search?q=hello&hl=ko
+    - 프로토콜 : https
+    - 호스트명 : www.google.com
+    - 포트번호 : 443
+    - 경로 : /search
+    - 쿼리 파라미터 : q=hello&hl=ko
+- scheme : 주로 프로토콜(어떤 방식으로 자원에 접근할 것인가 하는 약속 규칙) 사용
+    - ex) http, https, ftp 등등
+    - http - 80, https - 443 포트를 주로 사용(생략 가능)
+    - https는 http에 보안 추가(HTTP Secure)
+- userinfo : URL에 사용자정보를 포함해서 인증. 거의 사용하지 않음
+- host : 호스트명. 도메인명이나 IP 주소를 직접 사용 가능
+- port : 접속 포트. 일반적으로 생략
+- path : 리소스 경로. 계층적 구조
+- query : key=value 형태. ?로 시작, &로 추가 가능
+- fragment : html 내부 북마크 등에 사용하며 서버에 전송되는 정보는 아님
 
 ### 삽질을 통해 배운 점
 
@@ -148,3 +195,4 @@ TODO 리스트
 - [x] 마크다운 문법에 맞게 README를 작성하기
 - [x] HttpRequestUtils에서 getQueryString() 메소드 수정
 - [x] 인코딩 형식들 README에 작성하기
+- [x] URL에 대한 내용 찾아보기

@@ -13,9 +13,9 @@ public class UserCreateHandler implements PathHandler {
 
         try {
             DataBase.findUserById(request.getBodyValue("userId"))
-                .ifPresent((findUser) -> {
-                    throw new IllegalArgumentException("중복된 유저입니다.");
-                });
+                    .ifPresent(findUser -> {
+                        throw new IllegalArgumentException("중복된 유저입니다.");
+                    });
 
             User user = new User(
                 request.getBodyValue("userId"),
@@ -26,7 +26,8 @@ public class UserCreateHandler implements PathHandler {
             DataBase.addUser(user);
 
             return new Response.Builder(Status.FOUND)
-                .addHeader("Location", "http://localhost:8080/index.html")
+                    .addHeader("Location", "http://localhost:8080/index.html")
+                    .addHeader("Set-Cookie", "sessionId=" + user.getUserId() + "; Path=/")
                 .build();
 
         } catch (IllegalArgumentException e) {

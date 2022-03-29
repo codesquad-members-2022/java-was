@@ -16,11 +16,15 @@ public class DataBase {
         users.add(user);
     }
 
-    public static User findUserById(String userId) {
-        return users.stream()
+    public static void validateDuplicateId(String userId) {
+        users.stream()
                 .filter(user -> user.isSameId(userId))
                 .findAny()
-                .orElseThrow(() -> new IllegalArgumentException(NO_SUCH_USER));
+                .ifPresent(DataBase::duplicateUser);
+    }
+
+    private static void duplicateUser(User user) {
+        throw new IllegalStateException(NO_SUCH_USER);
     }
 
     public static Collection<User> findAll() {

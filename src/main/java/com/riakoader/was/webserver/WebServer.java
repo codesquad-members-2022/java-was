@@ -21,9 +21,7 @@ public class WebServer {
             port = Integer.parseInt(args[0]);
         }
 
-        WebServerContext context = WebServerContext.getInstance();
         WebServerConfig config = WebServerConfig.getInstance();
-
         FrontHandler frontHandler = FrontHandler.getInstance();
 
         try (ServerSocket listenSocket = new ServerSocket(port)) {

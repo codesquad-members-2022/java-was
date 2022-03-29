@@ -1,10 +1,19 @@
 package model.request;
 
+import db.DataBase;
+import model.http.HttpMethod;
+import model.user.User;
+import util.HttpRequestUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
+import static model.http.HttpMethod.POST;
 import static util.SpecialCharacters.BLANK;
 
 public class HttpRequest {
@@ -19,7 +28,24 @@ public class HttpRequest {
         this.requestLine = getRequestLine(bufferedReader);
         this.httpHeader = getHttpHeader(bufferedReader);
         this.body = getHttpRequestBody(bufferedReader, getContentLength());
+    }
 
+    public String getRequestUrl() {
+        String requestUrl = requestUrl();
+        if (getHttpMethod().equals(POST)) {
+            String body = getBody();
+            Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(body);
+            User user = new User(joinRequestParams.get("userId"), joinRequestParams.get("password"), URLDecoder.decode(joinRequestParams.get("name"), StandardCharsets.UTF_8), joinRequestParams.get("email"));
+            requestUrl = "/index.html";
+            DataBase.validateDuplicateId(user.getUserId());
+            DataBase.addUser(user);
+            log.debug("User : {}", user);
+        }
+        return requestUrl;
+    }
+
+    public HttpMethod getHttpMethod() {
+        return requestLine.getHttpMethod();
     }
 
     private RequestLine getRequestLine(BufferedReader bufferedReader) throws IOException {
@@ -44,5 +70,9 @@ public class HttpRequest {
 
     public RequestLine getRequestLine() {
         return requestLine;
+    }
+
+    public String getBody() {
+        return body.getBody();
     }
 }

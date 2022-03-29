@@ -20,4 +20,8 @@ public class HttpRequestBody {
         bufferedReader.read(body, 0, contentLength);
         return String.copyValueOf(body);
     }
+
+    public String getBody() {
+        return body;
+    }
 }

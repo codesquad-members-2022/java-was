@@ -4,6 +4,7 @@ import model.User;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DataBase {
@@ -22,16 +23,9 @@ public class DataBase {
     }
 
     public static boolean matchesExistingUser(String userId, String password) {
-        if (userId == null) {
-            return false;
-        }
-
-        User user;
-
-        if ((user = findUserById(userId)) != null) {
-            return user.hasPasswordEqualTo(password);
-        }
-
-        return false;
+        return Optional.ofNullable(userId)
+                .map(DataBase::findUserById)
+                .map(user -> user.hasPasswordEqualTo(password))
+                .orElse(false);
     }
 }

@@ -30,18 +30,10 @@ public class User {
     }
 
     public boolean hasUserIdEqualTo(String userId) {
-        if (userId == null) {
-            return false;
-        }
-
         return this.userId.equals(userId);
     }
 
     public boolean hasPasswordEqualTo(String password) {
-        if (password == null) {
-            return false;
-        }
-
         return this.password.equals(password);
     }
 

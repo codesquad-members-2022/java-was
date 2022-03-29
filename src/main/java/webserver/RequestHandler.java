@@ -40,10 +40,6 @@ public class RequestHandler extends Thread {
 
             HttpRequest httpRequest = HttpRequest.receive(br);
 
-            if (httpRequest.getCookies() != null) {
-                log.debug("httpRequest.getCookies() = " + httpRequest.getCookies());
-            }
-
             if (httpRequest.hasPathEqualTo("/user/create") && httpRequest.hasMethodEqualTo("POST")) {
                 processUserCreation(dos, httpRequest.getParameters());
                 return;

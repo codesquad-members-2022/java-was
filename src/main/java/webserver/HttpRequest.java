@@ -49,9 +49,9 @@ public class HttpRequest {
             httpRequest.parameters = parseQueryString(requestBody);
         }
 
-        String cookies;
+        String cookies = httpRequest.getHeader("Cookie");
 
-        if ((cookies = httpRequest.getHeader("Cookie")) != null) {
+        if (cookies != null) {
             httpRequest.cookies = parseCookies(cookies);
         }
 

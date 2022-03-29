@@ -27,12 +27,16 @@ public class UrlMapper {
                     return mainController.main(url, httpResponse);
                 case "/user/form.html":
                     return userController.joinForm(url, httpResponse);
+                case "/user/login.html":
+                    return userController.loginForm(url, httpResponse);
             }
         } else if (httpRequest.postMapping()) {
             Map<String, String> body = httpRequest.getBody(bufferedReader);
             switch (url) {
                 case "/user/create":
                     return userController.join(body, httpResponse);
+                case "/user/login":
+                    return userController.login(body, httpResponse);
             }
         }
         return httpResponse.badRequest();

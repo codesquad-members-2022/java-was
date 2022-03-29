@@ -3,6 +3,7 @@ package servlet;
 import java.util.Map;
 
 import db.DataBase;
+import http.Cookie;
 import http.HttpServlet;
 import http.Request;
 import http.Response;
@@ -26,7 +27,10 @@ public class LoginServlet extends HttpServlet {
             if (user.isPassword(password)) {
                 String sessionId = Session.createSession();
                 Session.setAttribute(sessionId, "userId", userId);
-                response.addHeader("Set-Cookie", String.format("sessionId= %s; Path=/", sessionId));
+                Cookie sessionIdCookie = new Cookie("sessionId", sessionId);
+                sessionIdCookie.setPath("/");
+                sessionIdCookie.setMaxAge(60 * 30);
+                response.addCookie(sessionIdCookie);
                 response.setRedirectUrl("/index.html");
                 return response;
             }

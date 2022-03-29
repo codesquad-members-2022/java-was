@@ -1,5 +1,6 @@
 package servlet;
 
+import http.Cookie;
 import http.HttpServlet;
 import http.Request;
 import http.Response;
@@ -19,7 +20,10 @@ public class LogoutServlet extends HttpServlet {
 
         if (sessionId != null && Session.isSessionIdExist(sessionId)) {
             Session.invalidateSession(sessionId);
-            response.addHeader("Set-Cookie", String.format("sessionId=%s; Max-Age=0; Path=/", sessionId));
+            Cookie sessionIdCookie = new Cookie("sessionId", sessionId);
+            sessionIdCookie.setMaxAge(0);
+            sessionIdCookie.setPath("/");
+            response.addCookie(sessionIdCookie);
         }
 
         return response;

@@ -1,6 +1,9 @@
 package http;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,6 +11,8 @@ public class Response {
     private final static String LOCATION_HEADER = "Location";
 
     private final Map<String, String> header = new HashMap<>();
+    private final List<Cookie> cookies = new ArrayList<>();
+
     private HttpStatus httpStatus;
 
     public HttpStatus getHttpStatus() {
@@ -37,5 +42,13 @@ public class Response {
 
     public Set<String> headerKeySet() {
         return header.keySet();
+    }
+
+    public void addCookie(Cookie cookie) {
+        cookies.add(cookie);
+    }
+
+    public List<Cookie> getCookies() {
+        return Collections.unmodifiableList(cookies);
     }
 }

@@ -8,13 +8,16 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import config.RequestMapping;
+import http.Cookie;
 import http.HttpMethod;
 import http.HttpStatus;
 import http.Response;
@@ -97,7 +100,7 @@ public class RequestHandler extends Thread {
             headers.put(key, response.findHeader(key));
         }
 
-        responseHeader(dos, response.getHttpStatus(), headers);
+        responseHeader(dos, response.getHttpStatus(), headers, response.getCookies());
         flush(dos);
     }
 
@@ -138,10 +141,17 @@ public class RequestHandler extends Thread {
     }
 
     private void responseHeader(DataOutputStream dos, HttpStatus httpStatus, Map<String, String> headers) {
+        responseHeader(dos, httpStatus, headers, Collections.emptyList());
+    }
+
+    private void responseHeader(DataOutputStream dos, HttpStatus httpStatus, Map<String, String> headers, List<Cookie> cookies) {
         try {
             dos.writeBytes(String.format("HTTP/1.1 %d %s \r\n", httpStatus.getStatusCode(), httpStatus.name()));
             for (String key : headers.keySet()) {
                 dos.writeBytes(key + ": " + headers.get(key) + "\r\n");
+            }
+            for (Cookie cookie : cookies) {
+                dos.writeBytes("Set-Cookie: " + cookie);
             }
             dos.writeBytes("\r\n");
         } catch (IOException e) {

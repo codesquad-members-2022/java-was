@@ -105,7 +105,12 @@ POST방식을 통해 회원가입을 진행
 <summary>📝 3단계 학습내용</summary>
 <br/>
 
-HTTP POST의 동작방식 학습 내용 찾기
-HTTP response와 redirection의 동작방식 학습 내용 찾기
+Post 방식을 통해 데이터를 전송할 수 있다.
+- GET방식은 URL에 데이터를 함께 전송하지만 Post는 Form 형식으로 전송한다.
+- POST방식은 GET에 비해 보안성이 높으며 길이 제한이 없다.
+
+- name: 스크립트나 서버에서 폼을 식별하기 위한 폼의 이름
+- action: 폼 데이터가 전송되는 주소의 url
+- method: http메서드 전송 방식
 
 </details>

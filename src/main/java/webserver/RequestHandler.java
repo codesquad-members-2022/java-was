@@ -37,19 +37,6 @@ public class RequestHandler extends Thread {
             HttpRequest httpRequest = new HttpRequest(in);
             log.info("HttpRequest: {}", httpRequest);
             HttpResponse httpResponse = new HttpResponse();
-
-            String requestUrl = httpRequest.requestUrl();
-
-            if (requestUrl.startsWith(JOIN_PATH) && requestUrl.endsWith(Extention.HTML.getType())) {
-                int index = requestUrl.indexOf(URL_BOUNDARY);
-
-                String queryString = requestUrl.substring(index + 1);
-                Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(queryString);
-                User user = new User(joinRequestParams.get("userId"), joinRequestParams.get("password"), URLDecoder.decode(joinRequestParams.get("name"), StandardCharsets.UTF_8), joinRequestParams.get("email"));
-                DataBase.addUser(user);
-                log.debug("User : {}", user);
-            }
-            httpResponse.response(out, httpRequest.getRequestLine());
         } catch (IOException e) {
             log.error(e.getMessage());
         }

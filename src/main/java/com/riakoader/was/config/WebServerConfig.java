@@ -1,5 +1,6 @@
 package com.riakoader.was.config;
 
+import com.riakoader.was.context.WebServerContext;
 import com.riakoader.was.db.DataBase;
 import com.riakoader.was.handler.HandlerMethodMapper;
 import com.riakoader.was.httpmessage.HttpMethod;
@@ -7,7 +8,6 @@ import com.riakoader.was.httpmessage.HttpResponse;
 import com.riakoader.was.httpmessage.HttpStatus;
 import com.riakoader.was.model.User;
 import com.riakoader.was.util.Pair;
-import com.riakoader.was.webserver.WebServerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +24,12 @@ public class WebServerConfig implements WebServerConfigurer {
 
     private static volatile WebServerConfig webServerConfig;
 
+    final WebServerContext webServerContext = new WebServerContext();
+
     private WebServerConfig() throws NoSuchFieldException, ClassNotFoundException, InvocationTargetException,
             NoSuchMethodException, IllegalAccessException {
 
         logger.debug("WebServerConfig() start");
-
-        WebServerContext webServerContext = WebServerContext.getInstance();
 
         addHandlerMethod((HandlerMethodRegistry) webServerContext.getBean("handlerMethodRegistry"));
         configureHandlerMethodMapper((HandlerMethodMapper) webServerContext.getBean("handlerMethodMapper"));
@@ -50,77 +50,80 @@ public class WebServerConfig implements WebServerConfigurer {
     public void addHandlerMethod(HandlerMethodRegistry handlerMethodRegistry) {
         logger.debug("addHandlerMethod() start");
 
-        handlerMethodRegistry.addHandlerMethod((request) -> {
+        handlerMethodRegistry.addHandlerMethod(
+                (request) -> {
 
-            HttpResponse response = new HttpResponse(request.getProtocol());
+                    HttpResponse response = new HttpResponse(request.getProtocol());
 
-            FileReader resources;
-            try {
-                resources = new FileReader("src/main/resources/env.properties");
-            } catch (FileNotFoundException e) {
-                logger.error(e.getMessage());
-                response.setStatus(HttpStatus.NOT_FOUND);
-                return response;
-            }
+                    FileReader resources;
+                    try {
+                        resources = new FileReader("src/main/resources/env.properties");
+                    } catch (FileNotFoundException e) {
+                        logger.error(e.getMessage());
+                        response.setStatus(HttpStatus.NOT_FOUND);
+                        return response;
+                    }
 
-            Properties properties = new Properties();
-            properties.load(resources);
+                    Properties properties = new Properties();
+                    properties.load(resources);
 
-            byte[] body = Files.readAllBytes(
-                    new File(properties.getProperty("webapp_path") + request.getRequestURI()).toPath()
-            );
+                    byte[] body = Files.readAllBytes(
+                            new File(properties.getProperty("webapp_path") + request.getRequestURI()).toPath()
+                    );
 
-            response.setStatus(HttpStatus.OK);
-            response.setHeader("Content-Length", Integer.toString(body.length));
-            response.setBody(body);
+                    response.setStatus(HttpStatus.OK);
+                    response.setHeader("Content-Length", Integer.toString(body.length));
+                    response.setBody(body);
 
-            return response;
-        });
+                    return response;
+                });
 
-        handlerMethodRegistry.addHandlerMethod((request) -> {
+        handlerMethodRegistry.addHandlerMethod(
+                (request) -> {
 
-            User user = new User(
-                    request.getParameter("userId"),
-                    request.getParameter("password"),
-                    request.getParameter("name"),
-                    request.getParameter("email")
-            );
+                    User user = new User(
+                            request.getParameter("userId"),
+                            request.getParameter("password"),
+                            request.getParameter("name"),
+                            request.getParameter("email")
+                    );
 
-            DataBase.addUser(user);
-            logger.debug("user: {}", DataBase.findAll());
+                    DataBase.addUser(user);
+                    logger.debug("user: {}", DataBase.findAll());
 
-            HttpResponse response = new HttpResponse(request.getProtocol());
-            response.setStatus(HttpStatus.CREATED);
+                    HttpResponse response = new HttpResponse(request.getProtocol());
+                    response.setStatus(HttpStatus.CREATED);
 
-            return response;
-        });
+                    return response;
+                });
 
-        handlerMethodRegistry.addHandlerMethod((request) -> {
+        handlerMethodRegistry.addHandlerMethod(
+                (request) -> {
 
-            if (DataBase.findUserById(request.getParameter("userId")) != null) {
-                HttpResponse response = new HttpResponse(request.getProtocol());
-                response.setStatus(HttpStatus.FOUND);
-                response.setHeader("Location", "/user/form.html");
+                    if (DataBase.findUserById(request.getParameter("userId")) != null) {
+                        HttpResponse response = new HttpResponse(request.getProtocol());
+                        response.setStatus(HttpStatus.FOUND);
+                        response.setHeader("Location", "/user/form.html");
 
-                return response;
-            }
+                        return response;
+                    }
 
-            User user = new User(
-                    request.getParameter("userId"),
-                    request.getParameter("password"),
-                    request.getParameter("name"),
-                    request.getParameter("email")
-            );
+                    User user = new User(
+                            request.getParameter("userId"),
+                            request.getParameter("password"),
+                            request.getParameter("name"),
+                            request.getParameter("email")
+                    );
 
-            DataBase.addUser(user);
-            logger.debug("user: {}", DataBase.findAll());
+                    DataBase.addUser(user);
+                    logger.debug("user: {}", DataBase.findAll());
 
-            HttpResponse response = new HttpResponse(request.getProtocol());
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("Location", "/index.html");
+                    HttpResponse response = new HttpResponse(request.getProtocol());
+                    response.setStatus(HttpStatus.FOUND);
+                    response.setHeader("Location", "/index.html");
 
-            return response;
-        });
+                    return response;
+                });
 
         logger.debug("addHandlerMethod() end");
     }

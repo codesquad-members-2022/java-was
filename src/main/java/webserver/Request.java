@@ -1,7 +1,9 @@
 package webserver;
 
-import java.util.Map;
 import util.HttpRequestUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Request {
 
@@ -15,6 +17,7 @@ public class Request {
 
     private final Map<String, String> headers;
     private final Map<String, String> body;
+    private final Map<String, String> cookies;
 
     public Request(String line, Map<String, String> headers, Map<String, String> body) {
         String[] tokens = line.split(" ");
@@ -28,6 +31,7 @@ public class Request {
 
         this.headers = headers;
         this.body = body;
+        this.cookies = parseCookie();
     }
 
     public Request(String line, Map<String, String> header) {
@@ -41,6 +45,21 @@ public class Request {
     public Map<String, String> parseQueryString() {
         String[] tokens = url.split("\\?");
         return HttpRequestUtils.parseQueryString(tokens.length < 2 ? null : tokens[1]);
+    }
+
+    public Map<String, String> parseCookie() {
+        Map<String, String> cookies = new HashMap<>();
+
+        String[] tokens = new String[0];
+        if (headers.get("Cookie") != null) {
+            tokens = headers.get("Cookie").split("; ");
+        }
+
+        for (String token : tokens) {
+            String[] pair = token.split("=");
+            cookies.put(pair[0], pair[1]);
+        }
+        return cookies;
     }
 
     public ContentType toContentType() {
@@ -79,6 +98,10 @@ public class Request {
 
     public String getBodyValue(String key) {
         return body.get(key);
+    }
+
+    public String getCookieValue(String key) {
+        return cookies.get(key);
     }
 
 }

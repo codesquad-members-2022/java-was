@@ -5,9 +5,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.HttpResponse;
-import webserver.HttpStatus;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class UserController {
@@ -15,12 +13,7 @@ public class UserController {
     private static final String INDEX_PAGE_URL = "/index.html";
 
     public HttpResponse joinForm(String url, HttpResponse httpResponse) {
-        try {
-            return httpResponse.ok(url);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            return httpResponse.badRequest();
-        }
+        return httpResponse.ok(url);
     }
 
     public HttpResponse join(Map<String, String> body, HttpResponse httpResponse) {
@@ -28,7 +21,12 @@ public class UserController {
                 body.get("password"),
                 body.get("name"),
                 body.get("email"));
-        DataBase.addUser(user);
+        try {
+            DataBase.addUser(user);
+        } catch (IllegalArgumentException exception) {
+            log.error(exception.getMessage());
+            return httpResponse.ok("/user/form.html");
+        }
         return httpResponse.redirect(INDEX_PAGE_URL);
     }
 }

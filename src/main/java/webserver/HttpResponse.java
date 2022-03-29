@@ -54,10 +54,15 @@ public class HttpResponse {
         this.responseBody = responseBody;
     }
 
-    public HttpResponse ok(String url) throws IOException {
+    public HttpResponse ok(String url) {
         this.httpStatus = HttpStatus.OK;
         this.addHeader("Content-Type", "text/html;charset=utf-8");
-        this.addBody(Files.readAllBytes(new File("./webapp" + url).toPath()));
+        try {
+            this.addBody(Files.readAllBytes(new File("./webapp" + url).toPath()));
+        } catch (IOException exception) {
+            log.error("error of http's response: {}", exception.getMessage());
+            return this.badRequest();
+        }
         log.debug("http response: {}", this);
         return this;
     }
@@ -75,6 +80,10 @@ public class HttpResponse {
         this.addHeader("Location", url);
         log.debug("http response: {}, redirect: {}", this, url);
         return this;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
     }
 
     @Override

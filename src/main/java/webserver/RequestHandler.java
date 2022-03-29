@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.NoSuchElementException;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -40,6 +41,8 @@ public class RequestHandler extends Thread {
         HttpMethod method = request.getMethod();
         if (path.equals("/user/create") && method == HttpMethod.POST) {
             userJoin(request, response);
+        } else if (path.equals("/user/login") && method == HttpMethod.POST) {
+            login(request, response);
         } else {
             response.responseStaticResource(path);
         }
@@ -58,6 +61,28 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
             response.redirectTo("/user/form.html");
         }
+    }
+
+    private void login(HttpRequest request, HttpResponse response) throws IOException {
+        String inputUserId = request.getParameter("userId");
+        String inputUserPassword = request.getParameter("password");
+
+        try {
+            User findUser = matchAndGetUser(inputUserId,inputUserPassword);
+
+           //TODO : 로그인 성공 시의 로직 추가
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            response.redirectTo("/user/login_failed.html");
+        }
+    }
+
+    private User matchAndGetUser(String inputUserId, String inputUserPassword) {
+        User findUser = DataBase.findUserById(inputUserId).orElseThrow(
+                () -> new NoSuchElementException("존재하지 않는 회원입니다.")
+        );
+        findUser.matchPassword(inputUserPassword);
+        return findUser;
     }
 
     private void validateDuplicateUser(User user) {

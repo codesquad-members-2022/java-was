@@ -29,6 +29,12 @@ public class User {
         return email;
     }
 
+    public void matchPassword(String inputUserPassword) {
+        if (!password.equals(inputUserPassword)) {
+            throw new IllegalArgumentException("패스워드가 일치하지 않습니다.");
+        }
+    }
+
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";

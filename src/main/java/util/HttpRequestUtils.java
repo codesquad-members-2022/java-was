@@ -66,15 +66,15 @@ public class HttpRequestUtils {
             .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
 
-    static Pair getKeyValue(String keyValue, String regex) {
+    public static Pair getKeyValue(String keyValue, String regex) {
         if (Strings.isNullOrEmpty(keyValue)) {
             return null;
         }
 
         String[] tokens = keyValue.split(regex);
-        if (tokens.length != 2) {
-            return null;
-        }
+        // if (tokens.length != 2) {
+        //     return null;
+        // }
 
         return new Pair(tokens[0], tokens[1]);
     }
@@ -87,7 +87,7 @@ public class HttpRequestUtils {
         String key;
         String value;
 
-        Pair(String key, String value) {
+        public Pair(String key, String value) {
             this.key = key.trim();
             this.value = value.trim();
         }

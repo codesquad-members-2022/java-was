@@ -15,15 +15,9 @@ public class LogoutServlet extends BaseServlet {
     @Override
     public void doPost(HttpRequest request, HttpResponse response) {
         String sessionId = getSessionId(request);
-        response.addHeader("Set-Cookie", Session.SESSION_ID + "=" + sessionId + "; Expires=Wednesday, 09-Nov-99 21:00:00 GMT");
-        deleteUserAtSession(request);
-        response.redirection("/index.html");
-    }
-
-    private void deleteUserAtSession(HttpRequest request) {
-        String sessionId = getSessionId(request);
-        log.debug("[LOGOUT] sessionId = {}", sessionId);
+        response.addHeader("Set-Cookie", Session.SESSION_ID + "=deleted; path=/; Max-Age=0; Expires=Wednesday, 09-Nov-99 21:00:00 GMT");
         Session.remove(sessionId);
+        response.redirection("/index.html");
     }
 
     private String getSessionId(HttpRequest request) {

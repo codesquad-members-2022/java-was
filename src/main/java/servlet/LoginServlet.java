@@ -44,7 +44,8 @@ public class LoginServlet extends BaseServlet {
         String sessionId = UUID.randomUUID().toString();
         log.debug("[SessionId] : {}", sessionId);
         Session.save(sessionId, findUser.get());
-        response.addHeader("Set-Cookie", sessionId + "; Path=/");
+        response.addHeader("Set-Cookie", Session.SESSION_ID + "=" + sessionId + "; Path=/");
+        response.addHeader("Cache-Control", "Max-Age=" + 1800);
     }
 
     private boolean isValidUser(String password, Optional<User> findUser) {

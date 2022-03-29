@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlet.CreateUserServlet;
 import servlet.LoginServlet;
+import servlet.LogoutServlet;
 import servlet.Servlet;
 import util.RequestParser;
 
@@ -21,6 +22,7 @@ public class RequestHandler extends Thread {
     static {
         servletMap.put("/user/create", new CreateUserServlet());
         servletMap.put("/user/login", new LoginServlet());
+        servletMap.put("/user/logout", new LogoutServlet());
     }
 
     private Socket connection;

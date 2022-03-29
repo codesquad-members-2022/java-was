@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import db.DataBase;
 import model.User;
@@ -44,7 +45,7 @@ public class RequestHandler extends Thread {
              OutputStream out = connection.getOutputStream();
              BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
              DataOutputStream dos = new DataOutputStream(out)) {
-            
+
             setRequestLine(br);
             setRequestHeader(br);
             setRequestBody(br);
@@ -53,7 +54,7 @@ public class RequestHandler extends Thread {
             if (httpMethod.equals("GET") && requestUrl.endsWith(".html")) {
                 responseStaticPage(dos);
             }
-            
+
             // 2) 유저 회원가입 요청
             if (httpMethod.equals("POST") && requestUrl.startsWith("/user/create")) {
                 signUpUser(dos);
@@ -70,15 +71,15 @@ public class RequestHandler extends Thread {
     }
 
     private void signInUser(DataOutputStream dos) {
+        byte[] body = "".getBytes();
         String userId = requestBody.get("userId");
         String password = requestBody.get("password");
-        User user = DataBase.findUserById(userId);
-        byte[] body = "".getBytes();
-        if (user == null || !user.isCorrectPassword(password)) {
+        Optional<User> user = DataBase.findUserById(userId);
+        if (user.isEmpty() || !user.get().isCorrectPassword(password)) {
             log.debug("로그인을 실패하였습니다!");
             response302Header(dos, "/user/login_failed.html", body.length);
         }
-        if (user.isCorrectPassword(password)) {
+        if (user.get().isCorrectPassword(password)) {
             log.debug("로그인을 성공했습니다!");
             response302HeaderWithCookie(dos, "/index.html", body.length);
         }

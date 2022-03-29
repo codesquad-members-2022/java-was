@@ -7,10 +7,13 @@ import org.slf4j.LoggerFactory;
 import webserver.HttpResponse;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private static final String INDEX_PAGE_URL = "/index.html";
+    private static final String JOIN_PAGE_URL = "/user/form.html";
+    private static final String LOGIN_FAILED_URL = "/user/login_failed.html";
 
     public HttpResponse joinForm(String url, HttpResponse httpResponse) {
         return httpResponse.ok(url);
@@ -25,8 +28,23 @@ public class UserController {
             DataBase.addUser(user);
         } catch (IllegalArgumentException exception) {
             log.error(exception.getMessage());
-            return httpResponse.ok("/user/form.html");
+            return httpResponse.ok(JOIN_PAGE_URL);
         }
         return httpResponse.redirect(INDEX_PAGE_URL);
+    }
+
+    public HttpResponse loginForm(String url, HttpResponse httpResponse) {
+        return httpResponse.ok(url);
+    }
+
+    public HttpResponse login(Map<String, String> body, HttpResponse httpResponse) {
+        String loginUserId = body.get("userId");
+        String loginPassword = body.get("password");
+
+        Optional<User> user = DataBase.findUserById(loginUserId);
+        if (user.isPresent() && user.get().isMatchPassword(loginPassword)) {
+            return httpResponse.login(INDEX_PAGE_URL, loginUserId);
+        }
+        return httpResponse.redirect(LOGIN_FAILED_URL);
     }
 }

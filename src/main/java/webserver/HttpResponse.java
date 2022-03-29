@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public class HttpResponse {
     private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
+    private static final String TEXT_HTML_CHARSET_UTF_8 = "text/html;charset=utf-8";
 
     private final String version;
     private HttpStatus httpStatus;
@@ -36,7 +37,7 @@ public class HttpResponse {
 
     public HttpResponse ok(String url) {
         this.httpStatus = HttpStatus.OK;
-        this.addHeader("Content-Type", "text/html;charset=utf-8");
+        this.addHeader("Content-Type", TEXT_HTML_CHARSET_UTF_8);
         try {
             this.addBody(Files.readAllBytes(new File("./webapp" + url).toPath()));
         } catch (IOException exception) {
@@ -49,14 +50,14 @@ public class HttpResponse {
 
     public HttpResponse badRequest() {
         this.httpStatus = HttpStatus.NOT_FOUND;
-        this.addHeader("Content-Type", "text/html;charset=utf-8");
+        this.addHeader("Content-Type", TEXT_HTML_CHARSET_UTF_8);
         log.debug("http response: {}", this);
         return this;
     }
 
     public HttpResponse redirect(String url) {
         this.httpStatus = HttpStatus.FOUND;
-        this.addHeader("Content-Type", "text/html;charset=utf-8");
+        this.addHeader("Content-Type", TEXT_HTML_CHARSET_UTF_8);
         this.addHeader("Location", url);
         log.debug("http response: {}, redirect: {}", this, url);
         return this;
@@ -79,7 +80,13 @@ public class HttpResponse {
     private String getHttpStatusMessage() {
         return httpStatus.getMessage();
     }
-    
+
+    public HttpResponse login(String url, String userId) {
+        HttpResponse httpResponse = this.redirect(url);
+        httpResponse.addHeader("Set-Cookie", "userId=" + userId + "; Path=/");
+        return httpResponse;
+    }
+
     public HttpStatus getHttpStatus() {
         return httpStatus;
     }

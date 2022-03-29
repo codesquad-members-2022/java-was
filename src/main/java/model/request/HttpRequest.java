@@ -11,14 +11,15 @@ public class HttpRequest {
 
     private RequestLine requestLine;
     private HttpHeader httpHeader;
-    private HttpRequestBody httpRequestBody;
-    private static final StringBuffer sb = new StringBuffer();
+    private HttpRequestBody body;
 
     public HttpRequest(InputStream inputStream) throws IOException {
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         this.requestLine = getRequestLine(bufferedReader);
         this.httpHeader = getHttpHeader(bufferedReader);
+        this.body = getHttpRequestBody(bufferedReader, getContentLength());
+
     }
 
     private RequestLine getRequestLine(BufferedReader bufferedReader) throws IOException {
@@ -28,6 +29,13 @@ public class HttpRequest {
 
     private HttpHeader getHttpHeader(BufferedReader bufferedReader) throws IOException {
         return new HttpHeader(bufferedReader);
+    }
+    private HttpRequestBody getHttpRequestBody(BufferedReader bufferedReader, int contentLength) throws IOException {
+        return new HttpRequestBody(bufferedReader, contentLength);
+    }
+
+    private int getContentLength() {
+        return httpHeader.getContentLength();
     }
 
     public String requestUrl(){

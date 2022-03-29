@@ -7,7 +7,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import static model.http.HeaderType.CONTENT_LENGTH;
 import static util.SpecialCharacters.NULL_STRING;
 
 public class HttpHeader {
@@ -43,6 +45,10 @@ public class HttpHeader {
         String type = keyAndValue[HEADER_TYPE];
         String value = keyAndValue[HEADER_VALUE];
         headers.put(getHeaderType(type), value);
+    }
+
+    public int getContentLength() {
+        return Objects.nonNull(headers.get(CONTENT_LENGTH)) ? Integer.parseInt(headers.get(CONTENT_LENGTH)) : 0;
     }
 
     private HeaderType getHeaderType(String type) {

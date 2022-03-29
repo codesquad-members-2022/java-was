@@ -3,6 +3,8 @@ package model.request;
 import db.DataBase;
 import model.http.HttpMethod;
 import model.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 
 import java.io.BufferedReader;
@@ -18,6 +20,7 @@ import static util.SpecialCharacters.BLANK;
 
 public class HttpRequest {
 
+    private final Logger log = LoggerFactory.getLogger(HttpRequest.class);
     private RequestLine requestLine;
     private HttpHeader httpHeader;
     private HttpRequestBody body;
@@ -74,5 +77,9 @@ public class HttpRequest {
 
     public String getBody() {
         return body.getBody();
+    }
+
+    public boolean isPost() {
+        return requestLine.getHttpMethod().equals(POST);
     }
 }

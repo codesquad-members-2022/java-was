@@ -53,6 +53,18 @@ public class HttpResponse {
         }
     }
 
+    private void responseHeaderRedirection(DataOutputStream dos, int lengthOfBodyContent, String type, String location) {
+        try {
+            dos.writeBytes("HTTP/1.1 " + "302" + " OK" + NEW_LINE);
+            dos.writeBytes("Content-Type:" + Extention.of(type) + NEW_LINE);
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
+            dos.writeBytes("Location: " + location);
+            dos.writeBytes(NEW_LINE);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
     private void responseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);

@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import db.DataBase;
 import model.User;
@@ -56,7 +57,7 @@ public class RequestHandler extends Thread {
             
             // 2) 유저 회원가입 요청
             if (httpMethod.equals("POST") && requestUrl.startsWith("/user/create")) {
-                sighUpUser(dos);
+                signUpUser(dos);
             }
 
         } catch (IOException e) {
@@ -73,17 +74,25 @@ public class RequestHandler extends Thread {
         responseBody(dos, body);
     }
 
-    private void sighUpUser(DataOutputStream dos) throws IOException {
+    private void signUpUser(DataOutputStream dos) throws IOException {
         byte[] body = "".getBytes();
-        User user = new User(
-                requestBody.get("userId"),
-                requestBody.get("password"),
-                requestBody.get("name"),
-                requestBody.get("email"));
-        log.debug("User : {}", user);
-        DataBase.addUser(user);
-        response302Header(dos, "/index.html", body.length);
-        responseBody(dos, body);
+
+        DataBase.findUserById(requestBody.get("userId"))
+                .ifPresentOrElse(user -> {
+                    log.debug("중복된 아이디가 존재합니다.");
+                    response302Header(dos, "/user/form.html", body.length);
+                    responseBody(dos, body);
+                }, () -> {
+                    User user = new User(
+                            requestBody.get("userId"),
+                            requestBody.get("password"),
+                            requestBody.get("name"),
+                            requestBody.get("email"));
+                    log.debug("User : {}", user);
+                    DataBase.addUser(user);
+                    response302Header(dos, "/index.html", body.length);
+                    responseBody(dos, body);
+                });
     }
 
     private void setRequestLine(BufferedReader br) throws IOException {
@@ -114,7 +123,8 @@ public class RequestHandler extends Thread {
     }
 
     private void setRequestBody(BufferedReader br) throws IOException {
-        String data = IOUtils.readData(br, Integer.parseInt(requestHeaderField.get("Content-Length")));
+        int contentLength  = requestHeaderField.get("Content-Length") == null ? 0 : Integer.parseInt(requestHeaderField.get("Content-Length"));
+        String data = IOUtils.readData(br, contentLength);
         String decodedData = URLDecoder.decode(data, StandardCharsets.UTF_8);
         requestBody = HttpRequestUtils.parseRequestBody(decodedData);
     }

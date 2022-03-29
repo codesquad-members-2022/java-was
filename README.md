@@ -11,13 +11,13 @@ Java Web Server Project for CodeSquad Members 2022
 
     * *** 하드디스크는 원래 속도가 엄청 느리므로 키보드 입력이 바로 전달되는 것보다 중간에 메모리 버퍼를 통해 입력을 모아서 전송하는 편이 훨씬 빠르다.
 
-출처 : https://jhnyang.tistory.com/92
+[참고자료](https://jhnyang.tistory.com/92)
 
 <br>
 
 file 클래스의 생성자에 URL을 넣는다면 file url 경로에 대한 파일의 File 객체를 생성한다. file 클래스의 메소드인 getPath()를 실행시키면 파일의 경로를 문자열의 형태로 리턴한다.
 
-출처 : https://devbox.tistory.com/entry/Java-File-%ED%81%B4%EB%9E%98%EC%8A%A4
+[참고자료](https://devbox.tistory.com/entry/Java-File-%ED%81%B4%EB%9E%98%EC%8A%A4)
 
 <br>
 
@@ -25,8 +25,7 @@ FileReader, FileWriter, FileInputStream, FileOutputStream 은 직접적으로 �
 
 이에 반에, DataInputStream, DataOutputStream은 primitive type의 데이터를 읽고 쓸 수 있다.
 
-출처 : https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=highkrs&logNo=220474124970
-
+[참고자료](https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=highkrs&logNo=220474124970)
 <br>
 
 인코딩 형식
@@ -62,7 +61,29 @@ FileReader, FileWriter, FileInputStream, FileOutputStream 은 직접적으로 �
 - <-> 조합형 코드 : 글의 자음과 모음 각각에 코드 번호를 부여한 후 초성, 중성, 종성을 조합하여 하나의 문자를 나타내는 방식
 - EUC-KR은 ANSI를 한국에서 확장한 것으로 외국에서는 지원이 안 될 가능성이 높다.
 
+[참고자료](https://onlywis.tistory.com/2)
+
 <br>
+
+Http 상태 코드
+
+1. 400 Bad Request
+- 이 응답은 잘못된 문법으로 인하여 서버가 요청을 이해할 수 없음을 의미합니다.
+
+2. 403 Forbidden
+- 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않습니다. 예를들어 그들은 미승인이어서 서버는 거절을 위한 적절한 응답을 보냅니다. 401과 다른 점은 서버가 클라이언트가 누구인지 알고 있습니다.
+
+3. 409 Conflict
+- 이 응답은 요청이 현재 서버의 상태와 충돌될 때 보냅니다.
+
+고민 사항
++ 아이디가 중복되어 회원가입이 실패했을 때 어떤 상태 코드를 사용해야 할 지 고민했습니다.
+
+결론
++ 아이디 중복을 확인하는 것이 미리 저장되어있던 유저와 새로 생성하려는 유저의 충돌로 판단했기에 409 상태코드가 더 적절하다고 생각했습니다.
++ 이번 미션의 경우 같은 ID로 가입을 시도할 경우 가입되지 않고 가입 페이지로 가도록 처리해야 되기 때문에 302 상태코드를 사용했습니다.
+
+[참고자료](https://developer.mozilla.org/ko/docs/Web/HTTP/Status)
 
 ### 삽질을 통해 배운 점
 
@@ -105,15 +126,12 @@ CRLF
 기능요구사항
 
 - [x] http://localhost:8080/user/form.html 파일의 HTML form을 통해 회원가입을 할 수 있다.
-
 - [X] 가입 후 index.html 페이지로 이동한다.
 
 프로그래밍 요구사항
 
 - [x] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
-
 - [X] POST로 회원가입 기능이 정상적으로 동작하도록 구현한다.
-
 - [X] 가입 후 페이지 이동을 위해 redirection 기능을 구현한다.
 
 TODO 리스트

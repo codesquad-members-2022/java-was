@@ -42,18 +42,21 @@ public class RequestParser {
     }
 
     private static HttpRequest buildRequest(BufferedReader reader, Map<String, String> header, RequestLineTokens token) throws IOException {
-        String body = "";
-
         if (token.method.equals("POST")) {
             int contentLength = Integer.parseInt(header.get("Content-Length"));
-            body = IOUtils.readData(reader, contentLength);
+            String body = IOUtils.readData(reader, contentLength);
+            return new HttpRequest.Builder().method(token.method)
+                    .path(token.path)
+                    .protocol(token.protocol)
+                    .header(header)
+                    .body(body)
+                    .build();
         }
 
         return new HttpRequest.Builder().method(token.method)
                 .path(token.path)
                 .protocol(token.protocol)
                 .header(header)
-                .body(body)
                 .build();
     }
 

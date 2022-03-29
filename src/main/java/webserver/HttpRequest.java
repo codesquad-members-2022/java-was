@@ -2,12 +2,12 @@ package webserver;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -19,6 +19,7 @@ public class HttpRequest {
     private String path;
     private Map<String, String> headers;
     private Map<String, String> parameters;
+    private Map<String, String> cookies;
 
     private HttpRequest() {
 
@@ -48,6 +49,12 @@ public class HttpRequest {
             httpRequest.parameters = parseQueryString(requestBody);
         }
 
+        String cookies = httpRequest.getHeader("Cookie");
+
+        if (cookies != null) {
+            httpRequest.cookies = parseCookies(cookies);
+        }
+
         return httpRequest;
     }
 
@@ -72,7 +79,19 @@ public class HttpRequest {
     }
 
     public Map<String, String> getParameters() {
-        return new HashMap<>(this.parameters);
+        if (this.parameters == null) {
+            return Map.of();
+        }
+
+        return Map.copyOf(this.parameters);
+    }
+
+    public Map<String, String> getCookies() {
+        if (this.cookies == null) {
+            return Map.of();
+        }
+
+        return Map.copyOf(this.cookies);
     }
 
     private static String readData(BufferedReader br, int contentLength) throws IOException {

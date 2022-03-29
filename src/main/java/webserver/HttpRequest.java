@@ -48,4 +48,7 @@ public class HttpRequest {
         return parameters.get(key);
     }
 
+    public String getHeader(String header) {
+        return headers.get(header);
+    }
 }

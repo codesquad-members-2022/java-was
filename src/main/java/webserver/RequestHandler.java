@@ -1,6 +1,7 @@
 package webserver;
 
 import db.DataBase;
+import db.SessionDataBase;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,9 +9,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.UUID;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
 
@@ -32,8 +36,9 @@ public class RequestHandler extends Thread {
                 new InputStreamReader(in, StandardCharsets.UTF_8));
 
             HttpRequest httpRequest = new HttpRequest(br);
+            HttpResponse httpResponse = new HttpResponse(out);
 
-            if (httpRequest.getPath().contains("/user/create")) {
+            if (httpRequest.getPath().equals("/user/create")) {
                 User user = new User(
                     httpRequest.getParameter("userId"),
                     httpRequest.getParameter("password"),
@@ -41,12 +46,29 @@ public class RequestHandler extends Thread {
                     httpRequest.getParameter("email")
                 );
                 DataBase.addUser(user);
-                HttpResponse httpResponse = new HttpResponse(out);
                 httpResponse.response302Header();
                 return;
             }
 
-            HttpResponse httpResponse = new HttpResponse(out);
+            if (httpRequest.getPath().equals("/user/login")) {
+                User user = DataBase.findUserById(httpRequest.getParameter("userId"));
+                if (user == null) {
+                    httpResponse.response302Header("user/login_failed.html");
+                    return;
+                }
+                if (!user.getPassword().equals(httpRequest.getParameter("password"))) {
+                    httpResponse.response302Header("user/login_failed.html");
+                    return;
+                }
+                String sessionId = UUID.randomUUID().toString();
+                log.debug("return cookie: {}", sessionId);
+                SessionDataBase.save(sessionId, user.getUserId());
+                httpResponse.response302WithCookieHeader(sessionId);
+                return;
+            }
+
+            Map<String, String> cookies = HttpRequestUtils.parseCookies(
+                httpRequest.getHeader("Cookie"));
             httpResponse.writeBody(httpRequest.getPath());
             httpResponse.response200Header();
             httpResponse.responseBody();

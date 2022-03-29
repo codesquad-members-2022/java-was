@@ -18,6 +18,26 @@ public class HttpResponse {
         this.dos = new DataOutputStream(out);
     }
 
+    public void response302WithCookieHeader(String cookie) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
+            dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
+            dos.writeBytes("Set-Cookie: sessionId=" + cookie + "; path=/");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void response302Header(String path) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
+            dos.writeBytes("Location: http://localhost:8080/" + path + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
 
     public void response302Header() {
         try {

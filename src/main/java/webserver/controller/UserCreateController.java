@@ -26,6 +26,12 @@ public class UserCreateController implements Controller {
     private String signUp(String requestBody) {
         Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
         User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
+
+        String userId = user.getUserId();
+        if (DataBase.findUserById(userId).isPresent()) {
+            throw new IllegalArgumentException("중복된 아이디입니다.");
+        }
+
         DataBase.addUser(user);
         log.debug("{} sign up", user);
 

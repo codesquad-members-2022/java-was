@@ -92,8 +92,8 @@ public class HttpRequestUtilsTest {
 
     @Test
     public void getQueryString_empty() {
-        String url = "/create";
-        assertThat(HttpRequestUtils.getQueryString(url)).isEmpty();
+        String path = "/create";
+        assertThat(HttpRequestUtils.getQueryString(path)).isEmpty();
     }
     
     @Test

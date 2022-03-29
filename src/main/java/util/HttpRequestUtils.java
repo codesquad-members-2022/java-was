@@ -2,6 +2,7 @@ package util;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -13,12 +14,16 @@ public class HttpRequestUtils {
         return requestLine.split(" ");
     }
 
-    public static String getQueryString(String url) {
+    public static Optional<String> getQueryString(String url) {
         String[] separatedUrl = url.split("\\?");
         if (separatedUrl.length > 1) {
-            return separatedUrl[1];
+            return Optional.of(separatedUrl[1]);
         }
-        return "";
+        return Optional.empty();
+    }
+
+    public static Map<String, String> parseRequestBody(String requestBody) {
+        return parseValues(requestBody, "&");
     }
 
     /**

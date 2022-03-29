@@ -2,7 +2,10 @@ package util;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
@@ -80,9 +83,27 @@ public class HttpRequestUtilsTest {
     }
 
     @Test
-    public void getQueryString() {
+    public void getQueryString_present() {
         String url = "/create?userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net";
         assertThat(HttpRequestUtils.getQueryString(url))
-                .isEqualTo("userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net");
+                .isNotEmpty()
+                .hasValue("userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net");
+    }
+
+    @Test
+    public void getQueryString_empty() {
+        String path = "/create";
+        assertThat(HttpRequestUtils.getQueryString(path)).isEmpty();
+    }
+    
+    @Test
+    public void parseRequestBody() {
+        String requestBody = "userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net";
+        requestBody = URLDecoder.decode(requestBody, StandardCharsets.UTF_8);
+
+        assertThat(HttpRequestUtils.parseRequestBody(requestBody))
+                .hasSize(4)
+                .containsKeys("userId", "password", "name", "email")
+                .containsValues("javajigi", "password", "박재성", "javajigi@slipp.net");
     }
 }

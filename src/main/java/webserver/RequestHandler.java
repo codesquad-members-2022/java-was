@@ -33,8 +33,8 @@ public class RequestHandler extends Thread {
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            HttpRequest request = buildRequest(in);
-            HttpResponse response = buildResponse(out);
+            HttpRequest request = RequestParser.parse(in);
+            HttpResponse response = new HttpResponse(out);
             controlServlet(request, response);
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -50,13 +50,5 @@ public class RequestHandler extends Thread {
             return;
         }
         response.forward(path);
-    }
-
-    private HttpRequest buildRequest(InputStream in) throws IOException {
-        return RequestParser.parse(in);
-    }
-
-    private HttpResponse buildResponse(OutputStream out) {
-        return new HttpResponse(out);
     }
 }

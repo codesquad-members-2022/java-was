@@ -18,7 +18,7 @@
 - [x] RequestHandler Parser 스태틱으로 만들기
 - [x] RequestHandler.createUser 위치 고민 해보기 -> 이후 생성될 createServlet 내부로 이동예정
 - [x] RequestParser에서 String body="" 삭제하기
-- [ ] RequestHandler에서 메서드 분리하지 말기 (buildRequest, buildResponse)
+- [x] RequestHandler에서 메서드 분리하지 말기 (buildRequest, buildResponse)
 
 ## Step03 TODO list
 

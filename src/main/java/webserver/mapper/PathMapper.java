@@ -1,9 +1,10 @@
-package webserver.handler;
+package webserver.mapper;
 
 import java.util.Map;
 import java.util.Optional;
 import webserver.Request;
 import webserver.Response;
+import webserver.handler.PathHandler;
 
 public class PathMapper {
 

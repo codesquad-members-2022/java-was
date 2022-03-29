@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import webserver.Request;
 import webserver.Response;
 import webserver.Status;
+import webserver.mapper.Pair;
+import webserver.mapper.PathMapper;
+import webserver.mapper.PathMapperFactory;
 
 class PathMapperTest {
 

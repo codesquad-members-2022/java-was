@@ -8,8 +8,8 @@ import java.net.Socket;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.handler.Filter;
-import webserver.handler.PathMapper;
+import webserver.mapper.Filter;
+import webserver.mapper.PathMapper;
 
 public class RequestHandler extends Thread {
 

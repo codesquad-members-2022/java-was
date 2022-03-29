@@ -1,4 +1,4 @@
-package webserver.handler;
+package webserver.mapper;
 
 import model.User;
 import webserver.Request;

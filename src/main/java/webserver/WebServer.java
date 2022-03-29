@@ -4,9 +4,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.handler.Filter;
-import webserver.handler.PathMapper;
-import webserver.handler.PathMapperFactoryImpl;
+import webserver.mapper.Filter;
+import webserver.mapper.PathMapper;
+import webserver.mapper.PathMapperFactoryImpl;
 
 public class WebServer {
 

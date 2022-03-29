@@ -1,7 +1,12 @@
-package webserver.handler;
+package webserver.mapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import webserver.handler.DefaultFileHandler;
+import webserver.handler.PathHandler;
+import webserver.handler.UserCreateHandler;
+import webserver.handler.UserLoginHandler;
+import webserver.handler.UserLogoutHandler;
 
 public class PathMapperFactoryImpl implements PathMapperFactory {
 

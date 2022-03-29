@@ -1,8 +1,7 @@
-package webserver.handler;
-
-import webserver.Request;
+package webserver.mapper;
 
 import java.util.Objects;
+import webserver.Request;
 
 public class Pair {
     private final String method;

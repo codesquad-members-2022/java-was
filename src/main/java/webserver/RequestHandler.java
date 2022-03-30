@@ -31,7 +31,6 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             MyHttpRequest myHttpRequest = new MyHttpRequest(in);
-            MyHttpResponse myHttpResponse = null;  // TODO : 생성자 구현
 
             String requestURI = myHttpRequest.getRequestURI();
             log.info("requestURI={}", requestURI);
@@ -39,7 +38,7 @@ public class RequestHandler extends Thread {
             MyController myController = controllerMap.get(requestURI);
             if (myController != null) {
                 log.info("find controller");
-                viewName = myController.process(myHttpRequest, myHttpResponse);
+                viewName = myController.process(myHttpRequest);
             }
 
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.

@@ -51,6 +51,10 @@ public class HttpRequest {
         return requestHeader.getPath();
     }
 
+    public String cookie() {
+        return requestHeader.getCookie();
+    }
+
     public Map<String, String> getQueryString() {
         String queryParams = requestHeader.getQueryParams();
         return parseQueryString(toDecode(queryParams));

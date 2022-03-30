@@ -51,4 +51,9 @@ public class UserController {
         }
         return httpResponse.redirect(LOGIN_FAILED_URL);
     }
+
+    public HttpResponse logout(String cookie, HttpResponse httpResponse) {
+        SessionDataBase.deleteCookie(cookie);
+        return httpResponse.redirect(INDEX_PAGE_URL);
+    }
 }

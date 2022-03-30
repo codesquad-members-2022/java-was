@@ -11,32 +11,12 @@ import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
 
-    public static String UrlDecode(String line) {
-        return URLDecoder.decode(line, StandardCharsets.UTF_8);
+    public static String[] splitRequestLine(String requestLine) {
+        return requestLine.split(" |\\?");
     }
 
-    public static String parseUrl(String requestLine) {
-        String uri = splitRequestLine(requestLine);
-
-        if (uri.contains("?")) {
-            return uri.split("\\?")[0];
-        }
-
-        return uri;
-    }
-
-    public static String getQueryString(String requestLine) {
-        String uri = splitRequestLine(requestLine);
-
-        if (uri.contains("?")) {
-            return uri.split("\\?")[1];
-        }
-
-        return "";
-    }
-
-    private static String splitRequestLine(String requestLine) {
-        return requestLine.split(" ")[1];
+    public static String UrlDecode(String url) {
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 
     /**

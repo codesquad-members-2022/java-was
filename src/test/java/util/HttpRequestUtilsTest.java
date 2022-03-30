@@ -2,6 +2,7 @@ package util;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Arrays;
 import java.util.Map;
 
 
@@ -71,13 +72,13 @@ public class HttpRequestUtilsTest {
     }
 
     @Test
-    void parseUrl() {
-        String expectedUrl = "/index.html";
-        String requestLine = "GET /index.html HTTP/1.1";
+    void splitRequestLine() {
+        String requestLine = "GET /user/create?id=qqq HTTP/1.1";
 
-        String url = HttpRequestUtils.parseUrl(requestLine);
+        String[] strings = HttpRequestUtils.splitRequestLine(requestLine);
 
-        assertThat(url).isEqualTo(expectedUrl);
-
+        assertThat(strings[0]).isEqualTo("GET");
+        assertThat(strings[1]).isEqualTo("/user/create");
+        assertThat(strings[2]).isEqualTo("id=qqq");
     }
 }

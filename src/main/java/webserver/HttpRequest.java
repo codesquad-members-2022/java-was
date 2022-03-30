@@ -30,7 +30,6 @@ public class HttpRequest {
     private static final String HEADER_KEY_VALUE_SEPARATOR = ": ";
     private static final String LINE_SEPARATOR = System.lineSeparator();
 
-
     private String method;
     private String uri;
     private String path;
@@ -76,7 +75,7 @@ public class HttpRequest {
     }
 
     public boolean isLoggedIn() {
-        return Boolean.parseBoolean(cookies.getOrDefault("logged_in", "false"));
+        return Boolean.parseBoolean(cookies.get("logged_in"));
     }
 
     public String getUri() {

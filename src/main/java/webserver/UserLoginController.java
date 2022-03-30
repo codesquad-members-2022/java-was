@@ -2,6 +2,7 @@ package webserver;
 
 import db.DataBase;
 import db.Sessions;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,6 +26,6 @@ public class UserLoginController extends Controller  {
             httpResponse.response302HeaderAfterLogin("/index.html", sessionId);
         }
 
-        httpResponse.response302Header("/login_failed.html");
+        httpResponse.response302Header("/user/login_failed.html");
     }
 }

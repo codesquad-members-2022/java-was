@@ -5,8 +5,11 @@ import model.User;
 import webserver.Request;
 import webserver.Response;
 import webserver.Status;
+import webserver.mapper.Session;
 
 public class UserCreateHandler implements PathHandler {
+
+    private static final Session session = Session.getInstance();
 
     @Override
     public Response handle(Request request) {
@@ -25,9 +28,11 @@ public class UserCreateHandler implements PathHandler {
             );
             DataBase.addUser(user);
 
+            String sessionId = session.setUser(user);
+
             return new Response.Builder(Status.FOUND)
                     .addHeader("Location", "http://localhost:8080/index.html")
-                    .addHeader("Set-Cookie", "sessionId=" + user.getUserId() + "; Path=/")
+                    .addHeader("Set-Cookie", "sessionId=" + sessionId + "; Path=/")
                 .build();
 
         } catch (IllegalArgumentException e) {
@@ -36,6 +41,4 @@ public class UserCreateHandler implements PathHandler {
                 .build();
         }
     }
-
-
 }

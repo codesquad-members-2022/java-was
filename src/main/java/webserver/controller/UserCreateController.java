@@ -13,9 +13,7 @@ public class UserCreateController implements Controller {
 	private static final Logger log = LoggerFactory.getLogger(UserCreateController.class);
 	private static final UserCreateController instance = new UserCreateController();
 
-	private UserCreateController() {
-		super();
-	}
+	private UserCreateController() {}
 
 	public static UserCreateController getInstance() {
 		return instance;

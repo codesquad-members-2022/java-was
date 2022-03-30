@@ -11,9 +11,7 @@ public class DefaultController implements Controller {
 
 	private static final DefaultController instance = new DefaultController();
 
-	private DefaultController() {
-		super();
-	}
+	private DefaultController() {}
 
 	public static DefaultController getInstance() {
 		return instance;

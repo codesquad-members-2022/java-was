@@ -53,6 +53,6 @@ class ResponseTest {
 			"Content-Type: text/html\r\n" +
 			"Content-Length: 13\r\n" +
 			"\r\n");
-		assertThat(resultBody).isEqualTo("<html></html>\r\n");
+		assertThat(resultBody).isEqualTo("<html></html>");
 	}
 }

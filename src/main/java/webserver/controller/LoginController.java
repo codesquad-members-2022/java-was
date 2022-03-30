@@ -13,9 +13,7 @@ public class LoginController implements Controller {
 
 	private static final LoginController instance = new LoginController();
 
-	private LoginController() {
-		super();
-	}
+	private LoginController() {}
 
 	public static LoginController getInstance() {
 		return instance;

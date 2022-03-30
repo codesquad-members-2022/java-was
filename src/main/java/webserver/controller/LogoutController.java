@@ -12,9 +12,7 @@ public class LogoutController implements Controller {
 
 	private static final LogoutController instance = new LogoutController();
 
-	private LogoutController() {
-		super();
-	}
+	private LogoutController() {}
 
 	public static LogoutController getInstance() {
 		return instance;

@@ -1,5 +1,6 @@
 package webserver;
 
+import controller.FirstController;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,7 +28,10 @@ public class RequestHandler extends Thread {
             request.readRequest();
 
             Response response = new Response(out, request);
-            response.writeResponse();
+//            response.writeResponse();
+
+            FirstController firstController = FirstController.getInstance();
+            firstController.run(request, response);
 
             PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 

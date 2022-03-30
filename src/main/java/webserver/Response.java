@@ -116,7 +116,7 @@ public class Response {
 		}
 	}
 
-	private void response200Header() {
+	public void response200Header() {
 		try {
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
@@ -127,7 +127,7 @@ public class Response {
 		}
 	}
 
-	private void responseBody() {
+	public void responseBody() {
 		try {
 			dos.write(body, 0, body.length);
 			dos.flush();

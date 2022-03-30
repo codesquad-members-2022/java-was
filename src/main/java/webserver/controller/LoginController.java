@@ -9,7 +9,7 @@ import webserver.Request;
 import webserver.Response;
 import webserver.StatusCode;
 
-public class LoginController extends Controller{
+public class LoginController implements Controller{
 	private static final LoginController instance = new LoginController();
 
 	private LoginController() {

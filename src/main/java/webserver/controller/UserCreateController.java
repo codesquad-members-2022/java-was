@@ -8,7 +8,7 @@ import webserver.Request;
 import webserver.Response;
 import webserver.StatusCode;
 
-public class UserCreateController extends Controller {
+public class UserCreateController implements Controller {
 
 	private static final Logger log = LoggerFactory.getLogger(UserCreateController.class);
 	private static final UserCreateController instance = new UserCreateController();

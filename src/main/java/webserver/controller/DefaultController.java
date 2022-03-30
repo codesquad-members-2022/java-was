@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class DefaultController extends Controller {
+public class DefaultController implements Controller {
 
 	private static final DefaultController instance = new DefaultController();
 

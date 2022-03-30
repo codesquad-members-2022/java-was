@@ -13,8 +13,8 @@ public class HttpRequest {
     private String method;
     private String requestURI;
     private String protocol;
-    private Map<String, String> params;
-    private Map<String, String> headers;
+    private Parameters params;
+    private Headers headers;
 
     public HttpRequest(String requestLine, Map<String, String> headers, String requestMessageBody) {
         parseRequestLine(requestLine);
@@ -35,17 +35,19 @@ public class HttpRequest {
         this.requestURI = requestURI.substring(0, queryStringDelimiterIndex);
 
         if (queryStringDelimiterIndex != requestURI.length()) {
-            this.params = HttpRequestUtils.parseQueryString(requestURI.substring(queryStringDelimiterIndex + 1));
+            this.params = new Parameters(
+                    HttpRequestUtils.parseQueryString(requestURI.substring(queryStringDelimiterIndex + 1))
+            );
         }
     }
 
     private void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
+        this.headers = new Headers(headers);
     }
 
     private void parseRequestMessageBody(String requestMessageBody) {
         if (!Strings.isNullOrEmpty(requestMessageBody)) {
-            this.params = HttpRequestUtils.parseQueryString(requestMessageBody);
+            this.params = new Parameters(HttpRequestUtils.parseQueryString(requestMessageBody));
         }
     }
 
@@ -62,6 +64,6 @@ public class HttpRequest {
     }
 
     public String getParameter(String name) {
-        return params.get(name);
+        return params.getValue(name);
     }
 }

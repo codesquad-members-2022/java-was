@@ -29,6 +29,8 @@ public class FrontHandler {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+    private final Handler handler = Handler.getInstance();
+
     private FrontHandler() {
     }
 
@@ -38,8 +40,6 @@ public class FrontHandler {
         }
         return frontHandler;
     }
-
-    private final Handler handler = Handler.getInstance();
 
     public void assign(Socket connection) {
         CompletableFuture.runAsync(() -> process(connection), executor);

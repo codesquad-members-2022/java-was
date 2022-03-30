@@ -103,6 +103,19 @@ public class Response {
 		}
 	}
 
+	public void newResponse302(String redirectURL, String userId) {
+		try {
+			dos.writeBytes("HTTP/1.1 302 Found\r\n");
+			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+			dos.writeBytes("Content-Length: " + body.length + "\r\n");
+			dos.writeBytes("Location: " + redirectURL + "\r\n");
+			dos.writeBytes("Set-Cookie: sessionId=" + userId + "; max-age=20; Path=/; HttpOnly\r\n");
+			dos.writeBytes("\r\n");
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+	}
+
 	private void response302Header(String redirectURL, String userId) {
 		try {
 			dos.writeBytes("HTTP/1.1 302 Found\r\n");
@@ -116,7 +129,7 @@ public class Response {
 		}
 	}
 
-	private void logoutHeader(String redirectURL) {
+	public void logoutHeader(String redirectURL) {
 		try {
 			dos.writeBytes("HTTP/1.1 302 Found\r\n");
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
@@ -124,6 +137,7 @@ public class Response {
 			dos.writeBytes("Location: " + redirectURL + "\r\n");
 			dos.writeBytes("Set-Cookie: sessionId=; max-age=-1; Path=/\r\n");
 			dos.writeBytes("\r\n");
+			dos.flush();
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}

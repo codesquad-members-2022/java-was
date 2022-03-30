@@ -20,6 +20,8 @@ public class FirstController {
 
 	private FirstController() {
 		map.put(new ControllerMapper(HttpMethod.POST, "/user/create"), UserJoinController.getInstance());
+		map.put(new ControllerMapper(HttpMethod.GET, "/user/logout"), UserLogoutController.getInstance());
+		map.put(new ControllerMapper(HttpMethod.POST, "/user/login"), UserLoginController.getInstance());
 	}
 
 	public void run(Request request, Response response) throws IOException {

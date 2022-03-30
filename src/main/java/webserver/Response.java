@@ -10,9 +10,9 @@ public class Response {
 
     private static final Logger log = LoggerFactory.getLogger(Response.class);
 
-    private Status status;
-    private Map<String, String> header;
-    private byte[] body;
+    private final Status status;
+    private final Map<String, String> header;
+    private final byte[] body;
 
     public Response(Status status, Map<String, String> header, byte[] body) {
         this.status = status;

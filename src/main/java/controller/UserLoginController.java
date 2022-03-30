@@ -1,10 +1,14 @@
 package controller;
 
 import db.DataBase;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.Pair;
+import webserver.HttpStatus;
 import webserver.Request;
 import webserver.Response;
 
@@ -27,12 +31,17 @@ public class UserLoginController implements Controller {
 		log.debug("POST BODY: {}", parsedBody);
 
 		User user = DataBase.findUserById(parsedBody.get("userId"));
+		List<Pair> pairs = new ArrayList<>();
 
 		if (user != null && user.getPassword().equals(parsedBody.get("password"))) {
-			response.newResponse302("http://localhost:8080/index.html", user.getUserId());
+			pairs.add(new Pair("Location", "http://localhost:8080/index.html"));
+			pairs.add(new Pair("Set-Cookie", "sessionId=" + user.getUserId() + "; max-age=20; Path=/; HttpOnly"));
+			response.write(HttpStatus.FOUND, pairs);
 			return;
 		}
-		response.newResponse302("http://localhost:8080/user/login_failed.html");
+		pairs.add(new Pair("Location", "http://localhost:8080/user/login_failed.html"));
+		response.write(HttpStatus.FOUND, pairs);
 	}
+
 
 }

@@ -4,10 +4,14 @@ import db.DataBase;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.Pair;
+import webserver.HttpStatus;
 import webserver.Request;
 import webserver.Response;
 
@@ -38,11 +42,14 @@ public class UserJoinController implements Controller {
 	}
 
 	private void saveUser(User user, Response response) {
+		List<Pair> pairs = new ArrayList<>();
 		if (DataBase.validateDuplicatedId(user)) {
 			DataBase.addUser(user);
-			response.newResponse302("http://localhost:8080/index.html");
+			pairs.add(new Pair("Location", "http://localhost:8080/index.html"));
+			response.write(HttpStatus.FOUND, pairs);
 			return;
 		}
-		response.newResponse302("http://localhost:8080/user/form.html");
+		pairs.add(new Pair("Location", "http://localhost:8080/user/form.html"));
+		response.write(HttpStatus.FOUND, pairs);
 	}
 }

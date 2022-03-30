@@ -27,7 +27,7 @@ public class RequestHandler extends Thread {
             Request request = new Request(in);
             request.readRequest();
 
-            Response response = new Response(out, request);
+            Response response = new Response(out);
 //            response.writeResponse();
 
             FirstController firstController = FirstController.getInstance();

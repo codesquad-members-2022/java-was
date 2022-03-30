@@ -11,7 +11,7 @@ public class Response {
 
 	private StatusCode statusCode;
 	private final Map<String, Object> responseHeaderMap = new LinkedHashMap<>();
-	private String body;
+	private String body = "";
 
 	public Response() {
 		statusCode = StatusCode.SUCCESSFUL_200;
@@ -76,7 +76,7 @@ public class Response {
 	}
 
 	public String toBody() {
-		return body + "\r\n";
+		return body;
 	}
 
 	public void setCookie(String cookie) {

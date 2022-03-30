@@ -1,7 +1,7 @@
 package webserver.handler;
 
-import db.DataBase;
 import model.User;
+import service.UserService;
 import webserver.Request;
 import webserver.Response;
 import webserver.Status;
@@ -10,23 +10,19 @@ import webserver.mapper.Session;
 public class UserCreateHandler implements PathHandler {
 
     private static final Session session = Session.getInstance();
+    private static final UserService userService = UserService.getInstance();
 
     @Override
     public Response handle(Request request) {
 
         try {
-            DataBase.findUserById(request.getBodyValue("userId"))
-                    .ifPresent(findUser -> {
-                        throw new IllegalArgumentException("중복된 유저입니다.");
-                    });
-
             User user = new User(
-                request.getBodyValue("userId"),
-                request.getBodyValue("password"),
-                request.getBodyValue("name"),
-                request.getBodyValue("email")
+                    request.getBodyValue("userId"),
+                    request.getBodyValue("password"),
+                    request.getBodyValue("name"),
+                    request.getBodyValue("email")
             );
-            DataBase.addUser(user);
+            userService.register(user);
 
             String sessionId = session.setUser(user);
 

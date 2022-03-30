@@ -1,7 +1,7 @@
 package webserver.handler;
 
-import db.DataBase;
 import model.User;
+import service.UserService;
 import webserver.Request;
 import webserver.Response;
 import webserver.Status;
@@ -10,18 +10,15 @@ import webserver.mapper.Session;
 public class UserLoginHandler implements PathHandler {
 
     private final Session session = Session.getInstance();
+    private final UserService userService = UserService.getInstance();
 
     @Override
     public Response handle(Request request) {
         try {
-            User user = DataBase.findUserById(request.getBodyValue("userId"))
-                    .orElseThrow(() -> {
-                        throw new IllegalArgumentException("아이디를 다시 확인해주세요.");
-                    });
-
-            if (!user.checkPassword(request.getBodyValue("password"))) {
-                throw new IllegalArgumentException("패스워드를 다시 확인해주세요.");
-            }
+            User user = userService.login(
+                    request.getBodyValue("userId"),
+                    request.getBodyValue("password")
+            );
 
             String sessionId = session.setUser(user);
 

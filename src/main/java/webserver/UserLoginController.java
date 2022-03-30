@@ -23,7 +23,7 @@ public class UserLoginController extends Controller  {
             Sessions.getSession(sessionId)
                 .setAttribute("user", UserDataBase.findById(userId));
 
-            httpResponse.response302HeaderAfterLogin("/index.html", sessionId);
+            httpResponse.response302HeaderAfterLogin("/", sessionId);
         }
 
         httpResponse.response302Header("/user/login_failed.html");

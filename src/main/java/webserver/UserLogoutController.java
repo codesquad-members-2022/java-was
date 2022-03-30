@@ -12,11 +12,11 @@ public class UserLogoutController extends Controller  {
         String sessionId = cookies.get("sessionId");
 
         if (sessionId == null) {
-            httpResponse.response302Header("/index.html");
+            httpResponse.response302Header("/");
             return;
         }
 
         Sessions.remove(sessionId);
-        httpResponse.response302HeaderAfterLogout("/index.html", sessionId);
+        httpResponse.response302HeaderAfterLogout("/", sessionId);
     }
 }

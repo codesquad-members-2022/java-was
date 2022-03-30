@@ -16,6 +16,6 @@ public class UserCreationController extends Controller  {
 
         UserDataBase.add(user);
 
-        httpResponse.response302Header("/index.html");
+        httpResponse.response302Header("/");
     }
 }

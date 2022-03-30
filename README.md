@@ -51,3 +51,25 @@
   - node.js에서 Stream은 버퍼들을 포함하는 개념 (Java에서는 위의 개념으로 쓰임)
 - 참고 : https://stackoverflow.com/questions/43147069/how-do-an-inputstream-inputstreamreader-and-bufferedreader-work-together-in-jav
 ---
+
+## Step3 : POST로 회원가입
+
+### try-with-resources
+- `try-with-resources`는 AutoCloseable 인터페이스를 구현한 리소스에 대하여 finally 직전에, close()를 호출한다.
+- Closeable vs AutoCloseable ?
+  - Closeable (extends AutoCloseable)
+    - JDK 5 ~
+    - IOException
+  - AutoCloseable
+    - JDK 7+ ~
+    - Exception
+- `try-with-resources` 블록 내에서의 리소스 반환 순서 : 괄호 안에 생성된 역순으로 close() 호출 
+
+### Optional OrElse, OrElseGet
+- orElse
+  - 반환 값을 그대로 받는다.
+  - 무조건 뒤의 로직이 실행된다.
+
+- orElseGet
+  - Supplier로 wrapping한 값을 받는다.
+  - **`null`일 경우에만** 뒤의 로직이 실행된다.(lazy)

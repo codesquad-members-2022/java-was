@@ -21,4 +21,9 @@ public class DataBase {
     public static Collection<User> findAll() {
         return users.values();
     }
+
+    public static boolean validateDuplicatedId(User user) {
+        User findUser = findUserById(user.getUserId());
+        return findUser == null;
+    }
 }

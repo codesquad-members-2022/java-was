@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.PrintUtils;
 import util.Request;
+import util.Response;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -29,50 +30,16 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            InputStreamReader inputReader = new InputStreamReader(in);
-            BufferedReader br = new BufferedReader(inputReader);
+        try (InputStream in = connection.getInputStream();
+            OutputStream out = connection.getOutputStream()) {
+            Request request = new Request(in);
+            request.readRequest();
 
-            String requestLine = br.readLine();
+            Response response = new Response(out, request);
+            response.writeResponse();
 
-            Request request = new Request(requestLine);
-            String pathURL = request.takePath();
-            Map<String, String> parsedQueryString = request.takeParsedQueryString();
+            PrintUtils.printRequestHeaders(request.getHeaderPairs(), request.getRequestLine());
 
-            User user = new User(
-                    parsedQueryString.get("userId"),
-                    parsedQueryString.get("password"),
-                    parsedQueryString.get("name"),
-                    parsedQueryString.get("email")
-            );
-
-            PrintUtils.printRequestHeaders(request.takeHeaderPairs(br), requestLine);
-
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + pathURL).toPath());
-
-            response200Header(dos, body.length);
-            responseBody(dos, body);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }

@@ -17,7 +17,7 @@ public class HttpRequestUtilsTest {
         assertThat(parameters.get("userId")).isEqualTo("javajigi");
         assertThat(parameters.get("password")).isNull();
 
-        queryString = "create?userId=javajigi&password=password2";
+        queryString = "userId=javajigi&password=password2";
         parameters = HttpRequestUtils.parseQueryString(queryString);
         assertThat(parameters.get("userId")).isEqualTo("javajigi");
         assertThat(parameters.get("password")).isEqualTo("password2");
@@ -37,7 +37,7 @@ public class HttpRequestUtilsTest {
 
     @Test
     public void parseQueryString_invalid() {
-        String queryString = "create?userId=javajigi&password";
+        String queryString = "userId=javajigi&password";
         Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
         assertThat(parameters.get("userId")).isEqualTo("javajigi");
         assertThat(parameters.get("password")).isNull();
@@ -75,8 +75,8 @@ public class HttpRequestUtilsTest {
     @DisplayName("Header 첫줄 URL을 정상적으로 받아서 분리해야한다.")
     void separateUrlTest() {
         String headerUrl = "GET /index.html HTTP/1.1";
-        String[] result = HttpRequestUtils.separateUrl(headerUrl);
+        String result = HttpRequestUtils.separateUrl(headerUrl);
 
-        assertThat(result[1]).isEqualTo("/index.html");
+        assertThat(result).isEqualTo("/index.html");
     }
 }

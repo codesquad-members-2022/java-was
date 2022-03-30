@@ -11,5 +11,10 @@
       </set>
     </option>
     <option name="configurationPath" value="" />
+    <option name="inclusions">
+      <set>
+        <option value=".*\.java" />
+      </set>
+    </option>
   </component>
 </project>

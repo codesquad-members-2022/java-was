@@ -40,14 +40,6 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void renderView(DataOutputStream dos, HttpResponse response) {
-        if (response != null) {
-            byte[] responseBody = response.getResponseBody();
-            writeHeaders(dos, responseBody.length, response);
-            responseBody(dos, responseBody);
-        }
-    }
-
     private HttpRequest generateHttpRequest(BufferedReader br) throws IOException {
         String[] tokens = readRequestLine(br);
 
@@ -100,24 +92,40 @@ public class RequestHandler extends Thread {
         return requestHeaderMap;
     }
 
-    private void writeHeaders(DataOutputStream dos, int lengthOfBodyContent, HttpResponse response) {
+    private void renderView(DataOutputStream dos, HttpResponse response) throws IOException {
+        if (response != null) {
+            writeResponse(dos, response);
+        }
+    }
+
+    private void writeResponse(DataOutputStream dos, HttpResponse response) {
+        writeResponseLine(dos,response);
+        writeResponseHeaders(dos, response);
+        writeResponseBody(dos, response.getResponseBody());
+    }
+
+    private void writeResponseLine(DataOutputStream dos, HttpResponse response) {
         try {
             dos.writeBytes(String.format("%s %d %s %s",
                     response.getVersion(), response.getHttpStatusCode(), response.getHttpStatusMessage(), System.lineSeparator()));
-            Map<String, String> responseHeaders = response.getResponseHeaders();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
 
+    private void writeResponseHeaders(DataOutputStream dos, HttpResponse response) {
+        try {
+            Map<String, String> responseHeaders = response.getResponseHeaders();
             for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
                 dos.writeBytes(String.format("%s: %s %s", entry.getKey(), entry.getValue(), System.lineSeparator()));
             }
-
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
+    private void writeResponseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);
             dos.flush();

@@ -24,13 +24,14 @@ public class UserCreateController implements Controller {
 	@Override
 	public void process(Request request, Response response) {
 		User findUser = DataBase.findUserById(request.getParam("userId"));
+
 		if (findUser == null) {
 			User user = new User(request.getParam("userId"),
 				request.getParam("password"),
 				request.getParam("name"),
 				request.getParam("email"));
 			DataBase.addUser(user);
-			log.debug("회원가입완료 {}", user);
+
 			response.setRedirect(StatusCode.REDIRECTION_302,
 				"http://localhost:8080/index.html");
 		} else {

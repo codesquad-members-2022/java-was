@@ -2,6 +2,7 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.login.Cookie;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +36,10 @@ public class HttpResponse {
         this.responseBody = responseBody;
     }
 
+    public void addCookie(Cookie cookie) {
+        responseHeaders.put("Set-Cookie", cookie.getCookieString());
+    }
+
     public HttpResponse ok(String url) {
         this.httpStatus = HttpStatus.OK;
         this.addHeader("Content-Type", TEXT_HTML_CHARSET_UTF_8);
@@ -62,12 +67,11 @@ public class HttpResponse {
         log.debug("http response: {}, redirect: {}", this, url);
         return this;
     }
-    
+
     public String headers() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(String.format("%s %d %s %s", this.version, this.getHttpStatusCode(), this.getHttpStatusMessage(), System.lineSeparator()));
-        Map<String, String> responseHeaders = this.responseHeaders;
-        for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
+        for (Map.Entry<String, String> entry : this.responseHeaders.entrySet()) {
             sb.append(String.format("%s: %s %s", entry.getKey(), entry.getValue(), System.lineSeparator()));
         }
         return sb.toString();
@@ -81,10 +85,10 @@ public class HttpResponse {
         return httpStatus.getMessage();
     }
 
-    public HttpResponse login(String url, String userId) {
-        HttpResponse httpResponse = this.redirect(url);
-        httpResponse.addHeader("Set-Cookie", "userId=" + userId + "; Path=/");
-        return httpResponse;
+    public HttpResponse login(String url, Cookie cookie) {
+        this.redirect(url);
+        this.addCookie(cookie);
+        return this;
     }
 
     public HttpStatus getHttpStatus() {

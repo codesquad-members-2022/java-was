@@ -5,6 +5,8 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.HttpResponse;
+import webserver.login.Cookie;
+import webserver.login.SessionDataBase;
 
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +45,9 @@ public class UserController {
 
         Optional<User> user = DataBase.findUserById(loginUserId);
         if (user.isPresent() && user.get().isMatchPassword(loginPassword)) {
-            return httpResponse.login(INDEX_PAGE_URL, loginUserId);
+            Cookie cookie = new Cookie(loginUserId);
+            SessionDataBase.addCookie(cookie);
+            return httpResponse.login(INDEX_PAGE_URL, cookie);
         }
         return httpResponse.redirect(LOGIN_FAILED_URL);
     }

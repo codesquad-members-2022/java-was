@@ -90,6 +90,19 @@ public class Response {
 		}
 	}
 
+
+	public void newResponse302(String redirectURL) {
+		try {
+			dos.writeBytes("HTTP/1.1 302 Found\r\n");
+			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+			dos.writeBytes("Location: " + redirectURL + "\r\n");
+			dos.writeBytes("\r\n");
+			dos.flush();
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+	}
+
 	private void response302Header(String redirectURL, String userId) {
 		try {
 			dos.writeBytes("HTTP/1.1 302 Found\r\n");

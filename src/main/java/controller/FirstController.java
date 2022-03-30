@@ -19,11 +19,14 @@ public class FirstController {
 	private final Map<ControllerMapper, Controller> map = new ConcurrentHashMap<>();
 
 	private FirstController() {
-		map.put(new ControllerMapper(HttpMethod.GET, "/index.html"), HomeController.getInstance());
+		map.put(new ControllerMapper(HttpMethod.POST, "/user/create"), UserJoinController.getInstance());
 	}
 
 	public void run(Request request, Response response) throws IOException {
 		Controller controller = map.get(new ControllerMapper(request.getHttpMethod(), request.getPath()));
+		if (controller == null) {
+			controller = HomeController.getInstance();
+		}
 		controller.process(request, response);
 	}
 

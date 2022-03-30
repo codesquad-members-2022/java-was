@@ -82,8 +82,19 @@
 - response body가 없어도 되는 상태 코드(302, 304, 204)
 - 로그아웃 방법(Cookie 생명주기 설정, session의 역할 ~ store(Map))
 - Post -> Redirect -> Get
-- [Set-Cookie] HTTP/1.1 vs. HTTP/2 : 세미콜론(;)으로 결합이 가능한지 아닌지
-- [Set-Cookie] 작성 순서
-- [Set-Cookie] Path value default는 없는건가?
+- [Set-Cookie] HTTP/1.1 vs. HTTP/2 : 세미콜론(;)으로 결합이 가능한지 아닌지 ... 아닌 것 같음
+- [Set-Cookie] 작성 순서(중요한 것 같음)
+- [Set-Cookie] Path value default는 없는건가? (Path는 필수인듯?)
   - 참고 : https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
   - 참고2: https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
+
+//TODO
+- Refactoring
+  - Response (Controller 역할 중이라 분리를 해야함) | 각자 생각해오면 좋을듯
+  - Response - responseXXXHeader 메서드 줄일 수 있는 방안 생각해보기
+- wheejuni Review 생각하기 
+
+> nathan : 일급컬렉션 사용, 컨트롤러의 개념 차용
+> (루이 조는 Controller를 인터페이스로 구현하여 행동 양식을 지정함)
+> (쿠킴 조는 Controller를 추상메서드로 구현함)
+

@@ -1,15 +1,14 @@
 package webserver;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import util.HttpRequestUtils;
-import util.HttpRequestUtils.Pair;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import util.HttpRequestUtils;
+import util.HttpRequestUtils.Pair;
 
 class HttpRequestTest {
 
@@ -24,7 +23,9 @@ class HttpRequestTest {
         headers.add(header);
 
         //when 실행
+        //Todo given으로 올리기
         HttpRequest httpRequest = new HttpRequest(requestLine, headers);
+
         String result = httpRequest.getParameter("userId");
 
         //then 검증

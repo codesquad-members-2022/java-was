@@ -9,6 +9,7 @@ import util.IOUtils;
 import webserver.controller.UrlMapper;
 import webserver.http.HttpRequest;
 import webserver.http.HttpResponse;
+import webserver.view.MyView;
 
 import java.io.*;
 import java.net.Socket;
@@ -34,7 +35,7 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
             HttpRequest request = generateHttpRequest(new BufferedReader(new InputStreamReader(in)));
             HttpResponse response = UrlMapper.getResponse(request);
-            renderView(dos, response);
+            MyView.render(dos, response);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -92,45 +93,4 @@ public class RequestHandler extends Thread {
         return requestHeaderMap;
     }
 
-    private void renderView(DataOutputStream dos, HttpResponse response) throws IOException {
-        if (response != null) {
-            writeResponse(dos, response);
-        }
-    }
-
-    private void writeResponse(DataOutputStream dos, HttpResponse response) {
-        writeResponseLine(dos,response);
-        writeResponseHeaders(dos, response);
-        writeResponseBody(dos, response.getResponseBody());
-    }
-
-    private void writeResponseLine(DataOutputStream dos, HttpResponse response) {
-        try {
-            dos.writeBytes(String.format("%s %d %s %s",
-                    response.getVersion(), response.getHttpStatusCode(), response.getHttpStatusMessage(), System.lineSeparator()));
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void writeResponseHeaders(DataOutputStream dos, HttpResponse response) {
-        try {
-            Map<String, String> responseHeaders = response.getResponseHeaders();
-            for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
-                dos.writeBytes(String.format("%s: %s %s", entry.getKey(), entry.getValue(), System.lineSeparator()));
-            }
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void writeResponseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
 }

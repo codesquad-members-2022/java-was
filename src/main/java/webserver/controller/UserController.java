@@ -17,10 +17,18 @@ import java.nio.file.Files;
 import static webserver.http.HttpResponse.response200Header;
 
 public class UserController {
+    private static final UserController userController = new UserController();
+
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private static final String INDEX_PAGE_URL = "/index.html";
     private static final String LOGIN_PAGE_URL = "/user/login.html";
     private static final String JOIN_PAGE_URL = "/user/form.html";
+
+    private UserController() {}
+
+    public static UserController getInstance() {
+        return userController;
+    }
 
     public HttpResponse joinForm(HttpRequest request) {
         HttpResponse response = response200Header(request);

@@ -11,8 +11,8 @@ public class UrlMapper {
 
     }
 
-    private static final UserController userController = new UserController();
-    private static final IndexController indexController = new IndexController();
+    private static final UserController userController = UserController.getInstance();
+    private static final IndexController indexController = IndexController.getInstance();
 
     public static HttpResponse getResponse(HttpRequest request) {
         String url = request.getUrl();
@@ -20,10 +20,11 @@ public class UrlMapper {
     }
 
     private static HttpResponse getResponse(String url, HttpRequest request) {
-        // Function<HttpRequest, HttpResponse> 함수형 프로그래밍 개선필요
         if (url.endsWith(".js") || url.endsWith(".css") || url.endsWith(".ico")) {
             return null;
         }
+
+        // Function<HttpRequest, HttpResponse> 함수형 프로그래밍 개선필요
         switch (url) {
             case "/user/create":
                 return userController.join(request);

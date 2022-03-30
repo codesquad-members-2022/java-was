@@ -1,17 +1,18 @@
 package db;
 
-import java.util.Collection;
-import java.util.Map;
-
-import com.google.common.collect.Maps;
-
 import model.User;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DataBase {
-    private static Map<String, User> users = Maps.newHashMap();
+    private static Map<String, User> users = new HashMap<>();
 
     public static void addUser(User user) {
-        users.put(user.getUserId(), user);
+        if(!checkDuplicate(user.getUserId())){
+            users.put(user.getUserId(), user);
+        }
     }
 
     public static User findUserById(String userId) {
@@ -21,4 +22,9 @@ public class DataBase {
     public static Collection<User> findAll() {
         return users.values();
     }
+
+    private static boolean checkDuplicate(String userId) {
+        return users.containsKey(userId);
+    }
+
 }

@@ -24,3 +24,14 @@ Java Web Server Project for CodeSquad Members 2022
 - [x] HTML과 URL을 비교해 보고 사용자가 입력한 값을 파싱해 model.User 클래스에 저장한다.
 - [x] 한글이 정확하게 입력되고 있는지 확인해야 한다.
 </details>
+
+## 3단계
+
+<details>
+<summary>3단계 요구사항</summary>
+
+- [x] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
+- [x] POST로 회원가입 기능이 정상적으로 동작하도록 구현한다.
+- [x] 중복아이디를 처리하기 위해서 Map<Id, User> 로 회원목록을 관리한다.
+- [x] 가입 후 페이지 이동을 위해 redirection 기능을 구현한다.
+</details>

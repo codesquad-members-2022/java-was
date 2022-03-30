@@ -7,6 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static util.HttpRequestUtils.Pair;
+import static util.HttpRequestUtils.parseHeader;
+
 public class IOUtils {
     /**
      * @param BufferedReader는
@@ -19,16 +22,21 @@ public class IOUtils {
     public static String readData(BufferedReader br, int contentLength) throws IOException {
         char[] body = new char[contentLength];
         br.read(body, 0, contentLength);
-        return String.copyValueOf(body);
+        return URLDecoder.decode(String.valueOf(body), StandardCharsets.UTF_8);
     }
 
     public static Map<String, String> readRequestHeader(BufferedReader br) throws IOException {
         Map<String, String> requestHeader = new HashMap<>();
-        String[] requestLine = br.readLine().split(" ");
+        String line;
 
-        requestHeader.put("httpMethod", requestLine[0]);
-        requestHeader.put("path", URLDecoder.decode(requestLine[1], StandardCharsets.UTF_8));
+        while ((line = br.readLine()) != null) {
+            if (line.equals("")) {
+                return requestHeader;
+            }
 
+            Pair field = parseHeader(line);
+            requestHeader.put(field.getKey(), field.getValue());
+        }
         return requestHeader;
     }
 }

@@ -8,12 +8,8 @@ import http.Session;
 
 public class LogoutServlet extends HttpServlet {
 
-    public LogoutServlet(Request request, Response response) {
-        super(request, response);
-    }
-
     @Override
-    public Response doGet() {
+    public Response doGet(Request request, Response response) {
         response.setRedirectUrl("/index.html");
 
         String sessionId = request.getSessionId();

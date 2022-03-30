@@ -10,12 +10,8 @@ import model.User;
 
 public class UserCreateServlet extends HttpServlet {
 
-    public UserCreateServlet(Request request, Response response) {
-        super(request, response);
-    }
-
     @Override
-    public Response doPost() {
+    public Response doPost(Request request, Response response) {
         Map<String, String> queryParameter = request.getParameters();
 
         User user = new User(

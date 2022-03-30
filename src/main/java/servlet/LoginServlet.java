@@ -12,12 +12,8 @@ import model.User;
 
 public class LoginServlet extends HttpServlet {
 
-    public LoginServlet(Request request, Response response) {
-        super(request, response);
-    }
-
     @Override
-    public Response doPost() {
+    public Response doPost(Request request, Response response) {
         Map<String, String> queryParameter = request.getParameters();
         String userId = queryParameter.get("userId");
         String password = queryParameter.get("password");

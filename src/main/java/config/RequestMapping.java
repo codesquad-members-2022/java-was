@@ -11,19 +11,20 @@ import servlet.LogoutServlet;
 import servlet.UserCreateServlet;
 
 public class RequestMapping {
-    private static final Map<URL, Class<? extends HttpServlet>> servletMapping = new HashMap<>();
+    private static final Map<URL, HttpServlet> servletMapping = new HashMap<>();
 
+    // TODO : 매핑 생성 책임을 다른곳으로 전가?
     static {
-        servletMapping.put(new URL("/user/create"), UserCreateServlet.class);
-        servletMapping.put(new URL("/user/login"), LoginServlet.class);
-        servletMapping.put(new URL("/user/logout"), LogoutServlet.class);
+        servletMapping.put(new URL("/user/create"), new UserCreateServlet());
+        servletMapping.put(new URL("/user/login"), new LoginServlet());
+        servletMapping.put(new URL("/user/logout"), new LogoutServlet());
     }
 
     public static boolean contains(String url) {
         return servletMapping.containsKey(new URL(url));
     }
 
-    public static Optional<Class<? extends HttpServlet>> findHandlerMethod(String url) {
+    public static Optional<HttpServlet> findHandlerMethod(String url) {
         return Optional.ofNullable(servletMapping.get(new URL(url)));
     }
 

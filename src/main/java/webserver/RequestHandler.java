@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 public class RequestHandler extends Thread {
 
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String WEBAPP = "./webapp";
 
     private final Socket connection;
 
@@ -26,7 +25,7 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             HttpRequest httpRequest = HttpRequest.receive(br);
-            HttpResponse httpResponse = new HttpResponse(dos, WEBAPP);
+            HttpResponse httpResponse = new HttpResponse(dos);
 
             Controller controller = RequestMapping.getController(httpRequest.getPath());
             controller.process(httpRequest, httpResponse);

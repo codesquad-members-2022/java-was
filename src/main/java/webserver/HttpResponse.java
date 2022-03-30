@@ -13,16 +13,14 @@ public class HttpResponse {
     private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
     private static final String FILE_EXTENSION_SEPARATOR = ".";
     private final DataOutputStream dos;
-    private final String resourceRoot;
 
-    HttpResponse(DataOutputStream dos, String resourceRoot) {
+    HttpResponse(DataOutputStream dos) {
         this.dos = dos;
-        this.resourceRoot = resourceRoot;
     }
 
     public void responseStaticResource(String path) {
         try {
-            byte[] body = Files.readAllBytes(Path.of(resourceRoot + path));
+            byte[] body = Files.readAllBytes(Path.of(path));
             String contentType = getContentType(path);
             response200Header(body.length, contentType);
             responseBody(body);

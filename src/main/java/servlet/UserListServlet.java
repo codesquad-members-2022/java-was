@@ -16,27 +16,35 @@ public class UserListServlet extends BaseServlet {
     public void doGet(HttpRequest request, HttpResponse response) {
         Collection<User> users = DataBase.findAll();
         try {
-            byte[] body = Files.readAllBytes(new File("./webapp/user/list.html").toPath());
-            String bodyString = new String(body, "UTF-8");
-            int startIndex = bodyString.indexOf("<tbody>");
-            StringBuilder sb = new StringBuilder(bodyString.substring(0, startIndex + 7));
-            int count = 1;
-            for (User user : users) {
-                sb.append("<tr>")
-                        .append("<th scope=\"row\">" + count++ + "</th>")
-                        .append("<td>" + user.getUserId() + "</td>")
-                        .append("<td>" + user.getName() + "</td>")
-                        .append("<td>" + user.getEmail() + "</td>")
-                        .append("<td><a href=\"#\" class=\"btn btn-success\" role=\"button\">수정</a></td>")
-                        .append("</tr>");
-            }
-            int closeIndex = bodyString.indexOf("</tbody>");
-            sb.append(bodyString.substring(closeIndex));
-            byte[] newBody = sb.toString().getBytes(StandardCharsets.UTF_8);
-            response.forward2(newBody);
-
+            String bodyString = getBodyString();
+            byte[] newBody = addUserInfoAtBody(users, bodyString);
+            response.forward(newBody);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private byte[] addUserInfoAtBody(Collection<User> users, String bodyString) {
+        int startIndex = bodyString.indexOf("<tbody>");
+        int endIndex = bodyString.indexOf("</tbody>");
+
+        StringBuilder sb = new StringBuilder(bodyString.substring(0, startIndex + 7));
+        int count = 1;
+        for (User user : users) {
+            sb.append("<tr>")
+                    .append("<th scope=\"row\">" + count++ + "</th>")
+                    .append("<td>" + user.getUserId() + "</td>")
+                    .append("<td>" + user.getName() + "</td>")
+                    .append("<td>" + user.getEmail() + "</ㅌd>")
+                    .append("<td><a href=\"#\" class=\"btn btn-success\" role=\"button\">수정</a></td>")
+                    .append("</tr>");
+        }
+        sb.append(bodyString.substring(endIndex));
+        return sb.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    private String getBodyString() throws IOException {
+        byte[] body = Files.readAllBytes(new File("./webapp/user/list.html").toPath());
+        return new String(body, "UTF-8");
     }
 }

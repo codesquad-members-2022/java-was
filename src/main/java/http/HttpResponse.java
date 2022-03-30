@@ -34,7 +34,7 @@ public class HttpResponse {
         }
     }
 
-    public void forward2(byte[] body) {
+    public void forward(byte[] body) {
         try {
             response200Header(body.length);
             responseBody(body);

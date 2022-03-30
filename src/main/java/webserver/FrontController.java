@@ -23,18 +23,11 @@ public class FrontController {
 	}
 
 	public void service(Request request, Response response) throws IOException {
-		if ("/user/create".equals(request.getUri())) {	// POST /user/create
-			Controller userController = controllerMap.get("/user/create");
-			userController.process(request, response);
-		} else if ("/user/login".equals(request.getUri())) { // POST /user/login
-			Controller loginController = controllerMap.get("/user/login");
-			loginController.process(request, response);
-		} else if ("/user/logout".equals(request.getUri())) { // GET /user/logout
-			Controller logoutController = controllerMap.get("/user/logout");
-			logoutController.process(request, response);
-		} else { // GET *
-			Controller defaultController = controllerMap.get("*");
-			defaultController.process(request, response);
+		Controller controller = controllerMap.get(request.getUri());
+		if (controller == null) {
+			controller = controllerMap.get("*");
 		}
+
+		controller.process(request, response);
 	}
 }

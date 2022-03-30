@@ -24,14 +24,14 @@ class RequestTest {
 			@Test
 	        @DisplayName("Request 객체를 생성한다.")
 	        void It_returns_object_request() {
-				List<String> rawData = new ArrayList<>();
-				rawData.add("GET /user/create HTTP/1.1");
-				rawData.add("Host: localhost:8080");
-				rawData.add("Connection: keep-alive");
-				rawData.add("Accept: */*");
+				List<String> rawMessageHeader = new ArrayList<>();
+				rawMessageHeader.add("GET /user/create HTTP/1.1");
+				rawMessageHeader.add("Host: localhost:8080");
+				rawMessageHeader.add("Connection: keep-alive");
+				rawMessageHeader.add("Accept: */*");
  				String rawBody = "";
 
-				Request result = new Request(rawData, rawBody);
+				Request result = new Request(rawMessageHeader, rawBody);
 				Map<String, String> headerMap = result.getRequestHeaderMap();
 
 				assertThat(result.getMethod()).isEqualTo("GET");
@@ -50,18 +50,18 @@ class RequestTest {
 			@Test
 			@DisplayName("Request 객체를 생성한다.")
 			void It_returns_object_request() {
-				List<String> rawData = new ArrayList<>();
-				rawData.add("GET /user/create?username=kukim&password=1234 HTTP/1.1");
-				rawData.add("Host: localhost:8080");
-				rawData.add("Connection: keep-alive");
-				rawData.add("Accept: */*");
+				List<String> rawMessageHeader = new ArrayList<>();
+				rawMessageHeader.add("GET /user/create?username=kukim&password=1234 HTTP/1.1");
+				rawMessageHeader.add("Host: localhost:8080");
+				rawMessageHeader.add("Connection: keep-alive");
+				rawMessageHeader.add("Accept: */*");
 				String rawBody = "";
 
-				Request result = new Request(rawData, rawBody);
+				Request result = new Request(rawMessageHeader, rawBody);
 				Map<String, String> headerMap = result.getRequestHeaderMap();
 
 				assertThat(result.getMethod()).isEqualTo("GET");
-				assertThat(result.getUri()).isEqualTo("/user/create");
+				assertThat(result.getUri()).isEqualTo("/user/create?username=kukim&password=1234");
 				assertThat(result.getVersion()).isEqualTo("HTTP/1.1");
 				assertThat(result.getParam("username")).isEqualTo("kukim");
 				assertThat(result.getParam("password")).isEqualTo("1234");
@@ -79,15 +79,15 @@ class RequestTest {
 			@Test
 			@DisplayName("Request 객체를 생성한다.")
 			void It_returns_object_request() {
-				List<String> rawData = new ArrayList<>();
-				rawData.add("POST /user/create HTTP/1.1");
-				rawData.add("Host: localhost:8080");
-				rawData.add("Connection: keep-alive");
-				rawData.add("Content-Type: application/x-www-form-urlencoded");
-				rawData.add("Accept: */*");
+				List<String> rawMessageHeader = new ArrayList<>();
+				rawMessageHeader.add("POST /user/create HTTP/1.1");
+				rawMessageHeader.add("Host: localhost:8080");
+				rawMessageHeader.add("Connection: keep-alive");
+				rawMessageHeader.add("Content-Type: application/x-www-form-urlencoded");
+				rawMessageHeader.add("Accept: */*");
 				String rawBody = "userId=test&password=1234&name=test&email=test%40com";
 
-				Request result = new Request(rawData, rawBody);
+				Request result = new Request(rawMessageHeader, rawBody);
 
 				assertThat(result.getParam("userId")).isEqualTo("test");
 				assertThat(result.getParam("password")).isEqualTo("1234");
@@ -99,14 +99,14 @@ class RequestTest {
 
 	@Test
 	void 확장자테스트_있을때() {
-		List<String> rawData = new ArrayList<>();
-		rawData.add("GET /index.html HTTP/1.1");
-		rawData.add("Host: localhost:8080");
-		rawData.add("Connection: keep-alive");
-		rawData.add("Accept: */*");
+		List<String> rawMessageHeader = new ArrayList<>();
+		rawMessageHeader.add("GET /index.html HTTP/1.1");
+		rawMessageHeader.add("Host: localhost:8080");
+		rawMessageHeader.add("Connection: keep-alive");
+		rawMessageHeader.add("Accept: */*");
 		String rawBody = "";
 
-		Request result = new Request(rawData, rawBody);
+		Request result = new Request(rawMessageHeader, rawBody);
 
 
 		String fileExtention = result.getFileExtension();
@@ -115,14 +115,14 @@ class RequestTest {
 
 	@Test
 	void 확장자테스트_없을때() {
-		List<String> rawData = new ArrayList<>();
-		rawData.add("GET /user/create HTTP/1.1");
-		rawData.add("Host: localhost:8080");
-		rawData.add("Connection: keep-alive");
-		rawData.add("Accept: */*");
+		List<String> rawMessageHeader = new ArrayList<>();
+		rawMessageHeader.add("GET /user/create HTTP/1.1");
+		rawMessageHeader.add("Host: localhost:8080");
+		rawMessageHeader.add("Connection: keep-alive");
+		rawMessageHeader.add("Accept: */*");
 		String rawBody = "";
 
-		Request result = new Request(rawData, rawBody);
+		Request result = new Request(rawMessageHeader, rawBody);
 
 		String fileExtention = result.getFileExtension();
 		assertThat(fileExtention).isEqualTo("");

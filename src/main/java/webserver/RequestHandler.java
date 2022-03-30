@@ -45,13 +45,13 @@ public class RequestHandler extends Thread {
 	}
 
 	private Request createRequest(BufferedReader br) throws IOException {
-		List<String> rawHeader = new ArrayList<>();
+		List<String> rawMessageHeader = new ArrayList<>();
 
 		// read Request Header
 		String line = "";
 		int contentLength = 0;
 		while (!"".equals(line = br.readLine())) {
-			rawHeader.add(line);
+			rawMessageHeader.add(line);
 
 			if (line.contains("Content-Length")) {
 				String[] data = line.split(": ");
@@ -65,7 +65,7 @@ public class RequestHandler extends Thread {
 			rawBody = IOUtils.readData(br, contentLength);
 		}
 
-		return new Request(rawHeader, rawBody);
+		return new Request(rawMessageHeader, rawBody);
 	}
 
 	private void sendResponse(DataOutputStream dos, Response response) {

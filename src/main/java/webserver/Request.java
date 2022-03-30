@@ -17,28 +17,56 @@ public class Request {
 	private final String version;
 	private final String body;
 	private final Map<String, String> queryStringMap;
-	private final Map<String, String> requestHeaderMap = new HashMap<>();
+	private final Map<String, String> requestHeaderMap;
 	private final Map<String, String> cookieMap;
 
-	public Request(List<String> rawHeader, String rawBody) {
-		String requestLine = rawHeader.get(0);
-		String[] tokens = requestLine.split(" ");
-		method = tokens[0];
-		uri = parseUri(tokens[1]);
-		fileExtension = parseFileExtention(uri);
-		version = tokens[2];
+	public Request(List<String> rawMessageHeader, String rawBody) {
+		String requestLine = rawMessageHeader.get(0);
+		List<String> rawRequestHeaders = rawMessageHeader.subList(1, rawMessageHeader.size());
 
-		parseRequestHeaderMap(rawHeader.subList(1, rawHeader.size()));
+		method = getRequestLineOf(requestLine, "method");
+		uri = getRequestLineOf(requestLine, "uri");
+		version = getRequestLineOf(requestLine, "version");
+		fileExtension = parseFileExtention(uri);
+		requestHeaderMap = parseRequestHeaderMap(rawRequestHeaders);
+		queryStringMap = parseQueryStringMap(rawBody, requestLine);
+		cookieMap = parseCookieMap(requestHeaderMap.get("Cookie"));
+		body = parseBody(rawBody);
+	}
+
+	private String getRequestLineOf(String requestLine, String type) {
+		String[] tokens = requestLine.split(" ");
+		switch (type) {
+			case "method":
+				return tokens[0];
+			case "uri":
+				return tokens[1];
+			case "version":
+				return tokens[2];
+			default:
+				return "";
+		}
+	}
+
+	private String parseBody(String rawBody) {
 		if (requestHeaderMap.getOrDefault("Content-Type", "")
 			.equals("application/x-www-form-urlencoded")) {
-			queryStringMap = HttpRequestUtils.parseQueryString(rawBody);
-			body = null;
+			return null;
 		} else {
-			queryStringMap = parseQueryStringMap(tokens[1]);
-			body = rawBody;
+			return rawBody;
 		}
+	}
 
-		cookieMap = parseCookieMap(requestHeaderMap.get("Cookie"));
+	private Map<String, String> parseQueryStringMap(String rawBody, String requestLine) {
+		String[] tokens = requestLine.split(" ");
+		String rawUri = tokens[1];
+
+		if (requestHeaderMap.getOrDefault("Content-Type", "")
+			.equals("application/x-www-form-urlencoded")) {
+			return HttpRequestUtils.parseQueryString(rawBody);
+		} else {
+			return parseUriQueryStringMap(rawUri);
+		}
 	}
 
 	private Map<String, String> parseCookieMap(String cookie) {
@@ -53,15 +81,7 @@ public class Request {
 		return fileExtention;
 	}
 
-	private String parseUri(String rawUri) {
-		if (isQueryString(rawUri)) {
-			String[] uri_tokens = rawUri.split(QUERY_FLAG);
-			return uri_tokens[0];
-		}
-		return rawUri;
-	}
-
-	private Map<String, String> parseQueryStringMap(String rawUri) {
+	private Map<String, String> parseUriQueryStringMap(String rawUri) {
 		if (isQueryString(rawUri)) {
 			String[] uri_tokens = rawUri.split(QUERY_FLAG);
 			return HttpRequestUtils.parseQueryString(uri_tokens[1]);
@@ -73,13 +93,15 @@ public class Request {
 		return uri.contains("?");
 	}
 
-	private void parseRequestHeaderMap(List<String> rawData) {
+	private Map<String, String> parseRequestHeaderMap(List<String> rawData) {
+		Map<String, String> requestHeaderMap = new HashMap<>();
 		for (String rawDatum : rawData) {
 			if (!rawDatum.isEmpty()) {
 				Pair pair = HttpRequestUtils.parseHeader(rawDatum);
 				requestHeaderMap.put(pair.getKey(), pair.getValue());
 			}
 		}
+		return requestHeaderMap;
 	}
 
 	public Map<String, String> getRequestHeaderMap() {

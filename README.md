@@ -1,3 +1,8 @@
+## Step05 TODO list
+
+- [ ] 로그인 상태일 경우 User 목록 출력
+- [ ] 로그인 하지 않은 상태면 Login으로 이동
+
 ## Step04 TODO list
 
 - [x] Servlet interface 만들기

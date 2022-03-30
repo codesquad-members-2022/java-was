@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public class MyHttpRequest {
     private String requestURL;
     private String requestURI;
     private String protocol;
-    private Map<String, String> paramMap;
+    private Map<String, String> paramMap = new HashMap<>();
 
     private Map<String, String[]> headersMap;
 
@@ -29,7 +28,20 @@ public class MyHttpRequest {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         initStartLine(bufferedReader);
         initHeaders(bufferedReader);
+        if (method.equals("POST")) {
+            initBodyQueryString(bufferedReader);
+        }
         // TODO : initBody();
+    }
+
+    private void initBodyQueryString(BufferedReader bufferedReader) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Integer.parseInt(getHeader("Content-Length")[0]); ++i) {
+            sb.append((char)bufferedReader.read());
+        }
+        String line = new String(sb);
+        Map<String, String> bodyParamMap = HttpRequestUtils.parseQueryString(line);
+        paramMap.putAll(bodyParamMap);
     }
 
     private void initStartLine(BufferedReader bufferedReader) throws IOException {
@@ -37,16 +49,14 @@ public class MyHttpRequest {
         String[] tokens = line.split(" ");
         method = tokens[0];
         requestURL = tokens[1];
-        int ampersandIdx = tokens[1].length();
-        for (int i = 0; i < tokens[1].length(); i++) {
-            if (tokens[1].charAt(i) == '?') {
-                ampersandIdx = i;
-                break;
+        int questionMarkIdx = tokens[1].indexOf('?');
+        if (questionMarkIdx != -1) {
+            requestURI = tokens[1].substring(0, questionMarkIdx);
+            if (questionMarkIdx != tokens[1].length()) {
+                paramMap = HttpRequestUtils.parseQueryString(tokens[1].substring(questionMarkIdx + 1));
             }
-        }
-        requestURI = tokens[1].substring(0, ampersandIdx);
-        if (ampersandIdx != tokens[1].length()) {
-            paramMap = HttpRequestUtils.parseQueryString(tokens[1].substring(ampersandIdx + 1));
+        } else {
+            requestURI = tokens[1];
         }
         protocol = tokens[2];
     }
@@ -61,7 +71,6 @@ public class MyHttpRequest {
 
             headersMap.put(headerName, headerValues);
         }
-
     }
 
     public String getMethod() {

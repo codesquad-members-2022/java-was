@@ -45,10 +45,12 @@ public class UserJoinController implements Controller {
 		List<Pair> pairs = new ArrayList<>();
 		if (DataBase.validateDuplicatedId(user)) {
 			DataBase.addUser(user);
+			log.debug("SavedUser: {}", user);
 			pairs.add(new Pair("Location", "http://localhost:8080/index.html"));
 			response.write(HttpStatus.FOUND, pairs);
 			return;
 		}
+		log.debug("Save Fail: {}", user);
 		pairs.add(new Pair("Location", "http://localhost:8080/user/form.html"));
 		response.write(HttpStatus.FOUND, pairs);
 	}

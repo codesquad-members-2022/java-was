@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class ControllerMapper {
 
-	private HttpMethod httpMethod;
-	private String path;
+	private final HttpMethod httpMethod;
+	private final String path;
 
 	public ControllerMapper(HttpMethod httpMethod, String path) {
 		this.httpMethod = httpMethod;

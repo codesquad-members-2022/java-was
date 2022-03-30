@@ -14,12 +14,4 @@ public enum HttpMethod {
 		return null;
 	}
 
-	public static boolean isGet(Request request) {
-		return request.getHttpMethod().equals(GET);
-	}
-
-	public static boolean isPost(Request request) {
-		return request.getHttpMethod().equals(POST);
-	}
-
 }

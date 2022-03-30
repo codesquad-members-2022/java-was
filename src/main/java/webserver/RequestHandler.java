@@ -18,6 +18,7 @@ public class RequestHandler extends Thread {
         this.connection = connectionSocket;
     }
 
+    @Override
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
@@ -28,7 +29,6 @@ public class RequestHandler extends Thread {
             request.readRequest();
 
             Response response = new Response(out);
-//            response.writeResponse();
 
             FirstController firstController = FirstController.getInstance();
             firstController.run(request, response);

@@ -34,11 +34,13 @@ public class UserLoginController implements Controller {
 		List<Pair> pairs = new ArrayList<>();
 
 		if (user != null && user.getPassword().equals(parsedBody.get("password"))) {
+			log.debug("login 성공");
 			pairs.add(new Pair("Location", "http://localhost:8080/index.html"));
 			pairs.add(new Pair("Set-Cookie", "sessionId=" + user.getUserId() + "; max-age=20; Path=/; HttpOnly"));
 			response.write(HttpStatus.FOUND, pairs);
 			return;
 		}
+		log.debug("login 실패");
 		pairs.add(new Pair("Location", "http://localhost:8080/user/login_failed.html"));
 		response.write(HttpStatus.FOUND, pairs);
 	}

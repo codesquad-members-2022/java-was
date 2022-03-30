@@ -3,6 +3,8 @@ package controller;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import webserver.ControllerMapper;
 import webserver.HttpMethod;
 import webserver.Request;
@@ -10,13 +12,10 @@ import webserver.Response;
 
 public class FirstController {
 
-	//todo
-	// map 으로 controllermapper, 컨트롤러 매칭 (컨트롤러들을 넣겠다 put)
-	// 매칭된 컨트롤러 찾아서(get) 실행
-
 	private static final FirstController instance = new FirstController();
 
 	private final Map<ControllerMapper, Controller> map = new ConcurrentHashMap<>();
+	private Logger log = LoggerFactory.getLogger(FirstController.class);
 
 	private FirstController() {
 		map.put(new ControllerMapper(HttpMethod.POST, "/user/create"), UserJoinController.getInstance());
@@ -29,6 +28,7 @@ public class FirstController {
 		if (controller == null) {
 			controller = HomeController.getInstance();
 		}
+		log.debug("call {}", controller);
 		controller.process(request, response);
 	}
 

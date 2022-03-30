@@ -89,9 +89,6 @@
   - 참고2: https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
 
 //TODO
-- Refactoring
-  - Response (Controller 역할 중이라 분리를 해야함) | 각자 생각해오면 좋을듯
-  - Response - responseXXXHeader 메서드 줄일 수 있는 방안 생각해보기
 - wheejuni Review 생각하기 
 
 > nathan : 일급컬렉션 사용, 컨트롤러의 개념 차용

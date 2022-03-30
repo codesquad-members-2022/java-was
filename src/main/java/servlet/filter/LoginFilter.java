@@ -17,19 +17,28 @@ public class LoginFilter implements Filter {
     @Override
     public boolean doFilter(HttpRequest request, HttpResponse response) {
         // 해당 url인지 검사
-        if (isLoginCheckPath(request.getPath())) { // 로그인 체크 해야 하는곳
-            String sessionId = getSessionId(request);
-            if (sessionId != null) {
-                if (Session.isLoginUser(sessionId)) {
-                    log.debug("[LoginFilter] {}", sessionId);
-                    return true; // 로그인 이미 완료
-                }
-            }
-            // 로그인 화면으로 이동
-            response.forward("/user/login.html");
-            return false;
+        if (isInaccessible(request.getPath())) { // 로그인 체크 해야 하는곳
+            return isLoginedUser(request, response);
         }
         return true;
+    }
+
+    private boolean isLoginedUser(HttpRequest request, HttpResponse response) {
+        if (isValidSession(request)) return true;
+        // 로그인 화면으로 이동
+        response.forward("/user/login.html");
+        return false;
+    }
+
+    private boolean isValidSession(HttpRequest request) {
+        String sessionId = getSessionId(request);
+        if (sessionId != null) {
+            if (Session.isLoginUser(sessionId)) {
+                log.debug("[LoginFilter] {}", sessionId);
+                return true;
+            }
+        }
+        return false;
     }
 
     private String getSessionId(HttpRequest request) {
@@ -46,7 +55,7 @@ public class LoginFilter implements Filter {
         this.redLabel.add(url);
     }
 
-    private boolean isLoginCheckPath(String requestURI) {
+    private boolean isInaccessible(String requestURI) {
         return redLabel.stream()
                 .filter(url -> url.equals(requestURI))
                 .findFirst()

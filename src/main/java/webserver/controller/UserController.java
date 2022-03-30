@@ -94,7 +94,6 @@ public class UserController {
         cookie.expire();
         log.debug("cookieString : {}", cookie.getCookieString(sessionId));
         response.addHeader("Set-Cookie", cookie.getCookieString(sessionId));
-
         SessionDataBase.expire(sessionId);
 
         log.debug("logout, sessionId: {}", sessionId);

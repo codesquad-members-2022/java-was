@@ -20,7 +20,10 @@ public class UrlMapper {
     }
 
     private static HttpResponse getResponse(String url, HttpRequest request) {
-        HttpResponse response = null;
+        // Function<HttpRequest, HttpResponse> 함수형 프로그래밍 개선필요
+        if (url.endsWith(".js") || url.endsWith(".css") || url.endsWith(".ico")) {
+            return null;
+        }
         switch (url) {
             case "/user/create":
                 return userController.join(request);
@@ -34,8 +37,8 @@ public class UrlMapper {
                 return userController.login(request);
             case "/user/logout":
                 return userController.logout(request);
+            default:
+                return null;
         }
-
-        return response;
     }
 }

@@ -33,42 +33,41 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-            String[] tokens = readRequestLine(br);
-
-            String method = tokens[0];
-            String url = tokens[1];
-            String version = tokens[2];
-
-            if (url.endsWith(".js") || url.endsWith(".css") || url.endsWith(".ico")) {
-                return;
-            }
-
-            Map<String, String> requestHeader = readRequestHeader(br);
-            boolean isLogin = isValidCookie(requestHeader);
-            log.debug("isLogin : {}", isLogin);
-
-            String requestBody = null;
-
-            if (method.equals("POST")) {
-                int contentLength = Integer.parseInt(requestHeader.get("Content-Length"));
-                requestBody = IOUtils.readData(br, contentLength);
-
-                log.debug("Body: {}", requestBody);
-                log.debug("Content-Length: {}", requestBody.length());
-            }
-
-            HttpRequest request = new HttpRequest(method, url, version, requestHeader, requestBody, isLogin);
+            HttpRequest request = generateHttpRequest(new BufferedReader(new InputStreamReader(in)));
 
             HttpResponse response = UrlMapper.getResponse(request);
 
-            byte[] responseBody = response.getResponseBody();
-            writeHeaders(dos, responseBody.length, response);
-            responseBody(dos, responseBody);
+            if (response != null) {
+                byte[] responseBody = response.getResponseBody();
+                writeHeaders(dos, responseBody.length, response);
+                responseBody(dos, responseBody);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private HttpRequest generateHttpRequest(BufferedReader br) throws IOException {
+        String[] tokens = readRequestLine(br);
+
+        String method = tokens[0];
+        String url = tokens[1];
+        String version = tokens[2];
+
+        Map<String, String> requestHeader = readRequestHeader(br);
+        boolean isLogin = isValidCookie(requestHeader);
+        log.debug("isLogin : {}", isLogin);
+
+        String requestBody = null;
+
+        if (method.equals("POST")) {
+            int contentLength = Integer.parseInt(requestHeader.get("Content-Length"));
+            requestBody = IOUtils.readData(br, contentLength);
+
+            log.debug("Body: {}", requestBody);
+            log.debug("Content-Length: {}", requestBody.length());
+        }
+        return new HttpRequest(method, url, version, requestHeader, requestBody, isLogin);
     }
 
     private boolean isValidCookie(Map<String, String> requestHeader) {

@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import webserver.ControllerMapper;
@@ -21,10 +22,9 @@ public class FirstController {
 		map.put(new ControllerMapper(HttpMethod.GET, "/index.html"), HomeController.getInstance());
 	}
 
-	public void run(Request request, Response response) {
+	public void run(Request request, Response response) throws IOException {
 		Controller controller = map.get(new ControllerMapper(request.getHttpMethod(), request.getPath()));
 		controller.process(request, response);
-		response.responseBody();
 	}
 
 	public static FirstController getInstance() {

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import web.request.HttpMethod;
 import web.request.HttpRequest;
 import web.response.HttpResponse;
+import web.session.SessionManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,8 +70,8 @@ public class RequestHandler extends Thread {
 
         try {
             User findUser = matchAndGetUser(inputUserId,inputUserPassword);
-
-           //TODO : 로그인 성공 시의 로직 추가
+            SessionManager.createSession(findUser, response);
+            response.responseStaticResource("/index.html");
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             response.redirectTo("/user/login_failed.html");

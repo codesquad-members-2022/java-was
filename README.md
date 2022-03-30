@@ -1,3 +1,25 @@
+## Step04 TODO list
+
+- [x] Servlet interface 만들기
+- [x] CreateUserServlet (내부로 createUser 메서드 이동시키기)
+- [x] 로그인 기능 구현 (http://localhost:8080/user/login.html)
+  - [x] 성공시 index.html로 이동
+  - [x] 실패시 /user/login_failed.html로 이동
+
+## Step03 리뷰 반영
+
+- [ ] 학습한 내용 정리
+- [x] Database 유저 중복 관련해서 IllegalArgumentException 아닌 다른 Exception으로 변경
+- [x] Database.addUser 리턴 제거하기
+- [x] HttpRequest의 header 명칭 변경
+- [x] HttpResponse 이름 고민해보기 -> 향후에 복잡해지면 변경
+- [x] createRequest 이름 변경하기 -> parse
+- [x] requestLineTokens 객체 만들기
+- [x] RequestHandler Parser 스태틱으로 만들기
+- [x] RequestHandler.createUser 위치 고민 해보기 -> 이후 생성될 createServlet 내부로 이동예정
+- [x] RequestParser에서 String body="" 삭제하기
+- [x] RequestHandler에서 메서드 분리하지 말기 (buildRequest, buildResponse)
+
 ## Step03 TODO list
 
 - [x] Reqeust 객체 만들기

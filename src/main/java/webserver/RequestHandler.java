@@ -1,22 +1,29 @@
 package webserver;
 
-import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponse;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
+import servlet.CreateUserServlet;
+import servlet.LoginServlet;
+import servlet.LogoutServlet;
+import servlet.Servlet;
 import util.RequestParser;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    public static final String HOME = "/index.html";
-    public static final String USER_REGISTRY_FORM = "/user/form.html";
+    private static Map<String, Servlet> servletMap = new ConcurrentHashMap<>();
+
+    static {
+        servletMap.put("/user/create", new CreateUserServlet());
+        servletMap.put("/user/login", new LoginServlet());
+        servletMap.put("/user/logout", new LogoutServlet());
+    }
 
     private Socket connection;
 
@@ -28,8 +35,8 @@ public class RequestHandler extends Thread {
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            HttpRequest request = buildRequest(in);
-            HttpResponse response = buildResponse(out);
+            HttpRequest request = RequestParser.parse(in);
+            HttpResponse response = new HttpResponse(out);
             controlServlet(request, response);
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -37,37 +44,13 @@ public class RequestHandler extends Thread {
     }
 
     private void controlServlet(HttpRequest request, HttpResponse response) throws IOException {
-        String resourcePath = request.getPath();
-
-        if (resourcePath.startsWith("/user/create")) {
-            User user = createUser(request.getBody());
-            String nextPath = HOME;
-
-            try {
-                DataBase.addUser(user);
-            } catch (RuntimeException e) {
-                nextPath = USER_REGISTRY_FORM;
-            }
-
-            log.debug("[USER] : {}", user);
-            response.redirection(nextPath);
+        String path = request.getPath();
+        log.debug("[PATH] : {}", path);
+        if (servletMap.containsKey(path)) {
+            Servlet servlet = servletMap.get(path);
+            servlet.service(request, response);
             return;
         }
-
-        response.forward(resourcePath);
-    }
-
-    private HttpRequest buildRequest(InputStream in) throws IOException {
-        return new RequestParser(in).createRequest();
-    }
-
-    private HttpResponse buildResponse(OutputStream out) {
-        return new HttpResponse(out);
-    }
-
-    private User createUser(String resourcePath) throws UnsupportedEncodingException {
-        String queryString = HttpRequestUtils.getQueryString(resourcePath);
-        Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
-        return new User(parameters.get("userId"), parameters.get("password"), parameters.get("name"), parameters.get("email"));
+        response.forward(path);
     }
 }

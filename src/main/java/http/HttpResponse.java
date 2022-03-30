@@ -8,17 +8,22 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class HttpResponse {
     private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
+    Map<String, String> headers;
     private DataOutputStream dos;
 
     public HttpResponse(OutputStream out) {
+        this.headers = new HashMap<>();
         this.dos = new DataOutputStream(out);
     }
 
-    public void forward(String url) throws IOException {
+    public void forward(String url) {
         try {
             byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
             response200Header(body.length);
@@ -33,9 +38,18 @@ public class HttpResponse {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
             dos.writeBytes("Location: " + location + "\r\n");
+            setHeaders();
             dos.writeBytes("\r\n");
+            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private void setHeaders() throws IOException {
+        Set<String> keys = headers.keySet();
+        for (String key : keys) {
+            dos.writeBytes(key + ": " + headers.get(key) + "\r\n");
         }
     }
 
@@ -56,5 +70,9 @@ public class HttpResponse {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    public void addHeader(String key, String value) {
+        headers.put(key, value);
     }
 }

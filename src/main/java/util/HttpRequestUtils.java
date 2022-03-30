@@ -66,9 +66,13 @@ public class HttpRequestUtils {
         return requestLine.split(" ")[1];
     }
 
-    public static String getQueryString(String resourcePath) throws UnsupportedEncodingException {
-        int firstLen = resourcePath.indexOf("?");
-        return URLDecoder.decode(resourcePath.substring(firstLen + 1), "UTF-8");
+    public static String getQueryString(String resourcePath) {
+        try {
+            int firstLen = resourcePath.indexOf("?");
+            return URLDecoder.decode(resourcePath.substring(firstLen + 1), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return "";
+        }
     }
 
     public static class Pair {

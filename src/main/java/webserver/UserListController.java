@@ -34,7 +34,7 @@ public class UserListController extends Controller {
 
         byte[] body = sb.toString().getBytes();
 
-        httpResponse.response200Header(body.length);
+        httpResponse.response200Header(body.length, ContentTypeMapping.getContentType(".html"));
         httpResponse.responseBody(body);
     }
 }

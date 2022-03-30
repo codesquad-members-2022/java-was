@@ -1,15 +1,17 @@
 package webserver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpResponse {
 
     private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
+    private static final String FILE_EXTENSION_SEPARATOR = ".";
     private final DataOutputStream dos;
     private final String resourceRoot;
 
@@ -21,17 +23,29 @@ public class HttpResponse {
     public void responseStaticResource(String path) {
         try {
             byte[] body = Files.readAllBytes(Path.of(resourceRoot + path));
-            response200Header(body.length);
+            String contentType = getContentType(path);
+            response200Header(body.length, contentType);
             responseBody(body);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void response200Header(int lengthOfBodyContent) {
+    private String getContentType(String path) {
+        String extension = getFileExtension(path);
+        return ContentTypeMapping.getContentType(extension);
+    }
+
+    private String getFileExtension(String path) {
+        int index = path.lastIndexOf(FILE_EXTENSION_SEPARATOR);
+
+        return index == -1 ? "" : path.substring(index);
+    }
+
+    public void response200Header(int lengthOfBodyContent, String contentType) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: " + contentType + "\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {

@@ -146,3 +146,12 @@ Java Web Server Project for CodeSquad Members 2022
   - 참고: https://www.jmix.io/cuba-blog/utf-8-in-http-headers/
   - 참고: https://www.rfc-editor.org/rfc/rfc2616 
   - 참고: https://www.rfc-editor.org/rfc/rfc5987 
+
+## 6단계 - CSS 응답 및 한 줄 메모장 구현
+
+- [ ] index.html에 로그인한 사용자가 글을 쓸 수 있는 한 줄 메모장을 구현한다.
+  - 로그인하지 않은 사용자도 게시글을 볼 수 있다.
+  - 가장 최근 글들만 표시한다.
+  - 페이징은 구현하지 않아도 무방하다.
+- [x] stylesheet, image, favicon 등 다양한 MIME 타입을 응답할 수 있도록 구현한다.
+  - 기능 요구사항을 충족할 수 있도록 구현한다.

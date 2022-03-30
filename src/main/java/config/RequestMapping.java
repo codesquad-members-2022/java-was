@@ -6,26 +6,33 @@ import java.util.Objects;
 import java.util.Optional;
 
 import http.HttpServlet;
-import servlet.LoginServlet;
-import servlet.LogoutServlet;
-import servlet.UserCreateServlet;
 
 public class RequestMapping {
-    private static final Map<URL, HttpServlet> servletMapping = new HashMap<>();
+    private final Map<URL, HttpServlet> servletMapping;
 
-    // TODO : 매핑 생성 책임을 다른곳으로 전가?
-    static {
-        servletMapping.put(new URL("/user/create"), new UserCreateServlet());
-        servletMapping.put(new URL("/user/login"), new LoginServlet());
-        servletMapping.put(new URL("/user/logout"), new LogoutServlet());
+    private RequestMapping(Map<URL, HttpServlet> servletMapping) {
+        this.servletMapping = servletMapping;
     }
 
-    public static boolean contains(String url) {
+    public boolean contains(String url) {
         return servletMapping.containsKey(new URL(url));
     }
 
-    public static Optional<HttpServlet> findHandlerMethod(String url) {
+    public Optional<HttpServlet> findHandlerMethod(String url) {
         return Optional.ofNullable(servletMapping.get(new URL(url)));
+    }
+
+    public static class Builder {
+        private final Map<URL, HttpServlet> builderServletMapping = new HashMap<>();
+
+        public Builder addMapping(String url, HttpServlet servlet) {
+            builderServletMapping.put(new URL(url), servlet);
+            return this;
+        }
+
+        public RequestMapping build() {
+            return new RequestMapping(builderServletMapping);
+        }
     }
 
     private static class URL {

@@ -9,21 +9,19 @@ import webserver.dto.HttpRequestLine;
 
 public class Dispatcher {
 
-    private static Dispatcher instance;
+    private final RequestMapping requestMapping;
 
-    private Dispatcher() {
+    public Dispatcher(RequestMapping requestMapping) {
+        this.requestMapping = requestMapping;
     }
 
-    public synchronized static Dispatcher getInstance() {
-        if (instance == null) {
-            instance = new Dispatcher();
-        }
-        return instance;
+    public boolean isMappedUrl(String url) {
+        return requestMapping.contains(url);
     }
 
     public Response handleRequest(HttpRequestData requestData) {
         HttpRequestLine httpRequestLine = requestData.getHttpRequestLine();
-        HttpServlet httpServlet = RequestMapping.findHandlerMethod(httpRequestLine.getUrl())
+        HttpServlet httpServlet = requestMapping.findHandlerMethod(httpRequestLine.getUrl())
             .orElseThrow(() -> new IllegalStateException("Mapped servlet could not be found"));
 
         Request request = Request.of(requestData);

@@ -16,4 +16,8 @@ public class Session {
     public static void remove(String key) {
         sessionDB.remove(key);
     }
+
+    public static boolean isLoginUser(String sessionId) {
+        return sessionDB.containsKey(sessionId);
+    }
 }

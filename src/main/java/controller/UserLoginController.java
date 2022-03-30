@@ -8,6 +8,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.Pair;
+import webserver.HttpSession;
 import webserver.HttpStatus;
 import webserver.Request;
 import webserver.Response;
@@ -36,7 +37,7 @@ public class UserLoginController implements Controller {
 		if (user != null && user.getPassword().equals(parsedBody.get("password"))) {
 			log.debug("login 성공");
 			pairs.add(new Pair("Location", "http://localhost:8080/index.html"));
-			pairs.add(new Pair("Set-Cookie", "sessionId=" + user.getUserId() + "; max-age=20; Path=/; HttpOnly"));
+			pairs.add(new Pair("Set-Cookie", "sessionId=" + HttpSession.makeUUID(user.getUserId()) + "; max-age=20; Path=/; HttpOnly"));
 			response.write(HttpStatus.FOUND, pairs);
 			return;
 		}

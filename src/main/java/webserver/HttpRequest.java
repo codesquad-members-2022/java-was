@@ -6,6 +6,8 @@ import util.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +53,13 @@ public class HttpRequest {
 
     public Map<String, String> getQueryString() {
         String queryParams = requestHeader.getQueryParams();
-        return parseQueryString(queryParams);
+        return parseQueryString(toDecode(queryParams));
     }
 
     public Map<String, String> getBody(BufferedReader bufferedReader) {
         try {
             String body = IOUtils.readData(bufferedReader, requestHeader.contentLength());
-            return parseQueryString(requestHeader.toDecode(body));
+            return parseQueryString(toDecode(body));
         } catch (IOException e) {
             log.error(e.getMessage());
             return null;
@@ -66,5 +68,9 @@ public class HttpRequest {
 
     public String httpVersion() {
         return this.requestHeader.getVersion();
+    }
+
+    private String toDecode(String url) {
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 }

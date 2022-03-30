@@ -4,10 +4,7 @@ import http.HttpRequest;
 import http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import servlet.CreateUserServlet;
-import servlet.LoginServlet;
-import servlet.LogoutServlet;
-import servlet.Servlet;
+import servlet.*;
 import util.RequestParser;
 
 import java.io.*;
@@ -23,6 +20,7 @@ public class RequestHandler extends Thread {
         servletMap.put("/user/create", new CreateUserServlet());
         servletMap.put("/user/login", new LoginServlet());
         servletMap.put("/user/logout", new LogoutServlet());
+        servletMap.put("/user/list", new UserListServlet());
     }
 
     private Socket connection;

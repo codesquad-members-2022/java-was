@@ -1,6 +1,8 @@
 package webserver;
 
+import java.io.IOException;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,23 +16,32 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MyHttpRequestTest {
 
-    String requestMessage = "GET /index.html&userId=test&password=hello HTTP/1.1\n"
+    String requestMessage = "POST /index.html?userId=test&password=hello HTTP/1.1\n"
             + "Host: localhost:8080\n"
             + "Connection: keep-alive\n"
-            + "Accept: text/html,*/*\n";
+            + "Accept: text/html,*/*\n"
+            + "\n"
+            + "name=spring&age=20\n";
 
     InputStream is = new ByteArrayInputStream(requestMessage.getBytes());
-    MyHttpRequest request = new MyHttpRequest(is);
+    MyHttpRequest request;
+
+    @BeforeEach
+    void setUp() {
+        try {
+            request = new MyHttpRequest(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     void startLineTest() {
-        Map<String, String> paramMap = new HashMap<String, String>();
-        paramMap.put("userId", "test");
-        paramMap.put("password", "hello");
 
-        assertThat(request.getMethod()).isEqualTo("GET");
+        assertThat(request.getMethod()).isEqualTo("POST");
         assertThat(request.getRequestURI()).isEqualTo("/index.html");
-        assertThat(request.getParamMap()).isEqualTo(paramMap);
+        assertThat(request.getParamMap().get("userId")).isEqualTo("test");
+        assertThat(request.getParamMap().get("password")).isEqualTo("hello");
         assertThat(request.getProtocol()).isEqualTo("HTTP/1.1");
     }
 
@@ -45,6 +56,13 @@ class MyHttpRequestTest {
         assertThat(request.getHeader("Host")).isEqualTo(hostValues);
         assertThat(request.getHeader("Connection")).isEqualTo(connectionValues);
         assertThat(request.getHeader("Accept")).isEqualTo(acceptValues);
+    }
+
+    @Test
+    void BodyTest() {
+
+        assertThat(request.getParamMap().get("name")).isEqualTo("spring");
+        assertThat(request.getParamMap().get("age")).isEqualTo("20");
     }
 
 }

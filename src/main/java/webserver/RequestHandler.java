@@ -29,28 +29,28 @@ public class RequestHandler extends Thread {
 
 		try (InputStream in = connection.getInputStream();
 			OutputStream out = connection.getOutputStream();
-			BufferedReader br = new BufferedReader(
+			BufferedReader bufferedReader = new BufferedReader(
 				new InputStreamReader(in, StandardCharsets.UTF_8));
-			DataOutputStream dos = new DataOutputStream(out)) {
+			DataOutputStream dataOutputStream = new DataOutputStream(out)) {
 
-			Request request = createRequest(br);
+			Request request = createRequest(bufferedReader);
 			Response response = new Response();
 
 			frontController.service(request, response);
 
-			sendResponse(dos, response);
+			sendResponse(dataOutputStream, response);
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
 
-	private Request createRequest(BufferedReader br) throws IOException {
+	private Request createRequest(BufferedReader bufferedReader) throws IOException {
 		List<String> rawMessageHeader = new ArrayList<>();
 
 		// read Request Header
 		String line = "";
 		int contentLength = 0;
-		while (!"".equals(line = br.readLine())) {
+		while (!"".equals(line = bufferedReader.readLine())) {
 			rawMessageHeader.add(line);
 
 			if (line.contains("Content-Length")) {
@@ -62,19 +62,19 @@ public class RequestHandler extends Thread {
 		// read Request Body
 		String rawBody = "";
 		if (contentLength > 0) {
-			rawBody = IOUtils.readData(br, contentLength);
+			rawBody = IOUtils.readData(bufferedReader, contentLength);
 		}
 
 		return new Request(rawMessageHeader, rawBody);
 	}
 
-	private void sendResponse(DataOutputStream dos, Response response) {
+	private void sendResponse(DataOutputStream dataOutputStream, Response response) {
 		try {
 			String header = response.toHeader();
 			byte[] body = response.toBody().getBytes(StandardCharsets.UTF_8);
-			dos.writeBytes(header);
-			dos.write(body, 0, body.length);
-			dos.flush();
+			dataOutputStream.writeBytes(header);
+			dataOutputStream.write(body, 0, body.length);
+			dataOutputStream.flush();
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}

@@ -25,15 +25,11 @@ public class MyHttpRequest {
 
     private Map<String, String[]> headersMap;
 
-    public MyHttpRequest(InputStream in) {
+    public MyHttpRequest(InputStream in) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        try {
-            initStartLine(bufferedReader);
-            initHeaders(bufferedReader);
-            // TODO : initBody();
-        } catch (IOException ie) {
-            ie.printStackTrace();
-        }
+        initStartLine(bufferedReader);
+        initHeaders(bufferedReader);
+        // TODO : initBody();
     }
 
     private void initStartLine(BufferedReader bufferedReader) throws IOException {
@@ -43,14 +39,14 @@ public class MyHttpRequest {
         requestURL = tokens[1];
         int ampersandIdx = tokens[1].length();
         for (int i = 0; i < tokens[1].length(); i++) {
-            if (tokens[1].charAt(i) == '&') {
+            if (tokens[1].charAt(i) == '?') {
                 ampersandIdx = i;
                 break;
             }
         }
         requestURI = tokens[1].substring(0, ampersandIdx);
         if (ampersandIdx != tokens[1].length()) {
-            paramMap = HttpRequestUtils.parseQueryString(tokens[1].substring(ampersandIdx+1));
+            paramMap = HttpRequestUtils.parseQueryString(tokens[1].substring(ampersandIdx + 1));
         }
         protocol = tokens[2];
     }

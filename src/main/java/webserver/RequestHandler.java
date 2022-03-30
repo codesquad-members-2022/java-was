@@ -7,17 +7,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.controller.MyController;
+import webserver.controller.SignUpController;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
     private final Socket connection;
+    private final Map<String, MyController> controllerMap;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
+        controllerMap = new HashMap<>();
+        controllerMap.put("/user/create", new SignUpController());
     }
 
     public void run() {
@@ -26,11 +34,20 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             MyHttpRequest myHttpRequest = new MyHttpRequest(in);
+            MyHttpResponse myHttpResponse = null;  // TODO : 생성자 구현
+
             String requestURI = myHttpRequest.getRequestURI();
+            log.info("requestURI={}", requestURI);
+            String viewName = null;
+            MyController myController = controllerMap.get(requestURI);
+            if (myController != null) {
+                log.info("find controller");
+                viewName = myController.process(myHttpRequest, myHttpResponse);
+            }
 
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = Files.readAllBytes(new File("./webapp" + requestURI).toPath());
+            byte[] body = Files.readAllBytes(new File("./webapp" + (viewName == null ? requestURI : ("/" + viewName + ".html"))).toPath());
             response200Header(dos, body.length, myHttpRequest);
             responseBody(dos, body);
         } catch (IOException e) {

@@ -15,7 +15,7 @@ class SesstionTest {
 
         Optional<String> userid = SessionDataBase.findUserIdByCookie(cookie);
 
-        assertThat(userid).isEqualTo("kukim");
+        assertThat(userid.get()).isEqualTo("kukim");
     }
 
     @Test

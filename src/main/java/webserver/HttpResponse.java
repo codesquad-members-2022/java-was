@@ -13,9 +13,12 @@ public class HttpResponse {
     private DataOutputStream dos;
     private Map<String, String> responseHeader = new HashMap<>();
 
-    public HttpResponse(HttpStatus httpStatus, DataOutputStream dos) {
-        this.httpStatus = httpStatus;
+    public HttpResponse(DataOutputStream dos) {
         this.dos = dos;
+    }
+
+    public void setHttpStatus(HttpStatus httpStatus) {
+        this.httpStatus = httpStatus;
     }
 
     public void setHeader(String key, String value) {

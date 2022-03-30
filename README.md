@@ -199,3 +199,49 @@ HTTP_VERSION_NOT_SUPPORTED(505, Series.SERVER_ERROR, "HTTP Version not supported
         }
     }
 ```
+---
+
+# 웹 서버 3단계 - POST로 회원가입 기능 구현
+
+## 요구사항
+
+- [x] http://localhost:8080/user/form.html 파일의 form 태그 method를 get에서 post로 수정한다.
+- [x] POST로 회원가입 기능이 정상적으로 동작하도록 구현한다.
+- [x] 가입 후 페이지 이동을 위해 redirection 기능을 구현한다.
+- [x] 같은 ID로 가입을 시도할 경우 가입되지 않고 가입 페이지로 이동한다.
+
+## URI, URL
+
+- URI 란 웹 서버가 리소스를 고유하게 식별할 수 있도록 자원의 위치를 알려주는 규약입니다.
+- URI 에 속하는 개념으로 'URL' 과 'URN' 두 가지가 있는데 일반적으로 URL 을 많이 사용하여 URI = URL 으로 사용하기도 합니다.
+- URL 은 통합 자원 식별자로 인터넷에 있는 리소스를 나타내는 유일한 주소입니다.
+- URI 는 다음과 같은 구조로 되어있습니다.
+
+> scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+
+- URI 는 URL 을 내포하고 있습니다. 다만, 세부적으로 파고들면
+
+>- URL(Uniform Resource Locator - 통합 자원 식별자) 은 자원의 실제 위치
+>- URI(Uniform Resource Identifier)는 자원의 위치 + 리소스에 대한 고유 식별자 = 웹 주소
+
+- URI 는 URL 에 리소스에 대한 고유 식별자를 추가한 개념입니다!
+- 즉, URL 은 자원의 위치 를 가르키고 URI 는 자원을 식별 한다는 차이가 있습니다.
+
+- 이와 관련하여 스프링 미션 때 MvcConfig 클래스에 작성하여 유용하게 사용했던 addViewControllers 와 연관지어 생각해볼 수 있었습니다.
+
+```java
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+
+        registry.addViewController("/users/form").setViewName("user/form");
+    }
+```
+
+- 위 메서드로 인해 https://naneun-spring-cafe.herokuapp.com/users/form 주소에서 users/form 은 자원의 실제 위치가 아니지만 static/user/form.html 에 접근할 수가 있었습니다.
+- 따라서 https://naneun-spring-cafe.herokuapp.com/users/form 은 URL 은 아니지만 URI 입니다.
+
+> scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+
+- URI 에 path 뒤에 query 는 식별자의 역할도 수행합니다.
+- 결론: `자원의 경로 + 식별자 = 주소`

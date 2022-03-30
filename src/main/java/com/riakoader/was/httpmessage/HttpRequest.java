@@ -1,8 +1,8 @@
 package com.riakoader.was.httpmessage;
 
+import com.google.common.base.Strings;
 import com.riakoader.was.util.HttpRequestUtils;
 
-import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
@@ -13,27 +13,46 @@ public class HttpRequest {
     private String method;
     private String requestURI;
     private String protocol;
-    private String queryString;
-    private Map<String, String> params;
-    private List<HttpRequestUtils.Pair> headers;
+    private Parameters params;
+    private Headers headers;
 
-    public HttpRequest(String requestLine, List<HttpRequestUtils.Pair> headers) {
+    public HttpRequest(String requestLine, Map<String, String> headers, String requestMessageBody) {
+        parseRequestLine(requestLine);
+        setHeaders(headers);
+        parseRequestMessageBody(requestMessageBody);
+    }
+
+    private void parseRequestLine(String requestLine) {
         String[] requestLineTokens = requestLine.split(REQUEST_LINE_DELIMITER);
-        String requestURL = requestLineTokens[1];
-        int queryStringDelimiterIndex = requestURL.indexOf(QUERYSTRING_DELIMITER);
-
         this.method = requestLineTokens[0];
-        queryStringDelimiterIndex = queryStringDelimiterIndex != -1 ? queryStringDelimiterIndex : requestURL.length();
-        this.requestURI = requestURL.substring(0, queryStringDelimiterIndex);
-
+        extractQuery(requestLineTokens[1]);
         this.protocol = requestLineTokens[2];
+    }
 
-        if (queryStringDelimiterIndex != requestURL.length()) {
-            this.queryString = requestURL.substring(queryStringDelimiterIndex + 1);
-            this.params = HttpRequestUtils.parseQueryString(queryString);
+    private void extractQuery(String requestURI) {
+        int queryStringDelimiterIndex = requestURI.indexOf(QUERYSTRING_DELIMITER);
+        queryStringDelimiterIndex = queryStringDelimiterIndex != -1 ? queryStringDelimiterIndex : requestURI.length();
+        this.requestURI = requestURI.substring(0, queryStringDelimiterIndex);
+
+        if (queryStringDelimiterIndex != requestURI.length()) {
+            this.params = new Parameters(
+                    HttpRequestUtils.parseQueryString(requestURI.substring(queryStringDelimiterIndex + 1))
+            );
         }
+    }
 
-        this.headers = headers;
+    private void setHeaders(Map<String, String> headers) {
+        this.headers = new Headers(headers);
+    }
+
+    private void parseRequestMessageBody(String requestMessageBody) {
+        if (!Strings.isNullOrEmpty(requestMessageBody)) {
+            this.params = new Parameters(HttpRequestUtils.parseQueryString(requestMessageBody));
+        }
+    }
+
+    public String getMethod() {
+        return method;
     }
 
     public String getRequestURI() {
@@ -45,6 +64,6 @@ public class HttpRequest {
     }
 
     public String getParameter(String name) {
-        return params.get(name);
+        return params.getValue(name);
     }
 }

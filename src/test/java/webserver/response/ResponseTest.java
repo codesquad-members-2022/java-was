@@ -33,8 +33,8 @@ class ResponseTest {
 		String result = response.toHeader();
 
 		assertThat(result).isEqualTo("HTTP/1.1 302 Found\r\n" +
-				"Location: http://localhost:8080/index.html\r\n" +
-				"\r\n");
+			"Location: http://localhost:8080/index.html\r\n" +
+			"\r\n");
 	}
 
 	@Test
@@ -50,9 +50,9 @@ class ResponseTest {
 		String resultBody = response.toBody();
 
 		assertThat(resultHeader).isEqualTo("HTTP/1.1 200 OK\r\n" +
-				"Content-Type: text/html\r\n" +
-				"Content-Length: 13\r\n" +
-				"\r\n");
+			"Content-Type: text/html\r\n" +
+			"Content-Length: 13\r\n" +
+			"\r\n");
 		assertThat(resultBody).isEqualTo("<html></html>\r\n");
 	}
 }

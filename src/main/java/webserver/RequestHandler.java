@@ -9,8 +9,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.IOUtils;
-import webserver.controller.DefaultController;
-import webserver.controller.UserCreateController;
 
 public class RequestHandler extends Thread {
 

@@ -9,14 +9,15 @@ import webserver.Request;
 import webserver.Response;
 import webserver.StatusCode;
 
-public class LoginController implements Controller{
+public class LoginController implements Controller {
+
 	private static final LoginController instance = new LoginController();
 
 	private LoginController() {
 		super();
 	}
 
-	public static LoginController getInstance(){
+	public static LoginController getInstance() {
 		return instance;
 	}
 
@@ -26,21 +27,18 @@ public class LoginController implements Controller{
 		String requestPassword = request.getParam("password");
 
 		User user = DataBase.findUserById(requestUserId);
-		if(user != null && user.getPassword().equals(requestPassword)){
-			//로그인 처리
-			/**
-			 todo
-			 1. sessionDb에 넣고
-			 2. 응답에 넣어주고
-			 3. Path=/ : 쿠키를 어디에 사용할지 정한다.  / 이후 모두...
-			 */
+		if (isLogin(requestPassword, user)) {
 			String cookie = SessionDataBase.addSession(requestUserId);
 			response.setCookie(cookie);
 			response.setRedirect(StatusCode.REDIRECTION_302, "http://localhost:8080/index.html");
-		} else{
-			//로그인 실패 처리
-			response.setRedirect(StatusCode.REDIRECTION_302, "http://localhost:8080/user/login_failed.html");
+			return;
 		}
+		response.setRedirect(StatusCode.REDIRECTION_302,
+			"http://localhost:8080/user/login_failed.html");
 
+}
+
+	private boolean isLogin(String requestPassword, User user) {
+		return user != null && user.getPassword().equals(requestPassword);
 	}
 }

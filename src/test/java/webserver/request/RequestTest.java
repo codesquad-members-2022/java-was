@@ -17,19 +17,20 @@ class RequestTest {
 	@Nested
 	@DisplayName("생성자는(new Request(List<String> rawHeader, String rawBody))")
 	class Describe_constructor {
-	    @Nested
-	    @DisplayName("만약 간단한 GET 요청이라면")
-	    class Context_with_normal_GET_Request_Message {
+
+		@Nested
+		@DisplayName("만약 간단한 GET 요청이라면")
+		class Context_with_normal_GET_Request_Message {
 
 			@Test
-	        @DisplayName("Request 객체를 생성한다.")
-	        void It_returns_object_request() {
+			@DisplayName("Request 객체를 생성한다.")
+			void It_returns_object_request() {
 				List<String> rawMessageHeader = new ArrayList<>();
 				rawMessageHeader.add("GET /user/create HTTP/1.1");
 				rawMessageHeader.add("Host: localhost:8080");
 				rawMessageHeader.add("Connection: keep-alive");
 				rawMessageHeader.add("Accept: */*");
- 				String rawBody = "";
+				String rawBody = "";
 
 				Request result = new Request(rawMessageHeader, rawBody);
 				Map<String, String> headerMap = result.getRequestHeaderMap();
@@ -41,7 +42,7 @@ class RequestTest {
 				assertThat(headerMap.get("Connection")).isEqualTo("keep-alive");
 				assertThat(headerMap.get("Accept")).isEqualTo("*/*");
 			}
-	    }
+		}
 
 		@Nested
 		@DisplayName("만약 쿼라파라미터가있는 GET 요청이라면")
@@ -107,7 +108,6 @@ class RequestTest {
 		String rawBody = "";
 
 		Request result = new Request(rawMessageHeader, rawBody);
-
 
 		String fileExtention = result.getFileExtension();
 		assertThat(fileExtention).isEqualTo("html");

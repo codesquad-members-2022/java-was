@@ -10,4 +10,8 @@ public class SessionDataBase {
     public static void save(String sessionId, String userId) {
         SESSIONS.put(sessionId, userId);
     }
+
+    public static void remove(String sessionId) {
+        SESSIONS.remove(sessionId);
+    }
 }

@@ -67,8 +67,20 @@ public class RequestHandler extends Thread {
                 return;
             }
 
-            Map<String, String> cookies = HttpRequestUtils.parseCookies(
-                httpRequest.getHeader("Cookie"));
+            if (httpRequest.getPath().equals("/user/logout")) {
+                Map<String, String> cookies = HttpRequestUtils.parseCookies(
+                    httpRequest.getHeader("Cookie"));
+                String sessionId = cookies.get("sessionId");
+                log.debug("sessionId = {}", sessionId);
+                if (sessionId == null) {
+                    httpResponse.response302Header();
+                    return;
+                }
+                httpResponse.response302WithExpiredCookieHeader(sessionId);
+                SessionDataBase.remove(sessionId);
+                return;
+            }
+
             httpResponse.writeBody(httpRequest.getPath());
             httpResponse.response200Header();
             httpResponse.responseBody();

@@ -1,6 +1,6 @@
 package webserver;
 
-import db.DataBase;
+import db.UserDataBase;
 import java.util.Map;
 import model.User;
 
@@ -14,7 +14,7 @@ public class UserCreationController extends Controller  {
             userCreationForm.get("name"),
             userCreationForm.get("email"));
 
-        DataBase.addUser(user);
+        UserDataBase.add(user);
 
         httpResponse.response302Header("/index.html");
     }

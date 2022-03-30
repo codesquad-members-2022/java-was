@@ -1,6 +1,6 @@
 package webserver;
 
-import db.DataBase;
+import db.UserDataBase;
 import java.util.Collection;
 import model.User;
 
@@ -13,9 +13,9 @@ public class UserListController extends Controller {
             return;
         }
 
-        StringBuilder sb = new StringBuilder();
-        Collection<User> users = DataBase.findAll();
-        sb.append("<table border='2'>")
+        StringBuilder userListBuilder = new StringBuilder();
+        Collection<User> users = UserDataBase.findAll();
+        userListBuilder.append("<table border='2'>")
             .append("<tr>")
             .append("<th>User Id</th>")
             .append("<th>Name</th>")
@@ -23,16 +23,16 @@ public class UserListController extends Controller {
             .append("</tr>");
 
         for (User user : users) {
-            sb.append("<tr>")
+            userListBuilder.append("<tr>")
                 .append("<td>").append(user.getUserId()).append("</td>")
                 .append("<td>").append(user.getName()).append("</td>")
                 .append("<td>").append(user.getEmail()).append("</td>")
                 .append("</tr>");
         }
 
-        sb.append("</table");
+        userListBuilder.append("</table>");
 
-        byte[] body = sb.toString().getBytes();
+        byte[] body = userListBuilder.toString().getBytes();
 
         httpResponse.response200Header(body.length, ContentTypeMapping.getContentType(".html"));
         httpResponse.responseBody(body);

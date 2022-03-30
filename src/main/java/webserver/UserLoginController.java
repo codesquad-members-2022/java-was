@@ -1,6 +1,6 @@
 package webserver;
 
-import db.DataBase;
+import db.UserDataBase;
 import db.Sessions;
 
 import java.util.Map;
@@ -16,12 +16,12 @@ public class UserLoginController extends Controller  {
         String userId = loginForm.get("userId");
         String password = loginForm.get("password");
 
-        if (DataBase.matchesExistingUser(userId, password)) {
+        if (UserDataBase.matchesExistingUser(userId, password)) {
             String sessionId = cookies.containsKey("sessionId") ?
                 cookies.get("sessionId") : UUID.randomUUID().toString();
 
             Sessions.getSession(sessionId)
-                .setAttribute("user", DataBase.findUserById(userId));
+                .setAttribute("user", UserDataBase.findById(userId));
 
             httpResponse.response302HeaderAfterLogin("/index.html", sessionId);
         }

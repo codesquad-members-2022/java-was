@@ -50,9 +50,19 @@ public class RequestHandler extends Thread {
             String viewName = myController.process(myHttpRequest);
 
 
+            byte[] body = null;
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            byte[] body = Files.readAllBytes(new File("./webapp" + "/" + viewName + ".html").toPath());
-            responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.OK);
+            log.debug("viewName = {}", viewName);
+            if (viewName.startsWith("redirect:")) {
+                log.debug("viewName = {}", viewName);
+                String redirectURL = viewName.substring(viewName.indexOf(":")+1);
+                log.debug("redirectURL = {}", redirectURL);
+                responseRedirect(dos, myHttpRequest, redirectURL);
+                return;
+            } else {
+                body = Files.readAllBytes(new File("./webapp" + "/" + viewName + ".html").toPath());
+                responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.OK);
+            }
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -84,7 +94,10 @@ public class RequestHandler extends Thread {
         responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.OK);
         responseBody(dos, body);
     }
-
+    private void responseRedirect(DataOutputStream dos, MyHttpRequest request, String redirectURL) throws IOException {
+        dos.writeBytes("HTTP/1.1 302 Found\r\n");
+        dos.writeBytes("Location:" + redirectURL + "\r\n");
+    }
     private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, MyHttpRequest request, HttpResponseStatusCode statusCode) {
         try {
             dos.writeBytes(statusCode.getValue());

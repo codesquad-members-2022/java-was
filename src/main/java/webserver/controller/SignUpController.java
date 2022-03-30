@@ -21,6 +21,6 @@ public class SignUpController implements MyController{
         userRepository.save(user);
         log.info("user={}",user);
 
-        return "index";
+        return "redirect:/";
     }
 }

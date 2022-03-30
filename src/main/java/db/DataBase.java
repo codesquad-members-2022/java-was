@@ -23,8 +23,8 @@ public class DataBase {
         return Optional.ofNullable(user);
     }
 
-    public static User findUserById(String userId) {
-        return users.get(userId);
+    public static Optional<User> findUserById(String userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     public static Collection<User> findAll() {

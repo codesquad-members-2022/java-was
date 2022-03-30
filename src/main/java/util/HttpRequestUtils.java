@@ -3,6 +3,8 @@ package util;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,6 +33,10 @@ public class HttpRequestUtils {
         String[] tokens = values.split(separator);
         return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
                 .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+    }
+
+    public static String urlDecoding(String url) {
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 
     static Pair getKeyValue(String keyValue, String regex) {

@@ -34,30 +34,37 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
             MyHttpRequest myHttpRequest = new MyHttpRequest(in);
 
-            if (isStaticResponse(myHttpRequest)) {
+            if (isStaticRequest(myHttpRequest)) {
                 responseStaticRequest(myHttpRequest, dos);
                 return;
             }
 
             String requestURI = myHttpRequest.getRequestURI();
-            log.info("requestURI={}", requestURI);
-            String viewName = null;
             MyController myController = controllerMap.get(requestURI);
-            if (myController != null) {
-                log.info("find controller");
-                viewName = myController.process(myHttpRequest);
+            if (myController == null) {
+                log.info("cannot find controller, URL : {}", requestURI);
+                send404page(dos, myHttpRequest);
+                return;
             }
+            String viewName = myController.process(myHttpRequest);
+
 
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             byte[] body = Files.readAllBytes(new File("./webapp" + "/" + viewName + ".html").toPath());
-            response200Header(dos, body.length, myHttpRequest);
+            responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.OK);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private boolean isStaticResponse(MyHttpRequest request) {
+    private void send404page(DataOutputStream dos, MyHttpRequest myHttpRequest) throws IOException {
+        byte[] body = Files.readAllBytes(new File("./webapp/error/404.html").toPath());
+        responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.NOT_FOUND);
+        responseBody(dos, body);
+    }
+
+    private boolean isStaticRequest(MyHttpRequest request) {
         String requestURI = request.getRequestURI();
         if (requestURI.indexOf('.') != -1) {
             return true;
@@ -65,16 +72,21 @@ public class RequestHandler extends Thread {
         return false;
     }
 
-    private void responseStaticRequest(MyHttpRequest request, DataOutputStream dos) throws IOException {
-        File file = new File("./webapp" + request.getRequestURI());
+    private void responseStaticRequest(MyHttpRequest myHttpRequest, DataOutputStream dos) throws IOException {
+        File file = new File("./webapp" + myHttpRequest.getRequestURI());
+        if (!file.exists()) {
+            log.info("cannot find static resource : {}", myHttpRequest.getRequestURI());
+            send404page(dos, myHttpRequest);
+            return;
+        }
         byte[] body = Files.readAllBytes(file.toPath());
-        response200Header(dos, body.length, request);
+        responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.OK);
         responseBody(dos, body);
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, MyHttpRequest request) {
+    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, MyHttpRequest request, HttpResponseStatusCode statusCode) {
         try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes(statusCode.getValue());
             dos.writeBytes("Content-Type: " + request.getHeader("Accept")[0] + "\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");

@@ -30,13 +30,6 @@ public class Response {
         return fileData;
     }
 
-    public void header(DataOutputStream dos) {
-        if (this.method.equals("GET")) {
-            response200Header(dos);
-        }
-        response302Header(dos);
-    }
-
     public void body(DataOutputStream dos) {
         try {
             dos.write(body, 0, body.length);
@@ -46,7 +39,7 @@ public class Response {
         }
     }
 
-    private void response200Header(DataOutputStream dos) {
+    public void response200Header(DataOutputStream dos) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html; charset=utf-8\r\n");
@@ -57,10 +50,10 @@ public class Response {
         }
     }
 
-    private void response302Header(DataOutputStream dos) {
+    public void response302Header(DataOutputStream dos, String responseUrl) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");
-            dos.writeBytes("Location: http://localhost:8080/index.html \r\n");
+            dos.writeBytes("Location: " + "http://localhost:8080/" + responseUrl + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

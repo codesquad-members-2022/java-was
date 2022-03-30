@@ -22,26 +22,6 @@ public class HttpResponse {
         this.version = version;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public int getHttpStatusCode() {
-        return httpStatus.getStatusCode();
-    }
-
-    public String getHttpStatusMessage() {
-        return httpStatus.getMessage();
-    }
-
-    public Map<String, String> getResponseHeaders() {
-        return responseHeaders;
-    }
-
-    public String getHeader(String key) {
-        return responseHeaders.get(key);
-    }
-
     public Optional<byte[]> getResponseBody() {
         return Optional.of(responseBody);
     }
@@ -81,7 +61,25 @@ public class HttpResponse {
         log.debug("http response: {}, redirect: {}", this, url);
         return this;
     }
+    
+    public String headers() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(String.format("%s %d %s %s", this.version, this.getHttpStatusCode(), this.getHttpStatusMessage(), System.lineSeparator()));
+        Map<String, String> responseHeaders = this.responseHeaders;
+        for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
+            sb.append(String.format("%s: %s %s", entry.getKey(), entry.getValue(), System.lineSeparator()));
+        }
+        return sb.toString();
+    }
 
+    private int getHttpStatusCode() {
+        return httpStatus.getStatusCode();
+    }
+
+    private String getHttpStatusMessage() {
+        return httpStatus.getMessage();
+    }
+    
     public HttpStatus getHttpStatus() {
         return httpStatus;
     }
@@ -89,5 +87,9 @@ public class HttpResponse {
     @Override
     public String toString() {
         return "HttpResponse{ version=" + version + ", httpStatus=" + httpStatus.getStatusCode() + "}";
+    }
+
+    public String bodyLength() {
+        return String.valueOf(this.responseBody.length);
     }
 }

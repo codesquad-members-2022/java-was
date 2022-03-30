@@ -81,11 +81,7 @@ public class RequestHeader {
 
 	public String getQueryParams() {
 		String params = path.substring(path.indexOf(SEPARATOR_OF_QUERY_STRINGS) + 1);
-		return toDecode(params);
-	}
-
-	public String toDecode(String url) {
-		return URLDecoder.decode(url, StandardCharsets.UTF_8);
+		return params;
 	}
 
 	// POST

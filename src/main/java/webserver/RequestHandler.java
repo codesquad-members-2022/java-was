@@ -1,13 +1,10 @@
 package webserver;
 
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.util.Map;
 import java.util.Optional;
 
 public class RequestHandler extends Thread {
@@ -29,34 +26,29 @@ public class RequestHandler extends Thread {
             httpRequest.write(bufferedReader);
 
             HttpResponse httpResponse = UrlMapper.getResponse(httpRequest, bufferedReader);
-
-            DataOutputStream dos = new DataOutputStream(out);
-            Optional<byte[]> response = httpResponse.getResponseBody();
-
-            if (response.isEmpty()) {
-                writeHeaders(dos, 0, httpResponse);
-                dos.flush();
-                return;
-            }
-            byte[] responseBody = response.get();
-            writeHeaders(dos, responseBody.length, httpResponse);
-            responseBody(dos, responseBody);
+            sendHttpResponse(out, httpResponse);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void writeHeaders(DataOutputStream dos, int lengthOfBodyContent, HttpResponse response) {
+    private void sendHttpResponse(OutputStream out, HttpResponse httpResponse) throws IOException {
+        DataOutputStream dos = new DataOutputStream(out);
+        Optional<byte[]> responseBody = httpResponse.getResponseBody();
+
+        if (responseBody.isEmpty()) {
+            writeHeaders(dos, httpResponse);
+            dos.flush();
+            return;
+        }
+        writeHeaders(dos, httpResponse);
+        responseBody(dos, responseBody.get());
+    }
+
+    private void writeHeaders(DataOutputStream dos, HttpResponse response) {
         try {
-            dos.writeBytes(String.format("%s %d %s %s",
-                response.getVersion(), response.getHttpStatusCode(), response.getHttpStatusMessage(), System.lineSeparator()));
-            Map<String, String> responseHeaders = response.getResponseHeaders();
-
-            for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
-                dos.writeBytes(String.format("%s: %s %s", entry.getKey(), entry.getValue(), System.lineSeparator()));
-            }
-
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes(response.headers());
+            dos.writeBytes(response.bodyLength() + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

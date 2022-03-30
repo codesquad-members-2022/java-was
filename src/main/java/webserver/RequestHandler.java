@@ -30,20 +30,21 @@ public class RequestHandler extends Thread {
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
-
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
             HttpRequest request = generateHttpRequest(new BufferedReader(new InputStreamReader(in)));
-
             HttpResponse response = UrlMapper.getResponse(request);
-
-            if (response != null) {
-                byte[] responseBody = response.getResponseBody();
-                writeHeaders(dos, responseBody.length, response);
-                responseBody(dos, responseBody);
-            }
+            renderView(dos, response);
         } catch (IOException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private void renderView(DataOutputStream dos, HttpResponse response) {
+        if (response != null) {
+            byte[] responseBody = response.getResponseBody();
+            writeHeaders(dos, responseBody.length, response);
+            responseBody(dos, responseBody);
         }
     }
 
@@ -60,13 +61,14 @@ public class RequestHandler extends Thread {
 
         String requestBody = null;
 
-        if (method.equals("POST")) {
+        if (requestHeader.containsKey("Content-Length")) {
             int contentLength = Integer.parseInt(requestHeader.get("Content-Length"));
             requestBody = IOUtils.readData(br, contentLength);
 
             log.debug("Body: {}", requestBody);
             log.debug("Content-Length: {}", requestBody.length());
         }
+
         return new HttpRequest(method, url, version, requestHeader, requestBody, isLogin);
     }
 

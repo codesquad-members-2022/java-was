@@ -20,28 +20,38 @@ public class Request {
 
     public static Request of(HttpRequestData requestData) {
         HttpRequestLine httpRequestLine = requestData.getHttpRequestLine();
-        String queryString = httpRequestLine.getQueryString();
         HttpMethod httpMethod = httpRequestLine.getHttpMethod();
-
         Request request = new Request();
         request.setHttpMethod(httpMethod);
 
         Map<String, String> header = requestData.getHeader();
+
+        parseCookie(request, header);
+        parseSessionId(request);
+        parseParameter(requestData, httpMethod, httpRequestLine.getQueryString(), request);
+
+        return request;
+    }
+
+    private static void parseCookie(Request request, Map<String, String> header) {
         if (header.containsKey(COOKIE)) {
             String cookie = header.get(COOKIE);
             request.cookies = HttpRequestUtils.parseCookies(cookie);
-            if (request.cookies.containsKey(SESSION_ID)) {
-                request.sessionId = request.cookies.get(SESSION_ID);
-            }
         }
+    }
 
+    private static void parseSessionId(Request request) {
+        if (request.cookies.containsKey(SESSION_ID)) {
+            request.sessionId = request.cookies.get(SESSION_ID);
+        }
+    }
+
+    private static void parseParameter(HttpRequestData requestData, HttpMethod httpMethod, String queryString,
+        Request request) {
         if (isGetRequest(queryString, httpMethod)) {
             request.setParameters(HttpRequestUtils.parseQueryString(queryString));
-            return request;
         }
-
         request.setParameters(requestData.getRequestBody());
-        return request;
     }
 
     public String getSessionId() {

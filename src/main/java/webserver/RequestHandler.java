@@ -6,17 +6,28 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import config.RequestMapping;
+import http.HttpMethod;
 import http.HttpStatus;
 import http.Response;
 import util.HttpRequestUtils;
-import webserver.dto.RequestLine;
+import util.HttpRequestUtils.Pair;
+import util.IOUtils;
+import webserver.dto.HttpRequestData;
+import webserver.dto.HttpRequestLine;
 
 public class RequestHandler extends Thread {
+
+    private static final String CONTENT_LENGTH = "Content-Length";
+
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
     private final Socket connection;
@@ -32,60 +43,107 @@ public class RequestHandler extends Thread {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              OutputStream out = connection.getOutputStream()) {
 
-            RequestLine requestLine = RequestLine.of(br.readLine());
+            String firstLine = br.readLine();
+            HttpRequestLine requestLine = HttpRequestUtils.parseHttpRequestLine(firstLine);
+            HttpRequestData requestData = new HttpRequestData();
+            requestData.setHttpRequestLine(requestLine);
+            requestData.setHeader(readHeaders(br));
 
-            processRequest(br, out, requestLine);
+            if (requestLine.getHttpMethod().equals(HttpMethod.POST)) {
+                Map<String, String> requestBody = readRequestBody(br, requestData);
+                requestData.setRequestBody(requestBody);
+            }
+            processRequest(out, requestData);
 
         } catch (Exception e) {
             log.error(e.getMessage());
         }
     }
 
-    private void processRequest(BufferedReader br, OutputStream out, RequestLine requestLine) throws Exception {
-        String contentType = HttpRequestUtils.extractContentType(requestLine.getUrl());
+    private Map<String, String> readRequestBody(BufferedReader br, HttpRequestData requestData) throws IOException {
+        Map<String, String> headers = requestData.getHeader();
+        int length = Integer.parseInt(headers.get(CONTENT_LENGTH));
+        String decodedRequestBody = URLDecoder.decode(IOUtils.readData(br, length), StandardCharsets.UTF_8);
+        return HttpRequestUtils.parseQueryString(decodedRequestBody);
+    }
 
-        printHeaders(br);
+    private void processRequest(OutputStream out, HttpRequestData requestData) throws Exception {
+        HttpRequestLine httpRequestLine = requestData.getHttpRequestLine();
 
-        if (RequestMapping.contains(requestLine.getHttpMethod(), requestLine.getUrl())) {
-            processDynamicRequest(out, requestLine, contentType);
+        printHeaders(requestData.getHeader());
+
+        if (RequestMapping.contains(httpRequestLine.getUrl())) {
+            processDynamicRequest(out, requestData);
             return;
         }
-        processStaticRequest(out, requestLine, contentType);
+
+        String contentType = HttpRequestUtils.extractContentType(httpRequestLine.getUrl());
+        processStaticRequest(out, requestData.getHttpRequestLine(), contentType);
     }
 
-    private void processDynamicRequest(OutputStream out, RequestLine requestLine, String contentType) throws Exception {
+    private void processDynamicRequest(OutputStream out, HttpRequestData requestData) throws
+        Exception {
         Dispatcher dispatcher = Dispatcher.getInstance();
-        Response response = dispatcher.handleRequest(requestLine);
+        Response response = dispatcher.handleRequest(requestData);
 
-        response(out, new byte[] {}, contentType, response.getHttpStatus());
+        dynamicResponse(out, response);
     }
 
-    private void processStaticRequest(OutputStream out, RequestLine requestLine, String contentType) throws
+    private void dynamicResponse(OutputStream out, Response response) throws IOException {
+        DataOutputStream dos = new DataOutputStream(out);
+
+        Map<String, String> headers = new HashMap<>();
+
+        if (response.getHttpStatus().equals(HttpStatus.FOUND)) {
+            headers.put("Location", response.getRedirectUrl());
+        }
+
+        responseHeader(dos, response.getHttpStatus(), headers);
+        flush(dos);
+    }
+
+    private void processStaticRequest(OutputStream out, HttpRequestLine requestLine, String contentType) throws
         IOException {
         StaticResourceProcessor staticResourceProcessor = StaticResourceProcessor.getInstance();
         byte[] body = staticResourceProcessor.readStaticResource(requestLine.getUrl());
-        response(out, body, contentType, HttpStatus.OK);
+        staticResponse(out, body, contentType, HttpStatus.OK);
     }
 
-    private void printHeaders(BufferedReader br) throws IOException {
-        String header;
-        while (((header = br.readLine()) != null) && header.equals("")) {
-            log.debug("header : {}", header);
+    private void printHeaders(Map<String, String> headers) {
+        for (String key : headers.keySet()) {
+            log.debug("header : {}: {}", key, headers.get(key));
         }
     }
 
-    private void response(OutputStream out, byte[] body, String contentType, HttpStatus httpStatus) {
-        DataOutputStream dos = new DataOutputStream(out);
-        responseHeader(dos, body.length, contentType, httpStatus);
-        responseBody(dos, body);
+    private Map<String, String> readHeaders(BufferedReader br) throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        String line;
+        while (((line = br.readLine()) != null) && !line.equals("")) {
+            Pair pair = HttpRequestUtils.parseHeader(line);
+            headers.put(pair.getKey(), pair.getValue());
+        }
+        return headers;
     }
 
-    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, String contentType,
-        HttpStatus httpStatus) {
+    private void staticResponse(OutputStream out, byte[] body, String contentType, HttpStatus httpStatus) throws
+        IOException {
+        DataOutputStream dos = new DataOutputStream(out);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", contentType + ";charset=utf-8");
+        headers.put("Content-Length", String.valueOf(body.length));
+
+        responseHeader(dos, httpStatus, headers);
+        responseBody(dos, body);
+        flush(dos);
+    }
+
+    private void responseHeader(DataOutputStream dos, HttpStatus httpStatus, Map<String, String> headers) {
         try {
             dos.writeBytes(String.format("HTTP/1.1 %d %s \r\n", httpStatus.getStatusCode(), httpStatus.name()));
-            dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", contentType));
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            for (String key : headers.keySet()) {
+                dos.writeBytes(key + ": " + headers.get(key) + "\r\n");
+            }
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -95,9 +153,12 @@ public class RequestHandler extends Thread {
     private void responseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);
-            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void flush(DataOutputStream dos) throws IOException {
+        dos.flush();
     }
 }

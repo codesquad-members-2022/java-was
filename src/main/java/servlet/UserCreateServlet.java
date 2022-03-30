@@ -16,16 +16,23 @@ public class UserCreateServlet extends HttpServlet {
     }
 
     @Override
-    public Response doGet() {
-        Map<String, String> queryParameter = request.getQueryParameter();
+    public Response doPost() {
+        Map<String, String> queryParameter = request.getParameters();
+
         User user = new User(
             queryParameter.get("userId"),
             queryParameter.get("password"),
             queryParameter.get("name"),
             queryParameter.get("email")
         );
+        if (DataBase.isDuplicateUserId(user.getUserId())) {
+            response.setHttpStatus(HttpStatus.FOUND);
+            response.setRedirectUrl("/user/form.html");
+            return response;
+        }
         DataBase.addUser(user);
-        response.setHttpStatus(HttpStatus.OK);
+        response.setHttpStatus(HttpStatus.FOUND);
+        response.setRedirectUrl("/index.html");
         return response;
     }
 }

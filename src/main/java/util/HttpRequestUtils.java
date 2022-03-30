@@ -1,5 +1,7 @@
 package util;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,8 +10,16 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 import config.ProvidedExtension;
+import http.HttpMethod;
+import webserver.dto.HttpRequestLine;
 
 public class HttpRequestUtils {
+
+    private static final int REQUEST_HTTP_METHOD_INDEX = 0;
+    private static final int REQUEST_URI_INDEX = 1;
+    private static final int URI_INDEX = 0;
+    private static final int QUERYSTRING_INDEX = 1;
+
     /**
      * @param queryString은
      *            URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
@@ -36,6 +46,21 @@ public class HttpRequestUtils {
         String[] tokens = values.split(separator);
         return Arrays.stream(tokens).map(t -> getKeyValue(t, "=")).filter(p -> p != null)
             .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+    }
+
+    public static HttpRequestLine parseHttpRequestLine(String requestLine) {
+        HttpRequestLine httpRequestLine = new HttpRequestLine();
+        String[] requestLineSplit = requestLine.split(" ");
+        String[] result = requestLineSplit[REQUEST_URI_INDEX].split("\\?");
+
+        httpRequestLine.setHttpMethod(HttpMethod.findMethod(requestLineSplit[REQUEST_HTTP_METHOD_INDEX]).orElseThrow());
+        httpRequestLine.setUrl(result[URI_INDEX]);
+
+        if (result.length > 1) {
+            httpRequestLine.setQueryString(URLDecoder.decode(result[QUERYSTRING_INDEX], StandardCharsets.UTF_8));
+        }
+
+        return httpRequestLine;
     }
 
     public static String extractContentType(String requestUrl) {

@@ -5,24 +5,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import http.HttpMethod;
 import http.HttpServlet;
 import servlet.UserCreateServlet;
 
 public class RequestMapping {
     private static final Map<URL, Class<? extends HttpServlet>> servletMapping = new HashMap<>();
 
-    private static final boolean NOT_CONTAINS = false;
-
     static {
         servletMapping.put(new URL("/user/create"), UserCreateServlet.class);
     }
 
-    public static boolean contains(HttpMethod httpMethod, String url) {
-        if (httpMethod.equals(HttpMethod.GET)) {
-            return servletMapping.containsKey(new URL(url));
-        }
-        return NOT_CONTAINS;
+    public static boolean contains(String url) {
+        return servletMapping.containsKey(new URL(url));
     }
 
     public static Optional<Class<? extends HttpServlet>> findHandlerMethod(String url) {

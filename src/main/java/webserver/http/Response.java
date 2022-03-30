@@ -38,6 +38,17 @@ public class Response {
         }
     }
 
+    public void response302HeaderLogout(String url, String cookie) {
+        try {
+            dataOutputStream.writeBytes("HTTP/1.1 302 FOUND \r\n");
+            dataOutputStream.writeBytes("Location: " + url + " \r\n");
+            dataOutputStream.writeBytes("Set-Cookie: " + cookie + "; max-age=0; Path=/\r\n");
+            dataOutputStream.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
     public void response200Header(int lengthOfBodyContent, String url) {
         try {
             dataOutputStream.writeBytes("HTTP/1.1 200 OK \r\n");

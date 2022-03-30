@@ -17,6 +17,7 @@ import webserver.controller.Controller;
 import webserver.controller.DefaultController;
 import webserver.controller.UserJoinController;
 import webserver.controller.UserLoginController;
+import webserver.controller.UserLogoutController;
 import webserver.http.Request;
 import webserver.http.Response;
 
@@ -25,7 +26,8 @@ public class RequestHandler extends Thread {
     private static final Map<Pair, Controller> requestLineHandler = new HashMap<>(
         Map.of(
             new Pair("POST", "/user/create"), new UserJoinController(),
-            new Pair("POST", "/user/login"), new UserLoginController()
+            new Pair("POST", "/user/login"), new UserLoginController(),
+            new Pair("GET", "/user/logout"), new UserLogoutController()
 
         ));
     private Socket connection;

@@ -49,6 +49,10 @@ public class Request {
         }
     }
 
+    public Map<String, String> getRequestHeader() {
+        return requestHeader;
+    }
+
     public String getRequestLine() {
         return requestLine;
     }

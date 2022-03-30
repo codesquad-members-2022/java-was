@@ -35,25 +35,21 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
             Request request = createRequest(bufferedReader);
             Response response = createResponse(request);
-            String httpStateCode = sendResponse(request, response, dos);
-            log.debug("HTTP stateCode={}", httpStateCode);
+            sendResponse(request, response, dos);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    private String sendResponse(Request request, Response response, DataOutputStream dos) {
+    private void sendResponse(Request request, Response response, DataOutputStream dos) {
         if (request.getMethod().equals("POST") && request.getUrl().equals("/user/create")) {
             User user = createUser(request);
-            log.debug("user={}", user);
-            DataBase.addUser(user);
-            response.header(dos);
+            validateDuplicateUserId(response, user, dos);
             response.body(dos);
-            return "302";
+        } else {
+            response.response200Header(dos);
+            response.body(dos);
         }
-        response.header(dos);
-        response.body(dos);
-        return "200";
     }
 
     private Response createResponse(Request request) {
@@ -101,5 +97,15 @@ public class RequestHandler extends Thread {
                 userData.get("password"),
                 userData.get("name"),
                 userData.get("email"));
+    }
+
+    private void validateDuplicateUserId(Response response, User user, DataOutputStream dos) {
+        DataBase.findUserById(user.getUserId()).ifPresentOrElse(
+                duplicateUser -> response.response302Header(dos, "user/form.html"),
+                () -> {
+                    response.response302Header(dos, "index.html");
+                    DataBase.addUser(user);
+                    log.debug("user={}", user);
+                });
     }
 }

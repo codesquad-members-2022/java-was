@@ -24,7 +24,6 @@ class ResponseTest {
 			"\r\n");
 	}
 
-
 	@Test
 	@DisplayName("Reponse 객체, 헤더 상태코드 302, Locaion: http://localhost:8080/index.html인 경우")
 	void response_객체생성_302() {

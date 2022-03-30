@@ -1,23 +1,24 @@
 package webserver;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 public class Response {
 
+	private static final String HTTP_VERSION = "HTTP/1.1";
+
+	private StatusCode statusCode;
 	private final Map<String, Object> responseHeaderMap = new LinkedHashMap<>();
 	private String body;
 
 	public Response() {
-		responseHeaderMap.put("Status-Line", StatusCode.SUCCESSFUL_200);
+		statusCode = StatusCode.SUCCESSFUL_200;
 	}
 
 	public void setStatus(StatusCode statusCode) {
-		responseHeaderMap.put("Status-Line", statusCode);
+		this.statusCode = statusCode;
 	}
 
 	public void setContentType(String type) {
@@ -25,7 +26,7 @@ public class Response {
 	}
 
 	public void setRedirect(StatusCode redirectionStatusCode, String redirectionPath) {
-		responseHeaderMap.put("Status-Line", redirectionStatusCode);
+		statusCode = redirectionStatusCode;
 		responseHeaderMap.put("Location", redirectionPath);
 	}
 
@@ -56,27 +57,23 @@ public class Response {
 	}
 
 	public String toHeader() {
-		List<String> header = new ArrayList<>();
+		StringBuffer stringBuffer = new StringBuffer();
+
+		stringBuffer.append(HTTP_VERSION).append(" ")
+			.append(statusCode.getCode()).append(" ")
+			.append(statusCode.getMessage()).append(System.lineSeparator());
 
 		for (Entry<String, Object> entry : responseHeaderMap.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-			if (key.equals("Status-Line")) {
-				StatusCode statusCode = (StatusCode) value;
-				header.add("HTTP/1.1" + " " + statusCode.getCode() + " " + statusCode.getMessage()
-					+ "\r\n");
-			} else {
-				header.add(key + ": " + value + "\r\n");
-			}
-		}
-		header.add("\r\n");
-		StringBuffer sb = new StringBuffer();
-		for (String line : header) {
-			sb.append(line);
-		}
-		return sb.toString();
-	}
+			String headerKey = entry.getKey();
+			Object headerValue = entry.getValue();
 
+			stringBuffer.append(headerKey).append(": ")
+				.append(headerValue).append(System.lineSeparator());
+		}
+		stringBuffer.append(System.lineSeparator());
+
+		return stringBuffer.toString();
+	}
 
 	public String toBody() {
 		return body + "\r\n";
@@ -88,6 +85,6 @@ public class Response {
 
 	public void setDeleteCookie() {
 		responseHeaderMap.put("Set-Cookie", "sessionId=deleted; " +
-				"path=/; Max-Age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT/");
+			"path=/; Max-Age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT/");
 	}
 }

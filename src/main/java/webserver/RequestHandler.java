@@ -1,5 +1,6 @@
 package webserver;
 
+import controller.FrontController;
 import db.DataBase;
 import model.ContentType;
 import model.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    private static final FrontController frontController = FrontController.getInstance();
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -23,46 +25,16 @@ public class RequestHandler extends Thread {
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream();) {
-            DataOutputStream dos = new DataOutputStream(out);
-            HttpRequest request = new HttpRequest(in);
+        try (InputStream in = connection.getInputStream();
+             OutputStream out = connection.getOutputStream();
+             DataOutputStream dos = new DataOutputStream(out)) {
 
-            if (request.getHttpMethod().equals("POST")) {
-                Map<String, String> userInfo = request.getParams();
-                try {
-                    DataBase.addUser(User.from(userInfo));
-                    sendPostResponse(dos, HttpStatus.REDIRECT);
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                    sendPostResponse(dos, HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                sendGetResponse(dos, request.getPath());
-            }
+            HttpRequest request = new HttpRequest(in);
+            HttpResponse response = new HttpResponse(dos);
+
+            frontController.handleRequest(request, response);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-    }
-
-    private void sendPostResponse(DataOutputStream dos, HttpStatus httpStatus) throws IOException {
-        HttpResponse response = new HttpResponse(httpStatus, dos);
-        if (httpStatus.getStatusCode() == 302) {
-            response.setHeader("Location", "/index.html");
-        }
-        response.send();
-    }
-
-    private void sendGetResponse(DataOutputStream dos, String path) throws IOException {
-        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
-        HttpResponse response = new HttpResponse(HttpStatus.OK, dos);
-
-        if (path.endsWith("html")) {
-            response.setHeader("Content-Type", ContentType.HTML.getType());
-        } else if (path.endsWith("css")) {
-            response.setHeader("Content-Type", ContentType.CSS.getType());
-        } else if (path.endsWith("js")) {
-            response.setHeader("Content-Type", ContentType.JS.getType());
-        }
-        response.sendWithBody(body);
     }
 }

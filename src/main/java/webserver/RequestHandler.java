@@ -9,9 +9,9 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.crypto.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.controller.HomeController;
 import webserver.controller.MyController;
 import webserver.controller.SignUpController;
 
@@ -25,6 +25,7 @@ public class RequestHandler extends Thread {
         this.connection = connectionSocket;
         controllerMap = new HashMap<>();
         controllerMap.put("/user/create", new SignUpController());
+        controllerMap.put("/", new HomeController());
     }
 
     public void run() {

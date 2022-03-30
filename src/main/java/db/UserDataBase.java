@@ -17,7 +17,6 @@ public class UserDataBase {
         users.put(user.getUserId(), user);
     }
 
-
     private static void isDuplicatedUser(User user) {
         if (users.containsKey(user.getUserId())) {
             throw new IllegalArgumentException("이미 존재하는 회원입니다.");

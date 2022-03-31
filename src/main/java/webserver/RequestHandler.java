@@ -45,25 +45,31 @@ public class RequestHandler extends Thread {
                     httpRequest.getParameter("name"),
                     httpRequest.getParameter("email")
                 );
-                DataBase.addUser(user);
-                httpResponse.response302Header();
+
+                try {
+                    DataBase.addUser(user);
+                    httpResponse.response302Header("/index.html");
+                } catch (IllegalArgumentException e) {
+                    log.debug("exception: {}", e.getMessage());
+                    httpResponse.response302Header("/user/form.html");
+                }
                 return;
             }
 
             if (httpRequest.getPath().equals("/user/login")) {
                 User user = DataBase.findUserById(httpRequest.getParameter("userId"));
                 if (user == null) {
-                    httpResponse.response302Header("user/login_failed.html");
+                    httpResponse.response302Header("/user/login_failed.html");
                     return;
                 }
                 if (!user.getPassword().equals(httpRequest.getParameter("password"))) {
-                    httpResponse.response302Header("user/login_failed.html");
+                    httpResponse.response302Header("/user/login_failed.html");
                     return;
                 }
                 String sessionId = UUID.randomUUID().toString();
                 log.debug("return cookie: {}", sessionId);
                 SessionDataBase.save(sessionId, user.getUserId());
-                httpResponse.response302WithCookieHeader(sessionId);
+                httpResponse.response302WithCookieHeader("/index.html", sessionId);
                 return;
             }
 
@@ -73,10 +79,10 @@ public class RequestHandler extends Thread {
                 String sessionId = cookies.get("sessionId");
                 log.debug("sessionId = {}", sessionId);
                 if (sessionId == null) {
-                    httpResponse.response302Header();
+                    httpResponse.response302Header("/index.html");
                     return;
                 }
-                httpResponse.response302WithExpiredCookieHeader(sessionId);
+                httpResponse.response302WithExpiredCookieHeader("/index.html", sessionId);
                 SessionDataBase.remove(sessionId);
                 return;
             }

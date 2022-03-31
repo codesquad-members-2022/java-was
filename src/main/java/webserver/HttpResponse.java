@@ -1,12 +1,11 @@
 package webserver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import util.IOUtils;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import util.IOUtils;
 
 public class HttpResponse {
 
@@ -20,10 +19,10 @@ public class HttpResponse {
     }
 
 
-    public void response302WithExpiredCookieHeader(String cookie) {
+    public void response302WithExpiredCookieHeader(String path, String cookie) {
         try {
             dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
-            dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
+            dos.writeBytes("Location: http://localhost:8080" + path + "\r\n");
             dos.writeBytes("Set-Cookie: sessionId=" + cookie + "; Max-Age=-1;  path=/");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
@@ -31,10 +30,10 @@ public class HttpResponse {
         }
     }
 
-    public void response302WithCookieHeader(String cookie) {
+    public void response302WithCookieHeader(String path, String cookie) {
         try {
             dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
-            dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
+            dos.writeBytes("Location: http://localhost:8080" + path + "\r\n");
             dos.writeBytes("Set-Cookie: sessionId=" + cookie + "; path=/");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
@@ -45,17 +44,7 @@ public class HttpResponse {
     public void response302Header(String path) {
         try {
             dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
-            dos.writeBytes("Location: http://localhost:8080/" + path + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    public void response302Header() {
-        try {
-            dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
-            dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
+            dos.writeBytes("Location: http://localhost:8080" + path + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());

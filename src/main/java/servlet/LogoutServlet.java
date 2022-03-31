@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class LogoutServlet extends BaseServlet {
     private static final Logger log = LoggerFactory.getLogger(LogoutServlet.class);
+    private static final int SESSION_ID_IDX = 1;
 
     @Override
     public void doPost(HttpRequest request, HttpResponse response) {
@@ -23,7 +24,7 @@ public class LogoutServlet extends BaseServlet {
     private String getSessionId(HttpRequest request) {
         Map<String, String> headers = request.getHeaders();
         String values = headers.get("Cookie");
-        return values.split("; ")[1];
+        return values.split("; ")[SESSION_ID_IDX];
     }
 
 }

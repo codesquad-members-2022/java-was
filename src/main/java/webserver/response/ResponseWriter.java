@@ -59,6 +59,13 @@ public class ResponseWriter {
     }
 
     private void write302() throws IOException {
+        if(response.getSession() != null) {
+            if(response.getSession().equals("deleted")) {
+                dos.writeBytes("Set-Cookie: sessionId=" + response.getSession() +"; Max-Age=0; path=/;" + NEW_LINE);
+            } else {
+                dos.writeBytes("Set-Cookie: sessionId=" + response.getSession() +"; path=/;" + NEW_LINE);
+            }
+        }
         dos.writeBytes(LOCATION_KEY + response.getLocation() + NEW_LINE);
     }
 

@@ -1,7 +1,6 @@
 package util;
 
 import java.util.List;
-import util.HttpRequestUtils.Pair;
 
 public class PrintUtils {
 

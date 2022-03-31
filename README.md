@@ -73,3 +73,18 @@
 - orElseGet
   - Supplier로 wrapping한 값을 받는다.
   - **`null`일 경우에만** 뒤의 로직이 실행된다.(lazy)
+
+---
+
+## Step4 : 웹서버 4단계 - 쿠키를 이용한 로그인 구현
+
+- 302, 304 차이
+  - 302는 리다이렉트, 304는 Not Modified로 브라우저의 캐시를 사용하므로 절대 response body를 넣으면 안된다.
+- response body가 없어도 되는 상태 코드는 302, 304, 204 등이 있다.
+- [Set-Cookie] HTTP/1.1 vs. HTTP/2 : 세미콜론(;)으로 결합이 가능한지 아닌지 ... 아닌 것 같음
+- [Set-Cookie] 작성 순서(cookie-name=cookie-value; 옵션들(max-age, path, domain 등등))
+- [Set-Cookie] Path value default 있음 (/user/create -> /user가 기본 값)
+- [Set-Cookie] Path를 set-Cookie 했을 때와 동일한 Path 값을 설정해야 정상적인 로그아웃이 가능함
+  - 참고 : https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+  - 참고2: https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
+

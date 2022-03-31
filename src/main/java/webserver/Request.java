@@ -1,4 +1,4 @@
-package util;
+package webserver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,13 +9,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils.Pair;
+import util.HttpRequestUtils;
+import util.IOUtils;
+import util.Pair;
 
 public class Request {
-
-	private Logger log = LoggerFactory.getLogger(Request.class);
 
 	private static final int HTTP_METHOD = 0;
 	private static final int REQUEST_TARGET = 1;
@@ -23,10 +21,9 @@ public class Request {
 	private static final int QUERY_STRING = 1;
 
 	private final BufferedReader br;
-
 	private String requestLine;
 	private String[] parsedRequestLine;
-	private String httpMethod;
+	private HttpMethod httpMethod;
 	private String path;
 	private List<Pair> headerPairs;
 	private Map<String, String> parsedQueryString;
@@ -46,7 +43,7 @@ public class Request {
 	private void extractRequestLine(BufferedReader br) throws IOException {
 		this.requestLine = br.readLine();
 		this.parsedRequestLine = requestLine.split(" ");
-		this.httpMethod = parsedRequestLine[HTTP_METHOD];
+		this.httpMethod = HttpMethod.create(parsedRequestLine[HTTP_METHOD]);
 		this.path = parseRequestURL()[PATH];
 		this.parsedQueryString = takeParsedQueryString();
 	}
@@ -79,8 +76,8 @@ public class Request {
 		return URLDecoder.decode(target, StandardCharsets.UTF_8);
 	}
 
-	public boolean isPOST() {
-		return httpMethod.equals("POST");
+	public HttpMethod getHttpMethod() {
+		return httpMethod;
 	}
 
 	public List<Pair> getHeaderPairs() {

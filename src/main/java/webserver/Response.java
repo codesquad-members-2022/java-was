@@ -1,71 +1,90 @@
 package webserver;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.lang.Object;
 import java.util.Map.Entry;
 
 public class Response {
 
-    private final Map<String, Object> responseHeaderMap = new LinkedHashMap<>();
-    private String body;
+	private static final String HTTP_VERSION = "HTTP/1.1";
 
-    public Response() {
-        responseHeaderMap.put("Status-Line", StatusCode.SUCCESSFUL_200);
-    }
+	private StatusCode statusCode;
+	private final Map<String, Object> responseHeaderMap = new LinkedHashMap<>();
+	private String body = "";
 
-    public void setStatus(StatusCode statusCode) {
-        responseHeaderMap.put("Status-Line", statusCode);
-    }
+	public Response() {
+		statusCode = StatusCode.SUCCESSFUL_200;
+	}
 
-    public void setContentType(String type) {
-        responseHeaderMap.put("Content-Type", type);
-    }
+	public void setStatus(StatusCode statusCode) {
+		this.statusCode = statusCode;
+	}
 
-    public void setRedirect(StatusCode redirectionStatusCode, String redirectionPath) {
-        responseHeaderMap.put("Status-Line", redirectionStatusCode);
-        responseHeaderMap.put("Location", redirectionPath);
-    }
+	public void setContentType(String type) {
+		responseHeaderMap.put("Content-Type", type);
+	}
 
-    public void setBody(byte[] responseBody, String contentType) {
-        body = new String(responseBody, StandardCharsets.UTF_8);
-        responseHeaderMap.put("Content-Length", responseBody.length);
-        responseHeaderMap.put("Content-Type", contentType);
-    }
+	public void setRedirect(StatusCode redirectionStatusCode, String redirectionPath) {
+		statusCode = redirectionStatusCode;
+		responseHeaderMap.put("Location", redirectionPath);
+	}
 
-    public void setBody(String responseBody, String contentType) {
-        body = responseBody;
-        responseHeaderMap.put("Content-Length", responseBody.length());
-        responseHeaderMap.put("Content-Type", contentType);
-    }
+	public void setBody(byte[] responseBody, String contentType) {
+		body = new String(responseBody, StandardCharsets.UTF_8);
+		responseHeaderMap.put("Content-Length", responseBody.length);
 
-    public String toHeader() {
-        List<String> header = new ArrayList<>();
+		contentType = parseContentType(contentType);
+		responseHeaderMap.put("Content-Type", contentType);
+	}
 
-        for (Entry<String, Object> entry : responseHeaderMap.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            if (key.equals("Status-Line")) {
-                StatusCode statusCode = (StatusCode) value;
-                header.add("HTTP/1.1" + " " + statusCode.getCode() + " " + statusCode.getMessage()
-                        + "\r\n");
-            } else {
-                header.add(key + ": " + value + "\r\n");
-            }
-        }
-        header.add("\r\n");
-        StringBuffer sb = new StringBuffer();
-        for (String line : header) {
-            sb.append(line);
-        }
-        return sb.toString();
-    }
+	private String parseContentType(String contentType) {
+		if (contentType.equals("html")) {
+			return "text/html";
+		} else if (contentType.equals("js")) {
+			return "application/js";
+		} else if (contentType.equals("css")) {
+			return "text/css";
+		} else {
+			return "";
+		}
+	}
 
+	public void setBody(String responseBody, String contentType) {
+		body = responseBody;
+		responseHeaderMap.put("Content-Length", responseBody.length());
+		responseHeaderMap.put("Content-Type", contentType);
+	}
 
-    public String toBody() {
-        return body + "\r\n";
-    }
+	public String toHeader() {
+		StringBuffer stringBuffer = new StringBuffer();
+
+		stringBuffer.append(HTTP_VERSION).append(" ")
+			.append(statusCode.getCode()).append(" ")
+			.append(statusCode.getMessage()).append(System.lineSeparator());
+
+		for (Entry<String, Object> entry : responseHeaderMap.entrySet()) {
+			String headerKey = entry.getKey();
+			Object headerValue = entry.getValue();
+
+			stringBuffer.append(headerKey).append(": ")
+				.append(headerValue).append(System.lineSeparator());
+		}
+		stringBuffer.append(System.lineSeparator());
+
+		return stringBuffer.toString();
+	}
+
+	public String toBody() {
+		return body;
+	}
+
+	public void setCookie(String cookie) {
+		responseHeaderMap.put("Set-Cookie", "sessionId=" + cookie + "; Path=/");
+	}
+
+	public void setDeleteCookie() {
+		responseHeaderMap.put("Set-Cookie", "sessionId=deleted; " +
+			"path=/; Max-Age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT/");
+	}
 }

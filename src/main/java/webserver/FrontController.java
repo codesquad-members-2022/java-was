@@ -3,9 +3,8 @@ package webserver;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import webserver.controller.Controller;
-import webserver.controller.DefaultController;
-import webserver.controller.UserCreateController;
+
+import webserver.controller.*;
 
 public class FrontController {
 
@@ -14,6 +13,8 @@ public class FrontController {
 
 	private FrontController() {
 		controllerMap.put("/user/create", UserCreateController.getInstance());
+		controllerMap.put("/user/login", LoginController.getInstance());
+		controllerMap.put("/user/logout", LogoutController.getInstance());
 		controllerMap.put("*", DefaultController.getInstance());
 	}
 
@@ -22,13 +23,11 @@ public class FrontController {
 	}
 
 	public void service(Request request, Response response) throws IOException {
-		// /user/create Controller
-		if ("/user/create".equals(request.getUri())) {
-			Controller userController = controllerMap.get("/user/create");
-			userController.process(request, response);
-		} else { // 그 외 Controller
-			Controller defaultController = controllerMap.get("*");
-			defaultController.process(request, response);
+		Controller controller = controllerMap.get(request.getUri());
+		if (controller == null) {
+			controller = controllerMap.get("*");
 		}
+
+		controller.process(request, response);
 	}
 }

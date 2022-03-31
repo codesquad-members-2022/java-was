@@ -5,11 +5,7 @@ import webserver.Response;
 
 import java.io.IOException;
 
-public abstract class Controller {
+public interface Controller {
 
-	protected Controller() {
-	}
-
-	public void process(Request request, Response response) throws IOException {
-	}
+	void process(Request request, Response response) throws IOException;
 }

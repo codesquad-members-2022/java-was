@@ -25,4 +25,8 @@ public class DataBase {
     public static boolean isUserIdExist(String userId) {
         return users.containsKey(userId);
     }
+
+    public static void deleteAll() {
+        users.clear();
+    }
 }

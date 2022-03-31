@@ -1,7 +1,7 @@
 ## Step04 리뷰 반영
 
 - [x] DataBase.findUserById "ddd" 수정하기
-- [ ] Session DB에서 직접 세션 생성하도록 변경
+- [x] Session DB에서 직접 세션 생성하도록 변경
 - [ ] LogoutServlet.getSessionId에서 상수 사용하기 (SESSION_ID_IDX=1)
 - [ ] HttpResponse 클래스 코드 리팩토링 하기
 

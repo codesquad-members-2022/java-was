@@ -3,6 +3,7 @@ package util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,15 +20,21 @@ public class HttpRequestUtils {
         return line.split(" ")[1];
     }
 
-    public static void readRequestHeader(BufferedReader bufferedReader) throws IOException {
-        String line = bufferedReader.readLine();
-        while (!Strings.isNullOrEmpty(line)) {
+    public static String getMethod(String line) {
+        return line.split(" ")[0];
+    }
+
+    public static Map<String, String> readRequestHeader(BufferedReader br) throws IOException {
+        String line = "";
+        Map<String, String> header = new HashMap<>();
+        while (!Strings.isNullOrEmpty(line = br.readLine())) {
             if (line == null) {
-                return;
+                break;
             }
-            log.debug("request header ={}", line);
-            line = bufferedReader.readLine();
+            String[] split = line.split(": ");
+            header.put(split[0], split[1]);
         }
+        return header;
     }
 
     /**
@@ -59,15 +66,15 @@ public class HttpRequestUtils {
             .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
 
-    static Pair getKeyValue(String keyValue, String regex) {
+    public static Pair getKeyValue(String keyValue, String regex) {
         if (Strings.isNullOrEmpty(keyValue)) {
             return null;
         }
 
         String[] tokens = keyValue.split(regex);
-        if (tokens.length != 2) {
-            return null;
-        }
+        // if (tokens.length != 2) {
+        //     return null;
+        // }
 
         return new Pair(tokens[0], tokens[1]);
     }
@@ -80,7 +87,7 @@ public class HttpRequestUtils {
         String key;
         String value;
 
-        Pair(String key, String value) {
+        public Pair(String key, String value) {
             this.key = key.trim();
             this.value = value.trim();
         }

@@ -22,10 +22,7 @@ public class RequestHandler extends Thread {
 
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream())); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            HttpRequest httpRequest = new HttpRequest();
-            httpRequest.write(bufferedReader);
-
-            HttpResponse httpResponse = UrlMapper.getResponse(httpRequest, bufferedReader);
+            HttpResponse httpResponse = UrlMapper.getResponse(RequestWriter.from(bufferedReader));
             sendHttpResponse(out, httpResponse);
         } catch (IOException e) {
             log.error(e.getMessage());

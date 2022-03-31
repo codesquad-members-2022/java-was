@@ -2,6 +2,7 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.login.Cookie;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 public class HttpResponse {
     private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
+    private static final String TEXT_HTML_CHARSET_UTF_8 = "text/html;charset=utf-8";
 
     private final String version;
     private HttpStatus httpStatus;
@@ -34,9 +36,13 @@ public class HttpResponse {
         this.responseBody = responseBody;
     }
 
+    public void addCookie(Cookie cookie) {
+        responseHeaders.put("Set-Cookie", cookie.getCookieString());
+    }
+
     public HttpResponse ok(String url) {
         this.httpStatus = HttpStatus.OK;
-        this.addHeader("Content-Type", "text/html;charset=utf-8");
+        this.addHeader("Content-Type", TEXT_HTML_CHARSET_UTF_8);
         try {
             this.addBody(Files.readAllBytes(new File("./webapp" + url).toPath()));
         } catch (IOException exception) {
@@ -49,24 +55,23 @@ public class HttpResponse {
 
     public HttpResponse badRequest() {
         this.httpStatus = HttpStatus.NOT_FOUND;
-        this.addHeader("Content-Type", "text/html;charset=utf-8");
+        this.addHeader("Content-Type", TEXT_HTML_CHARSET_UTF_8);
         log.debug("http response: {}", this);
         return this;
     }
 
     public HttpResponse redirect(String url) {
         this.httpStatus = HttpStatus.FOUND;
-        this.addHeader("Content-Type", "text/html;charset=utf-8");
+        this.addHeader("Content-Type", TEXT_HTML_CHARSET_UTF_8);
         this.addHeader("Location", url);
         log.debug("http response: {}, redirect: {}", this, url);
         return this;
     }
-    
+
     public String headers() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(String.format("%s %d %s %s", this.version, this.getHttpStatusCode(), this.getHttpStatusMessage(), System.lineSeparator()));
-        Map<String, String> responseHeaders = this.responseHeaders;
-        for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
+        for (Map.Entry<String, String> entry : this.responseHeaders.entrySet()) {
             sb.append(String.format("%s: %s %s", entry.getKey(), entry.getValue(), System.lineSeparator()));
         }
         return sb.toString();
@@ -79,7 +84,13 @@ public class HttpResponse {
     private String getHttpStatusMessage() {
         return httpStatus.getMessage();
     }
-    
+
+    public HttpResponse login(String url, Cookie cookie) {
+        this.redirect(url);
+        this.addCookie(cookie);
+        return this;
+    }
+
     public HttpStatus getHttpStatus() {
         return httpStatus;
     }
@@ -91,5 +102,9 @@ public class HttpResponse {
 
     public String bodyLength() {
         return String.valueOf(this.responseBody.length);
+    }
+
+    public String getHeader(String key) {
+        return responseHeaders.get(key);
     }
 }

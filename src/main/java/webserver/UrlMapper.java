@@ -4,8 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.controller.MainController;
 import webserver.controller.UserController;
+import webserver.login.SessionDataBase;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class UrlMapper {
@@ -16,25 +19,46 @@ public class UrlMapper {
     private UrlMapper() {
     }
 
-    public static HttpResponse getResponse(HttpRequest httpRequest, BufferedReader bufferedReader) {
-        String url = httpRequest.getPath();
+    public static HttpResponse getResponse(Request request) {
+        String url = request.getPath();
         log.debug(url);
-        HttpResponse httpResponse = new HttpResponse(httpRequest.httpVersion());
-        if (httpRequest.getMapping()) {
-            Map<String, String> queryString = httpRequest.getQueryString();
+        HttpResponse httpResponse = new HttpResponse(request.getVersion());
+        Map<String, String> params = request.getParams();
+        if (request.isGetMethod()) {
+            if (!checkLogin(url, request)) {
+                return httpResponse.redirect("/user/login.html");
+            }
+
             switch (url) {
                 case "/index.html":
-                    return mainController.main(url, httpResponse);
+                    return mainController.main(request, httpResponse);
                 case "/user/form.html":
-                    return userController.joinForm(url, httpResponse);
+                    return userController.joinForm(request, httpResponse);
+                case "/user/login.html":
+                    return userController.loginForm(request, httpResponse);
+                case "/user/logout":
+                    return userController.logout(request, httpResponse);
             }
-        } else if (httpRequest.postMapping()) {
-            Map<String, String> body = httpRequest.getBody(bufferedReader);
+        } else if (request.isPostMethod()) {
             switch (url) {
                 case "/user/create":
-                    return userController.join(body, httpResponse);
+                    return userController.join(request, httpResponse);
+                case "/user/login":
+                    return userController.login(request, httpResponse);
             }
         }
         return httpResponse.badRequest();
+    }
+
+    private static boolean checkLogin(String url, Request request) {
+        List<String> loggedUrls = interceptorLoginUrl();
+        boolean isLoggedIn = SessionDataBase.isLoggedIn(request.getCookie());
+        return (!loggedUrls.contains(url) || isLoggedIn);
+    }
+
+    private static List<String> interceptorLoginUrl() {
+        List<String> loggedUrls = new ArrayList<>();
+        loggedUrls.add("/user/profile");
+        return loggedUrls;
     }
 }

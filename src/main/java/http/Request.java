@@ -49,9 +49,9 @@ public class Request {
     private static void parseParameter(HttpRequestData requestData, HttpMethod httpMethod, String queryString,
         Request request) {
         if (isGetRequest(queryString, httpMethod)) {
-            request.setParameters(HttpRequestUtils.parseQueryString(queryString));
+            request.addParameters(HttpRequestUtils.parseQueryString(queryString));
         }
-        request.setParameters(requestData.getRequestBody());
+        request.addParameters(requestData.getRequestBody());
     }
 
     public String getSessionId() {
@@ -70,8 +70,8 @@ public class Request {
         return Collections.unmodifiableMap(parameters);
     }
 
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
+    public void addParameters(Map<String, String> parameters) {
+        this.parameters.putAll(parameters);
     }
 
     public HttpMethod getHttpMethod() {
@@ -80,5 +80,9 @@ public class Request {
 
     public void setHttpMethod(HttpMethod httpMethod) {
         this.httpMethod = httpMethod;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 }

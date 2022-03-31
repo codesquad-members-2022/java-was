@@ -1,17 +1,25 @@
 package webserver;
 
+import static util.HttpRequestUtils.parseQueryString;
+
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RequestHeader {
-    private static final Logger log = LoggerFactory.getLogger(RequestHeader.class);
+import util.IOUtils;
+
+public class Request {
+    private static final Logger log = LoggerFactory.getLogger(Request.class);
     private static final String[] methods = {"GET", "POST"};
+    private static final String version = "HTTP/1.1";
     public static final String SEPARATOR_OF_SPACE = "\\p{Blank}";
     public static final String SEPARATOR_OF_QUERY_STRINGS = "?";
     public static final String SEPARATOR_OF_COLON = ":";
@@ -21,14 +29,13 @@ public class RequestHeader {
 
     private String method;
     private String path;
-    private String version;
     private Map<String, String> header;
+    private Map<String, String> params;
 
-    public RequestHeader(List<String> messages) {
+    public Request(List<String> messages) {
         String[] firstLine = messages.get(0).split(SEPARATOR_OF_SPACE);
         setMethod(firstLine[0]);
         setPath(firstLine[1]);
-        this.version = firstLine[2].trim();
         setHeader(messages);
     }
 
@@ -95,5 +102,26 @@ public class RequestHeader {
 
     public String getCookie() {
         return header.get("Cookie");
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void of(BufferedReader bufferedReader) {
+        if (isGetMethod()) {
+            String queryParams = getQueryParams();
+            this.params = parseQueryString(toDecode(queryParams));
+        }
+        try {
+            String body = IOUtils.readData(bufferedReader, contentLength());
+            this.params = parseQueryString(toDecode(body));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private String toDecode(String url) {
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 }

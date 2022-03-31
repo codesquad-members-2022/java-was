@@ -18,23 +18,27 @@ public class UserCreateController implements Controller {
 
     @Override
     public Response handleRequest(Request request) {
-        String viewPath = signUp(request.getRequestBody());
+        Response response = Response.of(request.getProtocol(), STATUS302);
 
-        return Response.of(request.getProtocol(), STATUS302, viewPath);
+        return signUp(request, response);
     }
 
-    private String signUp(String requestBody) {
-        Map<String, String> params = HttpRequestUtils.parseQueryString(requestBody);
+    private Response signUp(Request request, Response response) {
+        Map<String, String> params = HttpRequestUtils.parseQueryString(request.getRequestBody());
         User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
 
         String userId = user.getUserId();
+
         if (DataBase.findUserById(userId).isPresent()) {
-            throw new IllegalArgumentException("중복된 아이디입니다.");
+            log.debug("{} sign up failed", userId);
+            response.setLocation("/user/form.html");
+            return response;
         }
 
         DataBase.addUser(user);
         log.debug("{} sign up", user);
 
-        return "/index.html";
+        response.setLocation("/index.html");
+        return response;
     }
 }

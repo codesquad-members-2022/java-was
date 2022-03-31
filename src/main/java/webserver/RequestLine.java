@@ -10,10 +10,11 @@ public class RequestLine {
     private String path;
     private String httpVersion;
 
-    public RequestLine(String httpMethod, String path, String httpVersion) {
-        this.httpMethod = httpMethod;
-        this.path = path;
-        this.httpVersion = httpVersion;
+    public RequestLine(String requestLine) {
+        String[] requestLineSplit = requestLine.split(" ");
+        this.httpMethod = requestLineSplit[0];
+        this.path = requestLineSplit[1];
+        this.httpVersion = requestLineSplit[2];
     }
 
     public String getPath() {

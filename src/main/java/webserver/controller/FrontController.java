@@ -10,7 +10,8 @@ public class FrontController implements Controller {
 
     private static final Map<RequestMapper, Controller> controllers =
             Map.of(new RequestMapper("POST", "/user/create"), new UserCreateController(),
-                    new RequestMapper("POST", "/user/login"), new UserLoginController());
+                    new RequestMapper("POST", "/user/login"), new UserLoginController(),
+                    new RequestMapper("GET", "/user/logout"), new LogoutController());
 
     @Override
     public Response handleRequest(Request request) {

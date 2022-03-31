@@ -22,4 +22,8 @@ public class SessionDataBase {
     public static boolean findSessionByUser(String sessionId) {
         return sessions.get(sessionId) != null;
     }
+
+    public static void remove(String sessionId) {
+        sessions.remove(sessionId);
+    }
 }

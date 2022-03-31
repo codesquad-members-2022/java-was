@@ -7,10 +7,10 @@ public class Response {
 
     private final String protocol;
     private final String status;
-    private String viewPath;
-    private ContentType contentType;
-    private String location;
     private final Cookie cookie;
+    private String viewPath; // body
+    private ContentType contentType; // body
+    private String location; // 302
 
     private Response(String protocol, String status, String viewPath, ContentType contentType, String location) {
         this.protocol = protocol;
@@ -25,8 +25,8 @@ public class Response {
         return new Response(protocol, status, viewPath, contentType, null);
     }
 
-    public static Response of(String protocol, String status, String location) {
-        return new Response(protocol, status, null, null, location);
+    public static Response of(String protocol, String status) {
+        return new Response(protocol, status, null, null, null);
     }
 
 
@@ -54,7 +54,15 @@ public class Response {
         return contentType.getType();
     }
 
+    public String getSession() {
+        return cookie.getSessionId().orElse(null);
+    }
+
     public void setCookie(String key, String value) {
         this.cookie.setCookies(key, value);
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class FrontController {
 
-    private static FrontController frontController = new FrontController();
+    private static FrontController frontController = null;
     private static Map<String, Controller> controllerMap = new HashMap<>();
 
     static {
@@ -20,6 +20,9 @@ public class FrontController {
     private FrontController() {}
 
     public static FrontController getInstance() {
+        if (frontController == null) {
+            frontController = new FrontController();
+        }
         return frontController;
     }
 

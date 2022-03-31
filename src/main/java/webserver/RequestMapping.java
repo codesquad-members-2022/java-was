@@ -7,6 +7,7 @@ public class RequestMapping {
 
     private static final Map<String, Controller> controllers = Map.ofEntries(
             entry("/", new IndexController()),
+            entry("/comment/create", new CommentCreationController()),
             entry("/user/list", new UserListController()),
             entry("/user/create", new UserCreationController()),
             entry("/user/login", new UserLoginController()),

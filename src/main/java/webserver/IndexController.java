@@ -12,17 +12,18 @@ import java.util.List;
 public class IndexController extends Controller {
 
     private static final String INDEX_HTML = "/index.html";
+    private static final String HTML_EXTENSION = ".html";
     private static final String COMMENT_BOARD_TAG_REGEX = "\\{\\{commentBoard}}";
     private static final int COMMENT_BOARD_SIZE = 5;
 
     @Override
     protected void processGet(HttpRequest httpRequest, HttpResponse httpResponse) {
         try {
-            String html = Files.readString(Path.of(RESOURCE_ROOT + INDEX_HTML));
-            html = html.replaceFirst(COMMENT_BOARD_TAG_REGEX, createCommentBoard());
-            byte[] body = html.getBytes(StandardCharsets.UTF_8);
+            byte[] body = Files.readString(Path.of(RESOURCE_ROOT + INDEX_HTML))
+                    .replaceFirst(COMMENT_BOARD_TAG_REGEX, createCommentBoard())
+                    .getBytes(StandardCharsets.UTF_8);
 
-            httpResponse.response200Header(body.length, ContentTypeMapping.getContentType(".html"));
+            httpResponse.response200Header(body.length, ContentTypeMapping.getContentType(HTML_EXTENSION));
             httpResponse.responseBody(body);
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,7 +49,11 @@ public class IndexController extends Controller {
                     .append("</tr>");
         }
 
-        commentBoardBuilder.append("</table>");
+        commentBoardBuilder.append("<tr><td colspan='3'>")
+                .append("<form action='/comment/create' method='post' style='margin-left:auto; margin-right:auto'>")
+                .append("<label for='comment'>한줄 코멘트</label>")
+                .append("<input type='text' id='comment' name='comment' required />")
+                .append("<button type='submit'>한줄 글쓰기</button></form></td></tr></table>");
 
         return commentBoardBuilder.toString();
     }

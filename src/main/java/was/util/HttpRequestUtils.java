@@ -1,4 +1,4 @@
-package util;
+package was.util;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -9,12 +9,15 @@ import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
     /**
-     * @param queryString은
-     *            URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
+     * @param queryString은 URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
      * @return
      */
-    public static Map<String, String> parseQueryString(String queryString) {
-        return parseValues(queryString, "&");
+    public static Map<String, String> parseQueryString(String path) {
+        String[] splitedPath = path.split(" ")[1].split("\\?");
+        if (splitedPath.length != 2) {
+            return null;
+        }
+        return parseValues(splitedPath[1], "&");
     }
 
     /**
@@ -51,6 +54,14 @@ public class HttpRequestUtils {
 
     public static Pair parseHeader(String header) {
         return getKeyValue(header, ": ");
+    }
+
+    public static String parsePath(String firstLine) {
+        return firstLine.split(" ")[1].split("\\?")[0];
+    }
+
+    public static String parseMethod(String firstLine) {
+        return firstLine.split(" ")[0];
     }
 
     public static class Pair {

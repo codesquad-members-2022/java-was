@@ -18,7 +18,7 @@ public class UserCreateController implements Controller {
 
     @Override
     public Response handleRequest(Request request) {
-        Response response = Response.of(request.getProtocol(), STATUS302);
+        Response response = new Response(request.getProtocol(), STATUS302);
 
         return signUp(request, response);
     }

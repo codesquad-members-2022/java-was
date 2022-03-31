@@ -19,7 +19,7 @@ public class UserLoginController implements Controller {
 
     @Override
     public Response handleRequest(Request request) {
-        Response response = Response.of(request.getProtocol(), STATUS302);
+        Response response = new Response(request.getProtocol(), STATUS302);
         return login(request, response);
     }
 
@@ -31,19 +31,15 @@ public class UserLoginController implements Controller {
         Optional<User> userOptional = DataBase.findUserById(userId);
 
 
-        if(userOptional.isEmpty()) {
+        if(userOptional.isEmpty() || !userOptional.get().isSamePassword(password)) {
             response.setLocation("/user/login_failed.html");
             return response;
         }
 
         User findUser = userOptional.get();
-        if (!findUser.isSamePassword(password)) {
-            response.setLocation("/user/login_failed.html");
-            return response;
-        }
 
         String sessionId = SessionDataBase.saveSession(findUser);
-        response.setCookie("sessionId", sessionId);
+        response.setCookie("sessionId=" + sessionId +"; path=/;");
         log.debug("login Success {}", userId);
         response.setLocation("/index.html");
         return response;

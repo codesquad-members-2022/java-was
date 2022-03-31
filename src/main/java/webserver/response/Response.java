@@ -1,18 +1,26 @@
 package webserver.response;
 
+import org.checkerframework.checker.units.qual.C;
 import webserver.ContentType;
 import webserver.Cookie;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 public class Response {
+    private static final String ROOT_PATH = "./webapp";
 
     private final String protocol;
     private final String status;
-    private final Cookie cookie;
-    private String viewPath; // body
-    private ContentType contentType; // body
-    private String location; // 302
+    private final Map<String, String> headers = new HashMap<>();
+    private byte[] body;
 
-    private Response(String protocol, String status, String viewPath, ContentType contentType, String location) {
+
+    public Response(String protocol, String status) {
         this.protocol = protocol;
         this.status = status;
         this.viewPath = viewPath;
@@ -25,11 +33,6 @@ public class Response {
         return new Response(protocol, status, viewPath, contentType, null);
     }
 
-    public static Response of(String protocol, String status) {
-        return new Response(protocol, status, null, null, null);
-    }
-
-
     public String getProtocol() {
         return protocol;
     }
@@ -38,31 +41,30 @@ public class Response {
         return status;
     }
 
-    public String getViewPath() {
-        return viewPath;
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
-    public ContentType getContentType() {
-        return contentType;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public String getContentTypeAsString() {
-        return contentType.getType();
-    }
-
-    public String getSession() {
-        return cookie.getSessionId().orElse(null);
-    }
-
-    public void setCookie(String key, String value) {
-        this.cookie.setCookies(key, value);
+    public Optional<byte[]> getBody() {
+        return Optional.ofNullable(body);
     }
 
     public void setLocation(String location) {
-        this.location = location;
+        headers.put("Location", location);
     }
+
+    public void setCookie(String cookie) {
+        headers.put("Set-Cookie", cookie);
+    }
+
+    public void saveBody(String viewPath) {
+        try {
+            this.body = Files.readAllBytes(new File(ROOT_PATH + viewPath).toPath());
+            headers.put("Content-Type", ContentType.from(viewPath).getType() + "; charset=utf-8");
+            headers.put("Content-Length", String.valueOf(body.length));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

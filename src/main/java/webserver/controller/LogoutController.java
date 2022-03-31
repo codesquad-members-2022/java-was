@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import webserver.request.Request;
 import webserver.response.Response;
 
-public class LogoutController implements Controller{
+public class LogoutController implements Controller {
 
     private static final String STATUS302 = "302 Redirect ";
 
@@ -14,18 +14,19 @@ public class LogoutController implements Controller{
 
     @Override
     public Response handleRequest(Request request) {
-        Response response = Response.of(request.getProtocol(), STATUS302);
+        Response response = new Response(request.getProtocol(), STATUS302);
 
         return logout(request, response);
     }
 
     private Response logout(Request request, Response response) {
-        String sessionId = request.getSessionId();// sessionId="asdadsde";
-        if(SessionDataBase.findSessionByUser(sessionId)) {
-           SessionDataBase.remove(sessionId);
+        String sessionId = request.getSessionId();
+        if (SessionDataBase.findSessionByUser(sessionId)) {
+            SessionDataBase.remove(sessionId);
         }
+
+        response.setCookie("sessionId=" + sessionId + "; Max-age=0; path=/;");
         response.setLocation("/index.html");
-        response.setCookie("sessionId", "deleted");
         return response;
     }
 

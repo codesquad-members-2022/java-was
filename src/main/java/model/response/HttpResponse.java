@@ -1,6 +1,7 @@
 package model.response;
 
 import model.http.Extention;
+import model.request.HttpRequest;
 import model.request.RequestLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +21,22 @@ public class HttpResponse {
 
     private Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
-    public void response(OutputStream out, RequestLine requestLine) throws IOException {
+    public void response(OutputStream out, HttpRequest httpRequest) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
 
-        String requestUrl = requestLine.getHttpRequestUrl();
+        String requestUrl = httpRequest.getRequestUrl();
         String path = getPath(WEBAPP_ROOT, requestUrl);
 
         String[] extentionArray = requestUrl.split(DOT);
 
         String extention = extentionArray[extentionArray.length - 1];
         byte[] body = Files.readAllBytes(new File(path).toPath());
+
+        if (httpRequest.isPost()) {
+            responseHeaderRedirection(dos, body.length, extention, requestUrl);
+            responseBody(dos, body);
+            return;
+        }
 
         responseHeader(dos, body.length, extention);
         responseBody(dos, body);
@@ -40,6 +47,18 @@ public class HttpResponse {
             dos.writeBytes("HTTP/1.1 " + "200" + " OK" + NEW_LINE);
             dos.writeBytes("Content-Type:" + Extention.of(type) + NEW_LINE);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
+            dos.writeBytes(NEW_LINE);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void responseHeaderRedirection(DataOutputStream dos, int lengthOfBodyContent, String type, String location) {
+        try {
+            dos.writeBytes("HTTP/1.1 " + "302" + " OK" + NEW_LINE);
+            dos.writeBytes("Content-Type:" + Extention.of(type) + NEW_LINE);
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
+            dos.writeBytes("Location: " + location);
             dos.writeBytes(NEW_LINE);
         } catch (IOException e) {
             log.error(e.getMessage());

@@ -31,7 +31,7 @@ class LogoutServletTest {
                 int cookieMaxAge = 0;
                 String cookiePath = "/";
                 Request request = new Request();
-                request.setSessionId(Session.createSession());
+                request.setSessionId(Session.generateSessionId());
                 Response response = new Response();
 
                 // when

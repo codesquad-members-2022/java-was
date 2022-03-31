@@ -11,7 +11,7 @@ public class Session {
 
     private Session() { }
 
-    public static String createSession() {
+    public static String generateSessionId() {
         HashMap<String, Object> sessionAttribute = new HashMap<>();
         String sessionId = UUID.randomUUID().toString();
         sessionMap.put(sessionId, sessionAttribute);

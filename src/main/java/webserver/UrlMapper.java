@@ -19,14 +19,13 @@ public class UrlMapper {
     private UrlMapper() {
     }
 
-    public static HttpResponse getResponse(HttpRequest httpRequest, BufferedReader bufferedReader) {
-        String url = httpRequest.getPath();
+    public static HttpResponse getResponse(Request request) {
+        String url = request.getPath();
         log.debug(url);
-        HttpResponse httpResponse = new HttpResponse(httpRequest.httpVersion());
-        if (httpRequest.getMapping()) {
-            Map<String, String> queryString = httpRequest.getQueryString();
-
-            if (!checkLogin(url, httpRequest)) {
+        HttpResponse httpResponse = new HttpResponse(request.getVersion());
+        Map<String, String> params = request.getParams();
+        if (request.isGetMethod()) {
+            if (!checkLogin(url, request)) {
                 return httpResponse.redirect("/user/login.html");
             }
 
@@ -38,24 +37,22 @@ public class UrlMapper {
                 case "/user/login.html":
                     return userController.loginForm(url, httpResponse);
                 case "/user/logout":
-                    return userController.logout(httpRequest.cookie(), httpResponse);
+                    return userController.logout(request.getCookie(), httpResponse);
             }
-        } else if (httpRequest.postMapping()) {
-            Map<String, String> body = httpRequest.getBody(bufferedReader);
+        } else if (request.isPostMethod()) {
             switch (url) {
                 case "/user/create":
-                    return userController.join(body, httpResponse);
+                    return userController.join(params, httpResponse);
                 case "/user/login":
-                    return userController.login(body, httpResponse);
+                    return userController.login(params, httpResponse);
             }
         }
         return httpResponse.badRequest();
     }
 
-    // 학습용용
-    private static boolean checkLogin(String url, HttpRequest httpRequest) {
+    private static boolean checkLogin(String url, Request request) {
         List<String> loggedUrls = interceptorLoginUrl();
-        boolean isLoggedIn = SessionDataBase.isLoggedIn(httpRequest.cookie());
+        boolean isLoggedIn = SessionDataBase.isLoggedIn(request.getCookie());
         return (!loggedUrls.contains(url) || isLoggedIn);
     }
 

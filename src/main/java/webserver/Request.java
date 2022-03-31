@@ -4,32 +4,39 @@ import java.util.Map;
 
 public class Request {
 
-    private String methodType;
-    private String requestLine;
+    private RequestLine requestLine;
+    private Map<String, String> headers;
     private String messageBody;
-    private URL url;
 
-    public Request(String requestLine, String messageBody, String methodType, URL url) {
+    public Request(RequestLine requestLine, Map<String, String> headers, String messageBody) {
         this.requestLine = requestLine;
+        this.headers = headers;
         this.messageBody = messageBody;
-        this.methodType = methodType;
-        this.url = url;
     }
 
     public String getMessageBody() {
         return messageBody;
     }
 
-    public String getRequestLine() {
+    public RequestLine getRequestLine() {
         return requestLine;
     }
 
-    public URL getURL() {
-        return url;
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
-    public String getMethodType() {
-        return methodType;
+    public boolean isGetMethodType() {
+        return requestLine.isGetMethodType();
     }
+
+    public boolean isPostMethodType() {
+        return requestLine.isPostMethodType();
+    }
+
+    public URL getUrl() {
+        return requestLine.getUrl();
+    }
+
 }
 

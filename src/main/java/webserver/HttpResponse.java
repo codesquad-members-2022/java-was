@@ -103,4 +103,8 @@ public class HttpResponse {
     public String bodyLength() {
         return String.valueOf(this.responseBody.length);
     }
+
+    public String getHeader(String key) {
+        return responseHeaders.get(key);
+    }
 }

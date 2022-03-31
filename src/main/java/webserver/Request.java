@@ -1,10 +1,9 @@
 package webserver;
 
-import static util.HttpRequestUtils.parseQueryString;
-
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,12 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import util.IOUtils;
+import static util.HttpRequestUtils.parseQueryString;
 
 public class Request {
     private static final Logger log = LoggerFactory.getLogger(Request.class);
     private static final String[] methods = {"GET", "POST"};
-    private static final String version = "HTTP/1.1";
+    private static final String VERSION = "HTTP/1.1";
     public static final String SEPARATOR_OF_SPACE = "\\p{Blank}";
     public static final String SEPARATOR_OF_QUERY_STRINGS = "?";
     public static final String SEPARATOR_OF_COLON = ":";
@@ -84,7 +83,7 @@ public class Request {
     }
 
     public String getQueryParams() {
-		return path.substring(path.indexOf(SEPARATOR_OF_QUERY_STRINGS) + 1);
+        return path.substring(path.indexOf(SEPARATOR_OF_QUERY_STRINGS) + 1);
     }
 
     // POST
@@ -97,7 +96,7 @@ public class Request {
     }
 
     public String getVersion() {
-        return version;
+        return VERSION;
     }
 
     public String getCookie() {
@@ -112,6 +111,7 @@ public class Request {
         if (isGetMethod()) {
             String queryParams = getQueryParams();
             this.params = parseQueryString(toDecode(queryParams));
+            return;
         }
         try {
             String body = IOUtils.readData(bufferedReader, contentLength());

@@ -5,6 +5,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.HttpResponse;
+import webserver.Request;
 import webserver.login.Cookie;
 import webserver.login.SessionDataBase;
 
@@ -17,11 +18,12 @@ public class UserController {
     private static final String JOIN_PAGE_URL = "/user/form.html";
     private static final String LOGIN_FAILED_URL = "/user/login_failed.html";
 
-    public HttpResponse joinForm(String url, HttpResponse httpResponse) {
-        return httpResponse.ok(url);
+    public HttpResponse joinForm(Request request, HttpResponse httpResponse) {
+        return httpResponse.ok(request.getPath());
     }
 
-    public HttpResponse join(Map<String, String> body, HttpResponse httpResponse) {
+    public HttpResponse join(Request request, HttpResponse httpResponse) {
+        Map<String, String> body = request.getParams();
         User user = new User(body.get("userId"),
                 body.get("password"),
                 body.get("name"),
@@ -35,11 +37,12 @@ public class UserController {
         return httpResponse.redirect(INDEX_PAGE_URL);
     }
 
-    public HttpResponse loginForm(String url, HttpResponse httpResponse) {
-        return httpResponse.ok(url);
+    public HttpResponse loginForm(Request request, HttpResponse httpResponse) {
+        return httpResponse.ok(request.getPath());
     }
 
-    public HttpResponse login(Map<String, String> body, HttpResponse httpResponse) {
+    public HttpResponse login(Request request, HttpResponse httpResponse) {
+        Map<String, String> body = request.getParams();
         String loginUserId = body.get("userId");
         String loginPassword = body.get("password");
 
@@ -52,8 +55,8 @@ public class UserController {
         return httpResponse.redirect(LOGIN_FAILED_URL);
     }
 
-    public HttpResponse logout(String cookie, HttpResponse httpResponse) {
-        SessionDataBase.deleteCookie(cookie);
+    public HttpResponse logout(Request request, HttpResponse httpResponse) {
+        SessionDataBase.deleteCookie(request.getCookie());
         return httpResponse.redirect(INDEX_PAGE_URL);
     }
 }

@@ -31,20 +31,20 @@ public class UrlMapper {
 
             switch (url) {
                 case "/index.html":
-                    return mainController.main(url, httpResponse);
+                    return mainController.main(request, httpResponse);
                 case "/user/form.html":
-                    return userController.joinForm(url, httpResponse);
+                    return userController.joinForm(request, httpResponse);
                 case "/user/login.html":
-                    return userController.loginForm(url, httpResponse);
+                    return userController.loginForm(request, httpResponse);
                 case "/user/logout":
-                    return userController.logout(request.getCookie(), httpResponse);
+                    return userController.logout(request, httpResponse);
             }
         } else if (request.isPostMethod()) {
             switch (url) {
                 case "/user/create":
-                    return userController.join(params, httpResponse);
+                    return userController.join(request, httpResponse);
                 case "/user/login":
-                    return userController.login(params, httpResponse);
+                    return userController.login(request, httpResponse);
             }
         }
         return httpResponse.badRequest();

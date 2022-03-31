@@ -6,14 +6,14 @@ import org.slf4j.LoggerFactory;
 import webserver.request.Request;
 import webserver.response.Response;
 
-public class LogoutController implements Controller {
+public class LogoutController implements BackController {
 
     private static final String STATUS302 = "302 Redirect ";
 
     private final Logger log = LoggerFactory.getLogger(LogoutController.class);
 
     @Override
-    public Response handleRequest(Request request) {
+    public Response process(Request request) {
         Response response = new Response(request.getProtocol(), STATUS302);
 
         return logout(request, response);

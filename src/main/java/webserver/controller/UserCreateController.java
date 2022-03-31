@@ -10,14 +10,14 @@ import webserver.response.Response;
 
 import java.util.Map;
 
-public class UserCreateController implements Controller {
+public class UserCreateController implements BackController {
 
     private static final String STATUS302 = "302 Redirect ";
 
     private final Logger log = LoggerFactory.getLogger(UserCreateController.class);
 
     @Override
-    public Response handleRequest(Request request) {
+    public Response process(Request request) {
         Response response = new Response(request.getProtocol(), STATUS302);
 
         return signUp(request, response);

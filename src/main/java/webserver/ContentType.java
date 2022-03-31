@@ -15,13 +15,13 @@ public enum ContentType {
         return type;
     }
 
-    public static ContentType from(String url) {
+    public static String findType(String url) {
         if(url.endsWith("js")) {
-            return JS;
+            return JS.type;
         }
         if(url.endsWith("css")) {
-            return CSS;
+            return CSS.type;
         }
-        return HTML;
+        return HTML.type;
     }
 }

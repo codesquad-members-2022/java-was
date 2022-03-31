@@ -1,8 +1,6 @@
 package webserver.response;
 
-import org.checkerframework.checker.units.qual.C;
 import webserver.ContentType;
-import webserver.Cookie;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +58,7 @@ public class Response {
     public void saveBody(String viewPath) {
         try {
             this.body = Files.readAllBytes(new File(ROOT_PATH + viewPath).toPath());
-            headers.put("Content-Type", ContentType.from(viewPath).getType() + "; charset=utf-8");
+            headers.put("Content-Type", ContentType.findType(viewPath) + "; charset=utf-8");
             headers.put("Content-Length", String.valueOf(body.length));
         } catch (IOException e) {
             e.printStackTrace();

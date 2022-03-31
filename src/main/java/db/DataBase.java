@@ -28,4 +28,11 @@ public class DataBase {
                 .map(user -> user.hasPasswordEqualTo(password))
                 .orElse(false);
     }
+
+    // 동작 확인을 위한 샘플 데이터
+    static {
+        addUser(new User("Sammy", "1234", "sammy", "sammy@naver.com"));
+        addUser(new User("ikjo", "1234", "ikjo", "ikjo@naver.com"));
+        addUser(new User("hounx", "1234", "hounx", "hounx@naver.com"));
+    }
 }

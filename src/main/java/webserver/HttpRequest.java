@@ -14,6 +14,22 @@ import java.util.stream.Collectors;
 
 public class HttpRequest {
 
+    private static final String QUERY_SEPARATOR = "?";
+    private static final String QUERY_SEPARATOR_REGEX = "\\" + QUERY_SEPARATOR;
+    private static final String CONTENT_LENGTH = "Content-Length";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String COOKIE = "Cookie";
+    private static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
+
+    private static final String REQUEST_LINE_DELIMITER = " ";
+    private static final String QUERY_DELIMITER = "&";
+    private static final String COOKIE_DELIMITER = ";";
+
+    private static final String COOKIE_KEY_VALUE_SEPARATOR = "=";
+    private static final String QUERY_KEY_VALUE_SEPARATOR = "=";
+    private static final String HEADER_KEY_VALUE_SEPARATOR = ": ";
+    private static final String LINE_SEPARATOR = System.lineSeparator();
+
     private String method;
     private String uri;
     private String path;
@@ -29,33 +45,37 @@ public class HttpRequest {
         HttpRequest httpRequest = new HttpRequest();
         String requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
 
-        httpRequest.method = getRequestMethod(requestLine);
-        httpRequest.uri = getRequestURI(requestLine);
-        httpRequest.path = getRequestPath(httpRequest.getUri());
+        httpRequest.method = getMethod(requestLine);
+        httpRequest.uri = getURI(requestLine);
+        httpRequest.path = getPath(httpRequest.getUri());
         httpRequest.headers = parseHeaders(readHeaders(br));
 
-        if (httpRequest.uri.contains("?")) {
-            httpRequest.parameters = parseQueryString(httpRequest.uri.split("\\?")[1]);
+        if (httpRequest.uri.contains(QUERY_SEPARATOR)) {
+            httpRequest.parameters = parseQueryString(httpRequest.uri.split(QUERY_SEPARATOR_REGEX)[1]);
         }
 
         String requestBody = "";
 
-        if (httpRequest.getHeader("Content-Length") != null) {
-            int contentLength = Integer.parseInt(httpRequest.getHeader("Content-Length"));
+        if (httpRequest.getHeader(CONTENT_LENGTH) != null) {
+            int contentLength = Integer.parseInt(httpRequest.getHeader(CONTENT_LENGTH));
             requestBody = URLDecoder.decode(readData(br, contentLength), StandardCharsets.UTF_8);
         }
 
-        if ("application/x-www-form-urlencoded".equals(httpRequest.getHeader("Content-Type"))) {
+        if (APPLICATION_X_WWW_FORM_URLENCODED.equals(httpRequest.getHeader(CONTENT_TYPE))) {
             httpRequest.parameters = parseQueryString(requestBody);
         }
 
-        String cookies = httpRequest.getHeader("Cookie");
+        String cookies = httpRequest.getHeader(COOKIE);
 
         if (cookies != null) {
             httpRequest.cookies = parseCookies(cookies);
         }
 
         return httpRequest;
+    }
+
+    public boolean isLoggedIn() {
+        return Boolean.parseBoolean(cookies.get("logged_in"));
     }
 
     public String getUri() {
@@ -68,10 +88,6 @@ public class HttpRequest {
 
     public boolean hasMethodEqualTo(String method) {
         return this.method.equals(method);
-    }
-
-    public boolean hasPathEqualTo(String path) {
-        return this.path.equals(path);
     }
 
     public String getPath() {
@@ -100,20 +116,20 @@ public class HttpRequest {
         return String.copyValueOf(body);
     }
 
-    private static String getRequestMethod(String requestLine) {
-        return requestLine.split(" ")[0];
+    private static String getMethod(String requestLine) {
+        return requestLine.split(REQUEST_LINE_DELIMITER)[0];
     }
 
-    private static String getRequestURI(String requestLine) {
-        return requestLine.split(" ")[1];
+    private static String getURI(String requestLine) {
+        return requestLine.split(REQUEST_LINE_DELIMITER)[1];
     }
 
-    private static String getRequestPath(String requestURI) {
-        return requestURI.split("\\?")[0];
+    private static String getPath(String requestURI) {
+        return requestURI.split(QUERY_SEPARATOR_REGEX)[0];
     }
 
     private static Map<String, String> parseCookies(String cookies) {
-        return parseValues(cookies, ";", "=");
+        return parseValues(cookies, COOKIE_DELIMITER, COOKIE_KEY_VALUE_SEPARATOR);
     }
 
     private static String readHeaders(BufferedReader br) throws IOException {
@@ -121,18 +137,18 @@ public class HttpRequest {
         String line;
 
         while (!(line = br.readLine()).isEmpty()) {
-            sb.append(line).append("\n");
+            sb.append(line).append(LINE_SEPARATOR);
         }
 
         return sb.toString();
     }
 
     private static Map<String, String> parseHeaders(String headers) {
-        return parseValues(headers, "\n", ": ");
+        return parseValues(headers, LINE_SEPARATOR, HEADER_KEY_VALUE_SEPARATOR);
     }
 
     private static Map<String, String> parseQueryString(String queryString) {
-        return parseValues(queryString, "&", "=");
+        return parseValues(queryString, QUERY_DELIMITER, QUERY_KEY_VALUE_SEPARATOR);
     }
 
     private static Map<String, String> parseValues(String values, String separator, String keyValueSeparator) {

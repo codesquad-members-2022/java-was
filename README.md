@@ -115,3 +115,34 @@ Java Web Server Project for CodeSquad Members 2022
 ### TODO
 
 - Response Header를 전송하는 메서드들의 중복과 파편화가 심하다. HttpResponse 클래스를 만들어 HTTP 응답에 관련된 내용을 객체로 묶도록 해야겠다. 
+
+## 5단계 - 동적 HTML
+
+### 기능요구사항
+
+- [x] 접근하고 있는 사용자가 “로그인” 상태일 경우 http://localhost:8080/user/list 에서 사용자 목록을 출력한다.
+- [x] 만약 로그인하지 않은 상태라면 로그인 페이지(login.html)로 이동한다.
+
+### 프로그래밍 요구사항
+
+- [x] StringBuilder를 활용해 사용자 목록을 출력하는 html 을 동적으로 생성한 후 응답으로 보낸다.
+
+### 학습 메모
+
+- 이번 미션의 경우 최소한의 코드로 요구사항을 구현했으나, 추후 템플릿 엔진(머스태치 등)과 같은 유사한 방식으로 태그를 인식하여 렌더링하는 코드도 구현해볼 수 있을 것 같다.
+- socket에서 getInputStream 또는 getOutputStream으로 반환된 스트림을 닫으면 socket도 같이 닫힌다.
+  - Java docs
+   > Closing the returned Input(Output)Stream will close the associated socket.
+- Controller를 Mapping하면서 다형성을 활용하는 좋은 연습이 되었다.
+- HttpResponse를 별도의 객체로 분리했으나 아직 하드코딩 된 부분이 많아 좀 더 동적으로 Response 내용을 생성할 수 있도록 개선해보겠다.
+- HTTP header 는 ISO-8859-1 인코딩을 사용한다. 
+  - RFC5987 에 따르면 ISO-8859-1 및 UTF-8 인코딩이 허용되지만, 호환성 문제 때문에 header 에는 ISO-8859-1 (또는 ASCII 문자)만 사용하는 것이 보통이다.
+  - 입력받는 쪽에서 바이트스트림을 UTF-8 로 디코딩하면 ISO-8859-1 문자들도 정상적으로 디코딩된다. 
+  - message body 에는 어떠한 octet 이든 전송할 수 있다.
+  - 현재 우리 코드는 InputStreamReader 를 이용하여 전체 HTTP 요청을 문자 형식으로 받고 있다.
+  - message body 는 무조건 URL 디코더를 사용하여 디코딩하고 있다. 
+  - 사실은 헤더까지만 읽은 뒤, Content-Type 을 확인하고 그에 맞춰 message body 를 읽어야 하지 않을까? 
+  - 참고: https://stackoverflow.com/questions/818122/which-encoding-is-used-by-the-http-protocol
+  - 참고: https://www.jmix.io/cuba-blog/utf-8-in-http-headers/
+  - 참고: https://www.rfc-editor.org/rfc/rfc2616 
+  - 참고: https://www.rfc-editor.org/rfc/rfc5987 

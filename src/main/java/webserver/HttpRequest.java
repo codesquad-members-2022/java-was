@@ -22,8 +22,7 @@ public class HttpRequest {
 
     private void init() throws IOException {
         String requestLine = URLDecoder.decode(br.readLine(), StandardCharsets.UTF_8);
-        String[] requestLineSplit = requestLine.split(" ");
-        this.requestLine = new RequestLine(requestLineSplit[0], requestLineSplit[1], requestLineSplit[2]);
+        this.requestLine = new RequestLine(requestLine);
         this.headers = IOUtils.readRequestHeader(br);
         this.parameters = parseParameter();
     }

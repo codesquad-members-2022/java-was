@@ -72,9 +72,6 @@ public class HttpRequestUtils {
         }
 
         String[] tokens = keyValue.split(regex);
-        // if (tokens.length != 2) {
-        //     return null;
-        // }
 
         return new Pair(tokens[0], tokens[1]);
     }

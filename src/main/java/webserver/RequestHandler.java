@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 import util.HttpRequestUtils.Pair;
 import webserver.controller.Controller;
-import webserver.controller.DefaultController;
+import webserver.controller.StaticFileController;
 import webserver.controller.UserJoinController;
 import webserver.controller.UserLoginController;
 import webserver.controller.UserLogoutController;
@@ -28,7 +28,6 @@ public class RequestHandler extends Thread {
             new Pair("POST", "/user/create"), new UserJoinController(),
             new Pair("POST", "/user/login"), new UserLoginController(),
             new Pair("GET", "/user/logout"), new UserLogoutController()
-
         ));
     private Socket connection;
 
@@ -45,16 +44,12 @@ public class RequestHandler extends Thread {
             Request request = new Request(in);
             Response response = new Response(out);
 
-            Pair pair = HttpRequestUtils.getKeyValue(request.getRequestLine(), " ");
-
-            Controller controller = Optional.ofNullable(requestLineHandler.get(pair))
-                .orElseGet(DefaultController::new);
-
-            controller.process(request, response);
+            Optional.ofNullable(requestLineHandler.get(HttpRequestUtils.getKeyValue(request.getRequestLine(), " ")))
+                .orElseGet(StaticFileController::new)
+                .process(request, response);
 
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
-
 }

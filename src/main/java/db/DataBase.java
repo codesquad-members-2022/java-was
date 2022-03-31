@@ -15,7 +15,7 @@ public class DataBase {
     private static Map<String, User> users = new HashMap<>();
 
     public static Optional<User> addUser(User user) {
-        if (users.get(user.getUserId()) != null) {
+        if (users.containsKey(user.getUserId())) {
             return Optional.empty();
         }
         users.put(user.getUserId(), user);

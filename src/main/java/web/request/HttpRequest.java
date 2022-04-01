@@ -80,7 +80,7 @@ public class HttpRequest {
     }
 
     private Map<String, Cookie> initCookies() {
-        return HttpRequestUtils.parseCookies(getParameter("Cookie"))
+        return HttpRequestUtils.parseCookies(getHeader("Cookie"))
                 .entrySet()
                 .stream()
                 .map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
@@ -107,6 +107,10 @@ public class HttpRequest {
         return Optional.ofNullable(headers.get("Content-Length"))
                 .map(Integer::parseInt)
                 .orElse(0);
+    }
+
+    public String getHeader(String headerName) {
+        return headers.get(headerName);
     }
 
     public Cookie getCookie(String cookieName) {

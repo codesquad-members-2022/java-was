@@ -5,10 +5,8 @@ import static org.assertj.core.api.Assertions.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import util.HttpRequestUtils.Pair;
 
 public class HttpRequestUtilsTest {
     @Test

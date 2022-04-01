@@ -17,19 +17,10 @@ public class Response {
     private final Map<String, String> headers = new HashMap<>();
     private byte[] body;
 
-
     public Response(String protocol, String status) {
         this.protocol = protocol;
         this.status = status;
-        this.viewPath = viewPath;
-        this.contentType = contentType;
-        this.location = location;
-        this.cookie = new Cookie();
-    }
-
-    public static Response of(String protocol, String status, String viewPath, ContentType contentType) {
-        return new Response(protocol, status, viewPath, contentType, null);
-    }
+    };
 
     public String getProtocol() {
         return protocol;
@@ -64,5 +55,4 @@ public class Response {
             e.printStackTrace();
         }
     }
-
 }

@@ -14,7 +14,7 @@ public class ResponseWriter {
 
     private static final String NEW_LINE = "\r\n";
     private static final String BLANK = " ";
-    private static final String HEADER_DELIMETER = ": ";
+    private static final String HEADER_DELIMITER = ": ";
 
     private final Logger log = LoggerFactory.getLogger(ResponseWriter.class);
 
@@ -33,7 +33,7 @@ public class ResponseWriter {
            writeBody();
            dos.flush();
        } catch (IOException e) {
-           e.printStackTrace();
+           log.debug(e.getMessage());
        }
     }
 
@@ -45,7 +45,7 @@ public class ResponseWriter {
         for (Map.Entry<String, String> entry : response.getHeaders().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            dos.writeBytes(key + HEADER_DELIMETER + value + NEW_LINE);
+            dos.writeBytes(key + HEADER_DELIMITER + value + NEW_LINE);
         }
         dos.writeBytes(NEW_LINE);
     }

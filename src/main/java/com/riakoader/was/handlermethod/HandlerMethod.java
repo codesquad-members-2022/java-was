@@ -1,4 +1,4 @@
-package com.riakoader.was.handler;
+package com.riakoader.was.handlermethod;
 
 import com.riakoader.was.httpmessage.HttpRequest;
 import com.riakoader.was.httpmessage.HttpResponse;

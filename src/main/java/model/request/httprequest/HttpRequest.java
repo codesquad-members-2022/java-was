@@ -16,6 +16,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static model.http.HttpMethod.GET;
 import static model.http.HttpMethod.POST;
 import static util.SpecialCharacters.BLANK;
 
@@ -80,6 +81,12 @@ public class HttpRequest implements HttpServletRequest {
         return body.getBody();
     }
 
+    @Override
+    public boolean isGet() {
+        return requestLine.getHttpMethod().equals(GET);
+    }
+
+    @Override
     public boolean isPost() {
         return requestLine.getHttpMethod().equals(POST);
     }
@@ -88,4 +95,5 @@ public class HttpRequest implements HttpServletRequest {
     public String getRequestURL() {
         return null;
     }
+
 }

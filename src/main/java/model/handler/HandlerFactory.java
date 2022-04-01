@@ -1,11 +1,9 @@
 package model.handler;
 
-import model.handler.controller.HomeController;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static configuration.ObjectFactory.homeController;
+import static configuration.ObjectFactory.*;
 
 public class HandlerFactory {
 
@@ -34,6 +32,8 @@ public class HandlerFactory {
 
     void initMapping() {
         put("/index", homeController);
+        put("/user/form", userCreateController);
+        put("/user/login", userLoginController);
     }
 
     private void put(String url, Handler handler) {

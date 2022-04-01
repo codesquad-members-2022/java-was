@@ -1,6 +1,5 @@
 package model.handler;
 
-import model.handler.controller.HomeController;
 import model.request.HttpServletRequest;
 
 public class RequestMapping implements HandlerMapping {

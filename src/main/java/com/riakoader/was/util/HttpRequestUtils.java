@@ -9,6 +9,18 @@ import com.google.common.collect.Maps;
 public class HttpRequestUtils {
 
     /**
+     * 간단하게 Handler 레이어는 depth 1, HandlerMethod 레이어는 depth 2 로 가정하여 처리해야할 uri 를 적절히 추출해낸다.
+     *
+     * @param requestURI
+     * @param depth
+     * @return
+     */
+    public static String getCurrentPath(String requestURI, int depth) {
+        String[] path = requestURI.split("/");
+        return "/" + (path.length == depth ? "" : path[depth]);
+    }
+
+    /**
      * @param queryString URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
      * @return
      */

@@ -9,18 +9,18 @@ public class WebServerContext extends BeanFactory {
 
     final FrontHandler frontHandler;
 
-    /**
+    /*
      * Registry
      */
     final HandlerRegistry handlerRegistry;
     final HandlerMethodMapperRegistry handlerMethodMapperRegistry;
 
-    /**
+    /*
      * Mapper
      */
     final HandlerMapper handlerMapper;
 
-    /**
+    /*
      * Handler
      */
     final ResourceHandler resourceHandler;

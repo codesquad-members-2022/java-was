@@ -134,7 +134,6 @@ public class WebServerConfig implements WebServerConfigurer {
                                     User user = DataBase.findUserById(request.getParameter("userId"));
 
                                     logger.debug("user: {}", user);
-                                    logger.debug("request password: {}", request.getParameter("password"));
 
                                     HttpResponse response = new HttpResponse(request.getProtocol());
                                     if (!user.getPassword().equals(request.getParameter("password"))) {
@@ -149,8 +148,8 @@ public class WebServerConfig implements WebServerConfigurer {
 
                                     Cookie cookie = new Cookie("sessionId", session.getAttribute("sessionId"));
                                     cookie.setPath("/");
-                                    response.addCookie(cookie);
 
+                                    response.addCookie(cookie);
                                     response.setHeader("Location", "/index.html");
                                     response.setStatus(HttpStatus.FOUND);
 
@@ -162,14 +161,13 @@ public class WebServerConfig implements WebServerConfigurer {
 
                                     logger.debug("cookies: {}", request.getCookies());
 
-                                    HttpResponse response = new HttpResponse(request.getProtocol());
-
                                     HttpSession session = request.getSession();
 
                                     Cookie cookie = new Cookie("sessionId", session.getAttribute("sessionId"));
                                     cookie.setMaxAge(0);
                                     cookie.setPath("/");
 
+                                    HttpResponse response = new HttpResponse(request.getProtocol());
                                     response.addCookie(cookie);
                                     response.setHeader("Location", "/index.html");
                                     response.setStatus(HttpStatus.FOUND);

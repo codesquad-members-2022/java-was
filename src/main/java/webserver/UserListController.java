@@ -9,7 +9,7 @@ public class UserListController extends Controller {
     @Override
     protected void processGet(HttpRequest httpRequest, HttpResponse httpResponse) {
         if (!httpRequest.isLoggedIn()) {
-            httpResponse.response302Header("/user/login.html");
+            httpResponse.redirectTo("/user/login.html");
             return;
         }
 
@@ -34,7 +34,9 @@ public class UserListController extends Controller {
 
         byte[] body = userListBuilder.toString().getBytes();
 
-        httpResponse.response200Header(body.length, ContentTypeMapping.getContentType(".html"));
-        httpResponse.responseBody(body);
+        httpResponse.addHeader("Content-Type", ContentTypeMapping.getContentType(".html"));
+        httpResponse.addHeader("Content-Length", "" + body.length);
+        httpResponse.sendHeader();
+        httpResponse.sendBody(body);
     }
 }

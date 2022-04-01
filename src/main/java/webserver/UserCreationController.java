@@ -8,14 +8,13 @@ public class UserCreationController extends Controller  {
 
     @Override
     protected void processPost(HttpRequest httpRequest, HttpResponse httpResponse) {
-        Map<String, String> userCreationForm = httpRequest.getParameters();
-        User user = new User(userCreationForm.get("userId"),
-            userCreationForm.get("password"),
-            userCreationForm.get("name"),
-            userCreationForm.get("email"));
+        User user = new User(httpRequest.getParameter("userId"),
+            httpRequest.getParameter("password"),
+            httpRequest.getParameter("name"),
+            httpRequest.getParameter("email"));
 
         UserDataBase.add(user);
 
-        httpResponse.response302Header("/");
+        httpResponse.redirectTo("/");
     }
 }

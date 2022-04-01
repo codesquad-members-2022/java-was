@@ -11,20 +11,20 @@ import java.util.List;
 
 public class IndexController extends Controller {
 
-    private static final String INDEX_HTML = "/index.html";
-    private static final String HTML_EXTENSION = ".html";
     private static final String COMMENT_BOARD_TAG_REGEX = "\\{\\{commentBoard}}";
     private static final int COMMENT_BOARD_SIZE = 5;
 
     @Override
     protected void processGet(HttpRequest httpRequest, HttpResponse httpResponse) {
         try {
-            byte[] body = Files.readString(Path.of(RESOURCE_ROOT + INDEX_HTML))
+            byte[] body = Files.readString(Path.of(RESOURCE_ROOT + "/index.html"))
                     .replaceFirst(COMMENT_BOARD_TAG_REGEX, createCommentBoard())
                     .getBytes(StandardCharsets.UTF_8);
 
-            httpResponse.response200Header(body.length, ContentTypeMapping.getContentType(HTML_EXTENSION));
-            httpResponse.responseBody(body);
+            httpResponse.addHeader("Content-Type", ContentTypeMapping.getContentType(".html"));
+            httpResponse.addHeader("Content-Length", "" + body.length);
+            httpResponse.sendHeader();
+            httpResponse.sendBody(body);
         } catch (IOException e) {
             e.printStackTrace();
         }

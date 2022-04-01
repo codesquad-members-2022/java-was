@@ -12,9 +12,10 @@ public class Sessions {
 
     public static HttpSession getSession(String sessionId) {
         return Optional.ofNullable(sessions.get(sessionId))
-                .orElseGet(
-                        () -> sessions.put(sessionId, new HttpSession(sessionId))
-                );
+                .orElseGet(() -> {
+                    sessions.put(sessionId, new HttpSession(sessionId));
+                    return sessions.get(sessionId);
+                });
     }
 
     public static void remove(String sessionId) {

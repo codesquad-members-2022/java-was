@@ -14,8 +14,8 @@ public class ContentTypeMapping {
             entry(".ico", "image/x-icon")
     );
 
-    public static String getContentType(String path) {
-        String contentType = contentTypes.getOrDefault(path, "*/*");
+    public static String getContentType(String fileExtension) {
+        String contentType = contentTypes.getOrDefault(fileExtension, "*/*");
 
         return contentType.startsWith("text") ? contentType.concat(CHARSET_UTF_8) : contentType;
     }

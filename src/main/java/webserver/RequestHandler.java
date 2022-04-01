@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class RequestHandler extends Thread {
 
@@ -26,6 +27,10 @@ public class RequestHandler extends Thread {
 
             HttpRequest httpRequest = HttpRequest.receive(br);
             HttpResponse httpResponse = new HttpResponse(dos);
+
+            if (!httpRequest.hasSessionId()) {
+                httpResponse.addHeader("Set-Cookie", "sessionId=" + UUID.randomUUID() + "; Path=/");
+            }
 
             RequestMapping.runController(httpRequest, httpResponse);
 

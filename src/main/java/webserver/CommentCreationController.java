@@ -9,7 +9,7 @@ public class CommentCreationController extends Controller {
     @Override
     protected void processPost(HttpRequest httpRequest, HttpResponse httpResponse) {
         if (!httpRequest.isLoggedIn()) {
-            httpResponse.response302Header("/user/login.html");
+            httpResponse.redirectTo("/user/login.html");
             return;
         }
 
@@ -19,6 +19,6 @@ public class CommentCreationController extends Controller {
 
         CommentDataBase.add(new Comment(currentUser.getName(), contents));
 
-        httpResponse.response302Header("/");
+        httpResponse.redirectTo("/");
     }
 }

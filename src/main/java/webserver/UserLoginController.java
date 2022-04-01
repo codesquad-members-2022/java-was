@@ -13,9 +13,11 @@ public class UserLoginController extends Controller {
             httpRequest.getSession()
                     .setAttribute("user", UserDataBase.findById(userId));
 
-            httpResponse.response302HeaderAfterLogin("/", httpRequest.getCookie("sessionId"));
+            String sessionId = httpRequest.getCookie("sessionId");
+            httpResponse.addHeader("Set-Cookie", "sessionId=" + sessionId + "; Path=/");
+            httpResponse.redirectTo("/");
         }
 
-        httpResponse.response302Header("/user/login_failed.html");
+        httpResponse.redirectTo("/user/login_failed.html");
     }
 }

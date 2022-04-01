@@ -1,8 +1,10 @@
 package com.riakoader.was.httpmessage;
 
 import com.google.common.base.Strings;
+import com.riakoader.was.session.HttpSession;
 import com.riakoader.was.util.HttpRequestUtils;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class HttpRequest {
@@ -15,10 +17,12 @@ public class HttpRequest {
     private String protocol;
     private Parameters params;
     private Headers headers;
+    private Map<String, String> cookies;
+    private final HttpSession session = HttpSession.getInstance();
 
     public HttpRequest(String requestLine, Map<String, String> headers, String requestMessageBody) {
         parseRequestLine(requestLine);
-        setHeaders(headers);
+        setHeadersAndCookies(headers);
         parseRequestMessageBody(requestMessageBody);
     }
 
@@ -41,8 +45,9 @@ public class HttpRequest {
         }
     }
 
-    private void setHeaders(Map<String, String> headers) {
+    private void setHeadersAndCookies(Map<String, String> headers) {
         this.headers = new Headers(headers);
+        cookies = Strings.isNullOrEmpty(headers.get("Cookie")) ? Collections.emptyMap() : HttpRequestUtils.parseCookies(headers.get("Cookie"));
     }
 
     private void parseRequestMessageBody(String requestMessageBody) {
@@ -65,5 +70,13 @@ public class HttpRequest {
 
     public String getParameter(String name) {
         return params.getValue(name);
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
+    }
+
+    public HttpSession getSession() {
+        return session;
     }
 }

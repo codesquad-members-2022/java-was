@@ -71,7 +71,7 @@ public class RequestHandler extends Thread {
         try {
             User findUser = matchAndGetUser(inputUserId,inputUserPassword);
             SessionManager.createSession(findUser, response);
-            response.responseStaticResource("/index.html");
+            response.redirectTo("/index.html");
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             response.redirectTo("/user/login_failed.html");

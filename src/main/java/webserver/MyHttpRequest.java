@@ -73,6 +73,12 @@ public class MyHttpRequest {
         }
     }
 
+
+    public boolean isStaticRequest() {
+        String requestURI = getRequestURI();
+        return requestURI.indexOf('.') != -1;
+    }
+
     public String getMethod() {
         return method;
     }

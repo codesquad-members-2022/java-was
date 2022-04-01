@@ -16,6 +16,7 @@ import webserver.controller.MyController;
 import webserver.controller.SignUpController;
 
 public class RequestHandler extends Thread {
+
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
     private final Socket connection;
@@ -32,87 +33,27 @@ public class RequestHandler extends Thread {
 //        log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            DataOutputStream dos = new DataOutputStream(out);
             MyHttpRequest myHttpRequest = new MyHttpRequest(in);
+            MyHttpResponse myHttpResponse = new MyHttpResponse(out, myHttpRequest);
 
-            if (isStaticRequest(myHttpRequest)) {
-                responseStaticRequest(myHttpRequest, dos);
+            if (myHttpRequest.isStaticRequest()) {
+                myHttpResponse.sendStaticResponse();
                 return;
             }
 
             String requestURI = myHttpRequest.getRequestURI();
+
             MyController myController = controllerMap.get(requestURI);
             if (myController == null) {
                 log.info("cannot find controller, URL : {}", requestURI);
-                send404page(dos, myHttpRequest);
+                myHttpResponse.send404page();
                 return;
             }
+
             String viewName = myController.process(myHttpRequest);
+            myHttpResponse.setViewName(viewName);
+            myHttpResponse.sendResponse();
 
-
-            byte[] body = null;
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            log.debug("viewName = {}", viewName);
-            if (viewName.startsWith("redirect:")) {
-                log.debug("viewName = {}", viewName);
-                String redirectURL = viewName.substring(viewName.indexOf(":")+1);
-                log.debug("redirectURL = {}", redirectURL);
-                responseRedirect(dos, myHttpRequest, redirectURL);
-                return;
-            } else {
-                body = Files.readAllBytes(new File("./webapp" + "/" + viewName + ".html").toPath());
-                responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.OK);
-            }
-            responseBody(dos, body);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void send404page(DataOutputStream dos, MyHttpRequest myHttpRequest) throws IOException {
-        byte[] body = Files.readAllBytes(new File("./webapp/error/404.html").toPath());
-        responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.NOT_FOUND);
-        responseBody(dos, body);
-    }
-
-    private boolean isStaticRequest(MyHttpRequest request) {
-        String requestURI = request.getRequestURI();
-        if (requestURI.indexOf('.') != -1) {
-            return true;
-        }
-        return false;
-    }
-
-    private void responseStaticRequest(MyHttpRequest myHttpRequest, DataOutputStream dos) throws IOException {
-        File file = new File("./webapp" + myHttpRequest.getRequestURI());
-        if (!file.exists()) {
-            log.info("cannot find static resource : {}", myHttpRequest.getRequestURI());
-            send404page(dos, myHttpRequest);
-            return;
-        }
-        byte[] body = Files.readAllBytes(file.toPath());
-        responseHeader(dos, body.length, myHttpRequest, HttpResponseStatusCode.OK);
-        responseBody(dos, body);
-    }
-    private void responseRedirect(DataOutputStream dos, MyHttpRequest request, String redirectURL) throws IOException {
-        dos.writeBytes("HTTP/1.1 302 Found\r\n");
-        dos.writeBytes("Location:" + redirectURL + "\r\n");
-    }
-    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, MyHttpRequest request, HttpResponseStatusCode statusCode) {
-        try {
-            dos.writeBytes(statusCode.getValue());
-            dos.writeBytes("Content-Type: " + request.getHeader("Accept")[0] + "\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }

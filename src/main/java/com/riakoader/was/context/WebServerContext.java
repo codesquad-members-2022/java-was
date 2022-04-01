@@ -1,21 +1,42 @@
 package com.riakoader.was.context;
 
-import com.riakoader.was.config.HandlerMethodRegistry;
-import com.riakoader.was.handler.HandlerMethodMapper;
+import com.riakoader.was.config.HandlerMethodMapperRegistry;
+import com.riakoader.was.config.HandlerRegistry;
+import com.riakoader.was.handler.*;
 import com.riakoader.was.webserver.FrontHandler;
 
 public class WebServerContext extends BeanFactory {
 
     final FrontHandler frontHandler;
 
-    final HandlerMethodRegistry handlerMethodRegistry;
+    /**
+     * Registry
+     */
+    final HandlerRegistry handlerRegistry;
+    final HandlerMethodMapperRegistry handlerMethodMapperRegistry;
 
-    final HandlerMethodMapper handlerMethodMapper;
+    /**
+     * Mapper
+     */
+    final HandlerMapper handlerMapper;
+
+    /**
+     * Handler
+     */
+    final ResourceHandler resourceHandler;
+    final UserHandler userHandler;
 
     public WebServerContext() {
         super();
+
         frontHandler = FrontHandler.getInstance();
-        handlerMethodRegistry = HandlerMethodRegistry.getInstance();
-        handlerMethodMapper = HandlerMethodMapper.getInstance();
+
+        handlerRegistry = HandlerRegistry.getInstance();
+        handlerMethodMapperRegistry = HandlerMethodMapperRegistry.getInstance();
+
+        handlerMapper = HandlerMapper.getInstance();
+
+        resourceHandler = ResourceHandler.getInstance();
+        userHandler = UserHandler.getInstance();
     }
 }

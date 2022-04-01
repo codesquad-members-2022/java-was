@@ -25,6 +25,8 @@ public class CommentDataBase {
 
     static {
         add(new Comment("javajigi", "시간이 없다"));
+        add(new Comment("Sammy", "뇌가 없다"));
+        add(new Comment("ikjo", "굿바이"));
         add(new Comment("honux", "이 쪽이 위에 보여야 함"));
     }
 }

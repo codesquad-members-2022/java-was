@@ -1,8 +1,14 @@
 package webserver;
 
 import db.UserDataBase;
-import java.util.Collection;
-import model.User;
+import util.TemplateUtil;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class UserListController extends Controller {
 
@@ -13,30 +19,18 @@ public class UserListController extends Controller {
             return;
         }
 
-        StringBuilder userListBuilder = new StringBuilder();
-        Collection<User> users = UserDataBase.findAll();
-        userListBuilder.append("<table border='2'>")
-            .append("<tr>")
-            .append("<th>User Id</th>")
-            .append("<th>Name</th>")
-            .append("<th>Email</th>")
-            .append("</tr>");
+        try {
+            String template = Files.readString(Path.of(RESOURCE_ROOT + "/user/list.html"));
+            Map<String, Object> model = Map.of("users", new ArrayList<>(UserDataBase.findAll()));
 
-        for (User user : users) {
-            userListBuilder.append("<tr>")
-                .append("<td>").append(user.getUserId()).append("</td>")
-                .append("<td>").append(user.getName()).append("</td>")
-                .append("<td>").append(user.getEmail()).append("</td>")
-                .append("</tr>");
+            byte[] body = TemplateUtil.render(template, model).getBytes(StandardCharsets.UTF_8);
+
+            httpResponse.addHeader("Content-Type", ContentTypeMapping.getContentType(".html"));
+            httpResponse.addHeader("Content-Length", "" + body.length);
+            httpResponse.sendHeader();
+            httpResponse.sendBody(body);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        userListBuilder.append("</table>");
-
-        byte[] body = userListBuilder.toString().getBytes();
-
-        httpResponse.addHeader("Content-Type", ContentTypeMapping.getContentType(".html"));
-        httpResponse.addHeader("Content-Length", "" + body.length);
-        httpResponse.sendHeader();
-        httpResponse.sendBody(body);
     }
 }

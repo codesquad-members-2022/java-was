@@ -41,9 +41,13 @@ public class HttpResponse {
 
     private void responseCookies() throws IOException {
         for (Cookie cookie : cookies) {
-            dos.writeBytes(String.format("Set-Cookie: %s=%s; max-age=%d; path=/\r\n",
-                    cookie.getName(), cookie.getValue(), cookie.getMaxAge())
-            );
+            dos.writeBytes(String.format("Set-Cookie: %s=%s;",cookie.getName(),cookie.getValue()));
+
+            if (cookie.getMaxAge() != null) {
+                dos.writeBytes("max-age="+cookie.getMaxAge()+";");
+            }
+
+            dos.writeBytes("path=/\r\n");
         }
     }
 

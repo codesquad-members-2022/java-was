@@ -16,7 +16,6 @@ public class SessionManager {
         String sessionId = UUID.randomUUID().toString();
         storage.put(sessionId, user);
         Cookie cookie = new Cookie("sessionId",sessionId);
-        cookie.setMaxAge(1800);
         response.addCookie(cookie);
     }
 

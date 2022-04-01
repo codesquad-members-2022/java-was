@@ -4,7 +4,7 @@ public class Cookie {
 
     private String name;
     private String value;
-    private int maxAge;
+    private Integer maxAge;
 
     public Cookie(String name, String value) {
         this.name = name;
@@ -19,7 +19,7 @@ public class Cookie {
         return value;
     }
 
-    public int getMaxAge() {
+    public Integer getMaxAge() {
         return this.maxAge;
     }
 

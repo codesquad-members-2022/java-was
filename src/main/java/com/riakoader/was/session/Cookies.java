@@ -2,7 +2,6 @@ package com.riakoader.was.session;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Cookies {
 
@@ -12,12 +11,11 @@ public class Cookies {
         cookies.add(cookie);
     }
 
-    public boolean isEmpty() {
-        return cookies.isEmpty();
-    }
-
-    @Override
-    public String toString() {
-        return cookies.stream().map(Cookie::toString).collect(Collectors.joining());
+    public String toSetCookieMessage() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Cookie cookie : cookies) {
+            stringBuilder.append("Set-Cookie: ").append(cookie).append(System.lineSeparator());
+        }
+        return stringBuilder.toString();
     }
 }

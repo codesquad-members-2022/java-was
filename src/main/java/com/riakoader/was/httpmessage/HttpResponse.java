@@ -40,17 +40,11 @@ public class HttpResponse {
     }
 
     public byte[] toByteArray() {
-        addSetCookieHeader();
         String httpRequestMessage = protocol + " " + status + System.lineSeparator() +
-                headers.getHeaderMessage() + Strings.repeat(System.lineSeparator(), 2) +
+                headers.getHeaderMessage() + System.lineSeparator() +
+                cookies.toSetCookieMessage() + Strings.repeat(System.lineSeparator(), 2) +
                 new String(Arrays.copyOf(body, body.length));
 
         return httpRequestMessage.getBytes(StandardCharsets.UTF_8);
-    }
-
-    private void addSetCookieHeader() {
-        if (!cookies.isEmpty()) {
-            headers.setHeader("Set-Cookie", cookies.toString());
-        }
     }
 }

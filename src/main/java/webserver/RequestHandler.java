@@ -25,7 +25,6 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest httpRequest = new HttpRequest(in);
-            log.info("HttpRequest: {}", httpRequest);
             HttpResponse httpResponse = new HttpResponse();
             httpResponse.response(out,httpRequest);
         } catch (IOException e) {

@@ -2,6 +2,7 @@ package model.response.httpresponse;
 
 import model.http.Extention;
 import model.request.httprequest.HttpRequest;
+import model.response.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ import static util.Pathes.WEBAPP_ROOT;
 import static util.SpecialCharacters.DOT;
 import static util.SpecialCharacters.NEW_LINE;
 
-public class HttpResponse {
+public class HttpResponse implements HttpServletResponse {
 
     private Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
@@ -71,5 +72,10 @@ public class HttpResponse {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    @Override
+    public DataOutputStream getDataOutputStream() {
+        return null;
     }
 }

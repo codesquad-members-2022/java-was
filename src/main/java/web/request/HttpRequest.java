@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 import util.IOUtils;
+import util.Pair;
+import web.common.Cookie;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,12 +15,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class HttpRequest {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
     private RequestLine requestLine;
     private Map<String, String> parameters;
+    private Map<String, Cookie> cookies;
     private Map<String, String> headers;
     private String body;
 
@@ -28,6 +32,7 @@ public class HttpRequest {
         this.headers = initHeaders(br);
         this.body = initBody(br);
         this.parameters = initParameters();
+        this.cookies = initCookies();
     }
 
     private RequestLine initRequestLine(BufferedReader br) throws IOException {
@@ -74,6 +79,14 @@ public class HttpRequest {
         return HttpRequestUtils.parseQueryString(body);
     }
 
+    private Map<String, Cookie> initCookies() {
+        return HttpRequestUtils.parseCookies(getParameter("Cookie"))
+                .entrySet()
+                .stream()
+                .map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toMap(Pair::getKey, Cookie::new));
+    }
+
     public String getParameter(String key) {
         return parameters.get(key);
     }
@@ -94,5 +107,9 @@ public class HttpRequest {
         return Optional.ofNullable(headers.get("Content-Length"))
                 .map(Integer::parseInt)
                 .orElse(0);
+    }
+
+    public Cookie getCookie(String cookieName) {
+        return cookies.get(cookieName);
     }
 }

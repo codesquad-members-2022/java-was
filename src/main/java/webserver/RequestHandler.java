@@ -44,6 +44,8 @@ public class RequestHandler extends Thread {
             userJoin(request, response);
         } else if (path.equals("/user/login") && method == HttpMethod.POST) {
             login(request, response);
+        } else if (path.equals("/user/logout") && method == HttpMethod.POST) {
+            logout(request,response);
         } else {
             response.responseStaticResource(path);
         }
@@ -76,6 +78,11 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
             response.redirectTo("/user/login_failed.html");
         }
+    }
+
+    private void logout(HttpRequest request, HttpResponse response) throws IOException {
+        SessionManager.expireSession(request,response);
+        response.redirectTo("/index.html");
     }
 
     private User matchAndGetUser(String inputUserId, String inputUserPassword) {

@@ -1,14 +1,19 @@
 package webserver;
 
+import configuration.ObjectFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import webserver.servlet.ConnectionPool;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static configuration.ObjectFactory.dispatcherServlet;
 
 public class WebServer {
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
     private static final int DEFAULT_PORT = 8082;
+    private static final ConnectionPool connectionPool = ObjectFactory.connectionPool;
 
     public static void main(String args[]) throws Exception {
         int port = 0;
@@ -23,8 +28,10 @@ public class WebServer {
 
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                RequestHandler requestHandler = new RequestHandler(connection);
-                requestHandler.start();
+                if (connectionPool.hasAvailableServlet()) {
+                    RequestHandler requestHandler = new RequestHandler(connection, dispatcherServlet);
+                    requestHandler.start();
+                }
             }
         }
     }

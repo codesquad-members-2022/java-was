@@ -1,4 +1,4 @@
-package webserver;
+package webserver.servlet;
 
 public enum ServletStatus {
     WAITING,

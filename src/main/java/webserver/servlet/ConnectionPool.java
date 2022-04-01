@@ -1,16 +1,17 @@
-package webserver;
+package webserver.servlet;
 
+import configuration.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.RandomUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static configuration.ObjectFactory.randomUtil;
-import static webserver.ServletStatus.RESPONSING;
-import static webserver.ServletStatus.WAITING;
+import static webserver.servlet.ServletStatus.RESPONSING;
+import static webserver.servlet.ServletStatus.WAITING;
 
 public class ConnectionPool {
 
@@ -18,11 +19,16 @@ public class ConnectionPool {
     private static final String NO_AVAILABLE_SERVLET = "현재 이용가능한 서블릿이 존재하지 않습니다.";
 
     private static final int MIN_POOL_SIZE = 0;
-    private static final int MAX_POOL_SIZE = 1;
+    private static final int MAX_POOL_SIZE = 200;
     private static final int WAITING_SECONDS = 5;
 
+    private static RandomUtil randomUtil;
     private static final List<RequestWaitingServlet> servlets = new ArrayList<>(MAX_POOL_SIZE);
     private static final ConnectionPool instance = new ConnectionPool();
+
+    private ConnectionPool (){
+        randomUtil = ObjectFactory.randomUtil;
+    };
 
     public static ConnectionPool getInstance() {
         if (instance == null) {
@@ -40,7 +46,7 @@ public class ConnectionPool {
     public static RequestWaitingServlet getServlet() {
         shuffleServlets();
         RequestWaitingServlet waitingServlet = findRequestWaitingServletWithParallel();
-        if(waitingServlet.isAvailable()){
+        if (waitingServlet.isAvailable()) {
             waitingServlet.changeServletStatus(RESPONSING);
         }
         return waitingServlet;

@@ -5,9 +5,13 @@ import model.handler.RequestMapping;
 import model.handler.controller.HomeController;
 import model.handler.controller.UserCreateController;
 import model.handler.controller.UserLoginController;
-import webserver.DispatcherServlet;
+import util.RandomUtil;
+import webserver.servlet.ConnectionPool;
+import webserver.servlet.DispatcherServlet;
 
 public class ObjectFactory {
+    public static final RandomUtil randomUtil = RandomUtil.getInstance();
+    public static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     public static final RequestMapping requestMapping = RequestMapping.getInstance();
     public static final UserLoginController userLoginController = UserLoginController.getInstance();
     public static final UserCreateController userCreateController = UserCreateController.getInstance();

@@ -1,10 +1,11 @@
-package webserver;
+package webserver.servlet;
 
 import configuration.ObjectFactory;
 import model.handler.Handler;
 import model.handler.HandlerMapping;
 import model.request.HttpServletRequest;
 import model.response.HttpServletResponse;
+import webserver.Servlet;
 
 import java.io.IOException;
 

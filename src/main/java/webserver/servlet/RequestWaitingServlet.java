@@ -1,8 +1,9 @@
-package webserver;
+package webserver.servlet;
 
-import static webserver.ServletStatus.WAITING;
+import static webserver.servlet.ServletStatus.WAITING;
 
 public class RequestWaitingServlet {
+
     private final int id;
     private ServletStatus servletStatus;
 
@@ -17,5 +18,9 @@ public class RequestWaitingServlet {
 
     public boolean isAvailable() {
         return servletStatus.isAvailable();
+    }
+
+    public ServletStatus getServletStatus() {
+        return servletStatus;
     }
 }

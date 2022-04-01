@@ -21,25 +21,25 @@ public class HttpResponse implements HttpServletResponse {
 
     private Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
-    public void response(OutputStream out, HttpRequest httpRequest) throws IOException {
-        DataOutputStream dos = new DataOutputStream(out);
-
-        String requestUrl = httpRequest.getRequestUrl();
-        String path = getPath(WEBAPP_ROOT, requestUrl);
-
-        String[] extentionArray = requestUrl.split(DOT);
-
-        String extention = extentionArray[extentionArray.length - 1];
-        byte[] body = Files.readAllBytes(new File(path).toPath());
-
-        if (httpRequest.isPost()) {
-            responseHeaderRedirection(dos, body.length, extention, requestUrl);
-            responseBody(dos, body);
-            return;
-        }
-
-        responseHeader(dos, body.length, extention);
-        responseBody(dos, body);
+    public void response(OutputStream out) throws IOException {
+//        DataOutputStream dos = new DataOutputStream(out);
+//
+//        String requestUrl = httpRequest.getRequestUrl();
+//        String path = getPath(WEBAPP_ROOT, requestUrl);
+//
+//        String[] extentionArray = requestUrl.split(DOT);
+//
+//        String extention = extentionArray[extentionArray.length - 1];
+//        byte[] body = Files.readAllBytes(new File(path).toPath());
+//
+//        if (httpRequest.isPost()) {
+//            responseHeaderRedirection(dos, body.length, extention, requestUrl);
+//            responseBody(dos, body);
+//            return;
+//        }
+//
+//        responseHeader(dos, body.length, extention);
+//        responseBody(dos, body);
     }
 
     private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, String type) {

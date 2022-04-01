@@ -13,8 +13,18 @@ public class HomeController implements Handler {
 
     private Logger log = LoggerFactory.getLogger(HomeController.class);
 
+    private HomeController (){};
+    private static final HomeController instance = new HomeController();
+
+    public static HomeController getInstance() {
+        if (instance == null) {
+            return new HomeController();
+        }
+        return instance;
+    }
+
     @Override
-    public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void service(HttpServletRequest request, HttpServletResponse response) {
         doGet(request, response);
     }
 

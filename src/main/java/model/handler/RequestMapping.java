@@ -3,8 +3,17 @@ package model.handler;
 import model.request.HttpServletRequest;
 
 public class RequestMapping implements HandlerMapping {
+
+    private static final int URL_INDEX = 0;
+    private static final String URL_DELIMETER = "\\.";
+
     @Override
     public Handler getHandler(HttpServletRequest request) {
-        return null;
+        String requestURL = parseURL(request.getRequestURL());
+        return HandlerFactory.getHandler(requestURL);
+    }
+
+    private String parseURL(String requestURL) {
+        return requestURL.split(URL_DELIMETER)[URL_INDEX];
     }
 }

@@ -1,18 +1,28 @@
 package model.handler;
 
-import model.handler.controller.HomeController;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static configuration.ObjectFactory.homeController;
+
 public class HandlerFactory {
 
-    private HandlerFactory (){};
+    private HandlerFactory (){
+        initMapping();
+    };
 
-    private final Map<String, Handler> controllers = new ConcurrentHashMap<>();
+    private static final Map<String, Handler> controllers = new ConcurrentHashMap<>();
+
+    public static Handler getHandler(String requestURL) {
+        Handler findHandler = controllers.get(requestURL);
+        if (findHandler == null) {
+            return homeController;
+        }
+        return findHandler;
+    }
 
     void initMapping() {
-        put("/index", new HomeController());
+        put("/index", homeController);
     }
 
     private void put(String url, Handler handler) {

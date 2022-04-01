@@ -1,24 +1,14 @@
 package webserver;
 
-import db.DataBase;
-import model.http.Extention;
-import model.request.HttpRequest;
-import model.response.HttpResponse;
-import model.user.User;
+import model.request.httprequest.HttpRequest;
+import model.response.httpresponse.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
-import static util.Pathes.JOIN_PATH;
-import static util.SpecialCharacters.URL_BOUNDARY;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);

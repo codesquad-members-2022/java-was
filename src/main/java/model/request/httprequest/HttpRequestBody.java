@@ -1,4 +1,4 @@
-package model.request;
+package model.request.httprequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;

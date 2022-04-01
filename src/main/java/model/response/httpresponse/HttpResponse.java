@@ -1,8 +1,7 @@
-package model.response;
+package model.response.httpresponse;
 
 import model.http.Extention;
-import model.request.HttpRequest;
-import model.request.RequestLine;
+import model.request.httprequest.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package model.request;
+package model.request.httprequest;
 
 import db.DataBase;
 import model.http.HttpMethod;

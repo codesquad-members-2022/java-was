@@ -1,4 +1,4 @@
-package model.request;
+package model.request.httprequest;
 
 import configuration.HttpHeaders;
 import model.http.HeaderType;

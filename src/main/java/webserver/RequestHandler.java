@@ -2,8 +2,10 @@ package webserver;
 
 import db.DataBase;
 import model.User;
+import org.checkerframework.checker.units.qual.C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.common.Cookie;
 import web.request.HttpMethod;
 import web.request.HttpRequest;
 import web.response.HttpResponse;
@@ -81,8 +83,22 @@ public class RequestHandler extends Thread {
     }
 
     private void logout(HttpRequest request, HttpResponse response) throws IOException {
-        SessionManager.expireSession(request,response);
-        response.redirectTo("/index.html");
+
+        Cookie sessionCookie = request.getCookie(SessionManager.SESSION_COOKIE_NAME);
+
+        if (sessionCookie == null) {
+            response.redirectTo("/index.html");
+            return;
+        }
+
+        String sessionId = sessionCookie.getValue();
+        SessionManager.expireSession(sessionId);
+
+        Cookie expireCookie = new Cookie(SessionManager.SESSION_COOKIE_NAME, null);
+        expireCookie.setMaxAge(0);
+        response.addCookie(expireCookie);
+
+        response.redirectTo("/user/index.html");
     }
 
     private User matchAndGetUser(String inputUserId, String inputUserPassword) {

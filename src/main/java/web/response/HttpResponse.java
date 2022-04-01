@@ -27,6 +27,8 @@ public class HttpResponse {
     public void redirectTo(String redirectPath) throws IOException {
         dos.writeBytes("HTTP/1.1 302 Found \r\n");
         dos.writeBytes("location: " + redirectPath + "\r\n");
+        responseCookies();
+        dos.writeBytes("\r\n");
     }
 
     public void responseStaticResource(String path) throws IOException {

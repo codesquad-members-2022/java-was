@@ -27,8 +27,7 @@ public class RequestHandler extends Thread {
             HttpRequest httpRequest = HttpRequest.receive(br);
             HttpResponse httpResponse = new HttpResponse(dos);
 
-            Controller controller = RequestMapping.getController(httpRequest.getPath());
-            controller.process(httpRequest, httpResponse);
+            RequestMapping.runController(httpRequest, httpResponse);
 
         } catch (IOException e) {
             log.error(e.getMessage());

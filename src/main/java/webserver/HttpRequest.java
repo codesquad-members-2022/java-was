@@ -2,14 +2,13 @@ package webserver;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import db.Sessions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HttpRequest {
@@ -92,6 +91,25 @@ public class HttpRequest {
 
     public String getPath() {
         return this.path;
+    }
+
+    public String getParameter(String parameterName) {
+        return Optional.ofNullable(parameters)
+                .map(parameters -> parameters.get(parameterName))
+                .orElse(null);
+    }
+
+    public String getCookie(String cookieName) {
+        return Optional.ofNullable(cookies)
+                .map(cookies -> cookies.get(cookieName))
+                .orElse(null);
+    }
+
+    public HttpSession getSession() {
+        String sessionId = Optional.ofNullable(getCookie("sessionId"))
+                .orElseGet(() -> UUID.randomUUID().toString());
+
+        return Sessions.getSession(sessionId);
     }
 
     public Map<String, String> getParameters() {

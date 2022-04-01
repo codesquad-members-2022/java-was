@@ -2,6 +2,7 @@ package model.request.httprequest;
 
 import db.DataBase;
 import model.http.HttpMethod;
+import model.request.HttpServletRequest;
 import model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import java.util.Map;
 import static model.http.HttpMethod.POST;
 import static util.SpecialCharacters.BLANK;
 
-public class HttpRequest {
+public class HttpRequest implements HttpServletRequest {
 
     private final Logger log = LoggerFactory.getLogger(HttpRequest.class);
     private RequestLine requestLine;
@@ -81,5 +82,10 @@ public class HttpRequest {
 
     public boolean isPost() {
         return requestLine.getHttpMethod().equals(POST);
+    }
+
+    @Override
+    public String getRequestURL() {
+        return null;
     }
 }

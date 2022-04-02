@@ -7,21 +7,32 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpHeaders {
 
-    private static final Map<String, HeaderType> headerTypeMap;
+    private static final Map<String, String> headerTypeMap;
+
+    private HttpHeaders (){};
+    private static final HttpHeaders instance = new HttpHeaders();
+
+    public static HttpHeaders getInstance() {
+        if (instance == null) {
+            return new HttpHeaders();
+        }
+        return instance;
+    }
+
 
     static {
         headerTypeMap = getHeaderType();
     }
 
-    public static Map<String, HeaderType> getHeaderType() {
-        Map<String, HeaderType> headerMap = new ConcurrentHashMap<>();
+    private static Map<String, String> getHeaderType() {
+        Map<String, String> headerMap = new ConcurrentHashMap<>();
         for (String headerType : HeaderType.getHeaderTypes()) {
-            headerMap.put(headerType, HeaderType.of(headerType));
+            headerMap.put(headerType, headerType);
         }
         return headerMap;
     }
 
-    public HeaderType getHeaderType(String type) {
+    public String getHeaderType(String type) {
         return headerTypeMap.get(type);
     }
 }

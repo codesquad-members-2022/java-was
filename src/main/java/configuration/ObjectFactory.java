@@ -1,15 +1,12 @@
 package configuration;
 
-import model.handler.controller.HandlerFactory;
-import model.handler.controller.RequestMapping;
-import model.handler.controller.HomeController;
-import model.handler.controller.UserCreateController;
-import model.handler.controller.UserLoginController;
+import model.handler.controller.*;
 import util.RandomUtil;
 import webserver.servlet.ConnectionPool;
 import webserver.servlet.DispatcherServlet;
 
 public class ObjectFactory {
+    public static final HttpHeaders httpHeaders = HttpHeaders.getInstance();
     public static final RandomUtil randomUtil = RandomUtil.getInstance();
     public static final ConnectionPool connectionPool = ConnectionPool.getInstance();
     public static final RequestMapping requestMapping = RequestMapping.getInstance();
@@ -18,4 +15,5 @@ public class ObjectFactory {
     public static final HomeController homeController = HomeController.getInstance();
     public static final DispatcherServlet dispatcherServlet = DispatcherServlet.getInstance();
     public static final HandlerFactory handlerFactory = HandlerFactory.getInstance();
+
 }

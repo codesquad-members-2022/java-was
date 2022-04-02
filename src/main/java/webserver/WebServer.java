@@ -4,13 +4,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.handler.PathMapper;
-import webserver.handler.PathMapperFactoryImpl;
+import webserver.mapper.Filter;
+import webserver.mapper.PathMapper;
+import webserver.mapper.PathMapperFactoryImpl;
 
 public class WebServer {
+
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
 
     private static final PathMapper pathMapper = new PathMapperFactoryImpl().create();
+    private static final Filter filter = new Filter();
     private static final int DEFAULT_PORT = 8080;
 
     public static void main(String args[]) throws Exception {
@@ -29,7 +32,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                RequestHandler requestHandler = new RequestHandler(connection, pathMapper);
+                RequestHandler requestHandler = new RequestHandler(connection, pathMapper, filter);
                 requestHandler.start();
             }
         }

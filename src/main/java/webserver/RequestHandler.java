@@ -1,11 +1,15 @@
 package webserver;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.handler.PathMapper;
-
-import java.io.*;
-import java.net.Socket;
+import webserver.mapper.Filter;
+import webserver.mapper.PathMapper;
 
 public class RequestHandler extends Thread {
 
@@ -13,13 +17,15 @@ public class RequestHandler extends Thread {
 
     private final Socket connection;
     private final PathMapper pathMapper;
+    private final Filter filter;
 
     private RequestReader requestReader;
     private ResponseWriter responseWriter;
 
-    public RequestHandler(Socket connectionSocket, PathMapper pathMapper) {
+    public RequestHandler(Socket connectionSocket, PathMapper pathMapper, Filter filter) {
         this.connection = connectionSocket;
         this.pathMapper = pathMapper;
+        this.filter = filter;
     }
 
     public void run() {
@@ -46,6 +52,7 @@ public class RequestHandler extends Thread {
     }
 
     private Response handlePath(Request request) {
-        return pathMapper.callHandler(request);
+        return Optional.ofNullable(filter.handle(request))
+            .orElseGet(() -> pathMapper.callHandler(request));
     }
 }

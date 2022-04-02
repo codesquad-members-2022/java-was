@@ -1,4 +1,4 @@
-package webserver.handler;
+package webserver.mapper;
 
 public interface PathMapperFactory {
 

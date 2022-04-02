@@ -7,34 +7,30 @@ import webserver.Response;
 import webserver.Status;
 import webserver.mapper.Session;
 
-public class UserCreateHandler implements PathHandler {
+public class UserLoginHandler implements PathHandler {
 
-    private static final Session session = Session.getInstance();
-    private static final UserService userService = UserService.getInstance();
+    private final Session session = Session.getInstance();
+    private final UserService userService = UserService.getInstance();
 
     @Override
     public Response handle(Request request) {
-
         try {
-            User user = new User(
+            User user = userService.login(
                     request.getBodyValue("userId"),
-                    request.getBodyValue("password"),
-                    request.getBodyValue("name"),
-                    request.getBodyValue("email")
+                    request.getBodyValue("password")
             );
-            userService.register(user);
 
             String sessionId = session.setUser(user);
 
             return new Response.Builder(Status.FOUND)
                     .addHeader("Location", "http://localhost:8080/index.html")
                     .addHeader("Set-Cookie", "sessionId=" + sessionId + "; Path=/")
-                .build();
+                    .build();
 
         } catch (IllegalArgumentException e) {
             return new Response.Builder(Status.FOUND)
-                .addHeader("Location", "http://localhost:8080/user/form.html")
-                .build();
+                    .addHeader("Location", "http://localhost:8080/user/login_failed.html")
+                    .build();
         }
     }
 }

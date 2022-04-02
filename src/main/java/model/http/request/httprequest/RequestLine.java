@@ -32,7 +32,7 @@ public class RequestLine {
         return HttpVersion.of(startLine[VERSION_INDEX]);
     }
 
-    public String getHttpRequestUrl() {
+    public String getHttpRequestURL() {
         return this.url;
     }
 

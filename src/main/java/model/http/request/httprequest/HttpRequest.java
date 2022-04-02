@@ -1,20 +1,13 @@
 package model.http.request.httprequest;
 
-import db.DataBase;
-import model.http.HttpMethod;
 import model.http.request.HttpServletRequest;
-import model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 import static model.http.HttpMethod.GET;
 import static model.http.HttpMethod.POST;
@@ -35,24 +28,6 @@ public class HttpRequest implements HttpServletRequest {
         this.body = getHttpRequestBody(bufferedReader, getContentLength());
     }
 
-    public String getRequestUrl() {
-        String requestUrl = requestUrl();
-        if (getHttpMethod().equals(POST)) {
-            String body = getBody();
-            Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(body);
-            User user = new User(joinRequestParams.get("userId"), joinRequestParams.get("password"), URLDecoder.decode(joinRequestParams.get("name"), StandardCharsets.UTF_8), joinRequestParams.get("email"));
-            requestUrl = "/index.html";
-            DataBase.validateDuplicateId(user.getUserId());
-            DataBase.addUser(user);
-            log.debug("User : {}", user);
-        }
-        return requestUrl;
-    }
-
-    public HttpMethod getHttpMethod() {
-        return requestLine.getHttpMethod();
-    }
-
     private RequestLine getRequestLine(BufferedReader bufferedReader) throws IOException {
         String[] requestLineArray = bufferedReader.readLine().split(BLANK);
         return new RequestLine(requestLineArray);
@@ -67,14 +42,6 @@ public class HttpRequest implements HttpServletRequest {
 
     private int getContentLength() {
         return httpHeader.getContentLength();
-    }
-
-    public String requestUrl(){
-        return requestLine.getHttpRequestUrl();
-    }
-
-    public RequestLine getRequestLine() {
-        return requestLine;
     }
 
     public String getBody() {

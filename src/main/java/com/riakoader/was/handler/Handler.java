@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public interface Handler {
 
-    int depth = 1;
+    int DEPTH = 1;
 
     void bindHandlerMethodMapper(HandlerMethodMapper handlerMethodMapper);
 

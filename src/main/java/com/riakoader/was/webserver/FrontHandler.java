@@ -91,7 +91,7 @@ public class FrontHandler {
          * Handler 초기 생성 시 '필드' 로 매핑된 URL 을 설정해놓고 싶었지만, 시간 관계상 가장 단순하게 순차적으로 잘라 매핑하는 방식으로 구현했습니다.
          *
          */
-        Handler handler = handlerMapper.getHandler(getCurrentPath(request.getRequestURI(), Handler.depth));
+        Handler handler = handlerMapper.getHandler(getCurrentPath(request.getRequestURI(), Handler.DEPTH));
         return handler.service(request);
     }
 

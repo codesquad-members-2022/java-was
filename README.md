@@ -187,3 +187,39 @@ HTTP status code의 Redirection 의미에 대해서 알아보았다. 현재 필�
 <br>
 
 ---
+
+## 4단계 쿠키를 이용한 로그인 구현
+
+### To-do List
+
+- [X] 로그인 url 매핑을 위한 서블릿 구현 
+- [X] 로그인 성공 시 서블릿 내에서 쿠키 설정
+- [X] 로그인 실패 시 ``/user/login_failed.html``로 리다이렉션 처리
+
+### 정리
+
+---
+
+### Jay
+
+#### 알게된 것
+
+**request body 에 대해**
+
+GET 요청에 request-body 를 보내도 되는지에 대해서는 아직 논쟁거리라고 들었습니다.
+그래서 저희는 POST 인 경우에만 받자고 하였는데, 이는 HTTP 스펙에 위반된 구현이었습니다.
+
+> A server SHOULD read and forward a message-body on any request;
+> if the request method does not include defined semantics for an entity-body,
+> then the message-body SHOULD be ignored when handling the request.
+
+[RFC 공식 문서](https://datatracker.ietf.org/doc/html/rfc2616#section-4.3)에 따르면 HTTP message-body 는 서버에서 반드시 읽어서 전달하고 어플리케이션 레벨에서 이를 처리할지 안할지 결정해야한다고 명시되어 있었습니다.
+
+---
+
+### Lucid
+
+#### 알게된 것
+
+- 쿠키 설정(Set-Cookie) 시 cookie name + Path를 동일하게 작성해줘야 덮어씌워진다는 것을 알게 되었습니다. 여러 쿠키를 한꺼번에 설정할 경우에도 각각 Set-Cookie 헤더를 작성해줘야합니다.
+- 단위테스트를 적용하기 위해 클래스의 역할을 분리해보았습니다. 기존에 무지성으로 사용하던 @Mock을 활용한 테스트에 익숙했던 터라 의존성 있는 객체를 어떤 방법으로 stub할지를 고민해보았습니다. 

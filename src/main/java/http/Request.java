@@ -10,23 +10,56 @@ import webserver.dto.HttpRequestLine;
 
 public class Request {
 
+    private static final String COOKIE = "Cookie";
+    public static final String SESSION_ID = "sessionId";
+
     private HttpMethod httpMethod;
     private Map<String, String> parameters = new HashMap<>();
+    private Map<String, String> cookies = new HashMap<>();
+    private String sessionId;
 
     public static Request of(HttpRequestData requestData) {
         HttpRequestLine httpRequestLine = requestData.getHttpRequestLine();
-        String queryString = httpRequestLine.getQueryString();
         HttpMethod httpMethod = httpRequestLine.getHttpMethod();
         Request request = new Request();
         request.setHttpMethod(httpMethod);
 
-        if (isGetRequest(queryString, httpMethod)) {
-            request.setParameters(HttpRequestUtils.parseQueryString(queryString));
-            return request;
-        }
+        Map<String, String> header = requestData.getHeader();
 
-        request.setParameters(requestData.getRequestBody());
+        parseCookie(request, header);
+        parseSessionId(request);
+        parseParameter(requestData, httpMethod, httpRequestLine.getQueryString(), request);
+
         return request;
+    }
+
+    private static void parseCookie(Request request, Map<String, String> header) {
+        if (header.containsKey(COOKIE)) {
+            String cookie = header.get(COOKIE);
+            request.cookies = HttpRequestUtils.parseCookies(cookie);
+        }
+    }
+
+    private static void parseSessionId(Request request) {
+        if (request.cookies.containsKey(SESSION_ID)) {
+            request.sessionId = request.cookies.get(SESSION_ID);
+        }
+    }
+
+    private static void parseParameter(HttpRequestData requestData, HttpMethod httpMethod, String queryString,
+        Request request) {
+        if (isGetRequest(queryString, httpMethod)) {
+            request.addParameters(HttpRequestUtils.parseQueryString(queryString));
+        }
+        request.addParameters(requestData.getRequestBody());
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public String getCookies(String cookieName) {
+        return cookies.get(cookieName);
     }
 
     private static boolean isGetRequest(String queryString, HttpMethod httpMethod) {
@@ -37,8 +70,8 @@ public class Request {
         return Collections.unmodifiableMap(parameters);
     }
 
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
+    public void addParameters(Map<String, String> parameters) {
+        this.parameters.putAll(parameters);
     }
 
     public HttpMethod getHttpMethod() {
@@ -47,5 +80,9 @@ public class Request {
 
     public void setHttpMethod(HttpMethod httpMethod) {
         this.httpMethod = httpMethod;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 }

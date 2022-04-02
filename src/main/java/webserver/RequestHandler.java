@@ -8,13 +8,15 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import config.RequestMapping;
+import http.Cookie;
 import http.HttpMethod;
 import http.HttpStatus;
 import http.Response;
@@ -31,18 +33,24 @@ public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
     private final Socket connection;
+    private final Dispatcher dispatcher;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, Dispatcher dispatcher) {
         this.connection = connectionSocket;
+        this.dispatcher = dispatcher;
     }
 
     public void run() {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
             connection.getPort());
+        // TODO : private method 들 분석해서 RequestHandler 의 역할을
+            // TODO :  1. 일단 분리를 해보기
+            // TODO :  2. 너무 많은 의존성이 생길 경우, 의존성을 줄일 수 있는 방법 고민
+        // TODO : 한군데 묶어놓으면 어떨까?
+        // TODO : 에러 발생시, 오류 response 보내도록 개선
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              OutputStream out = connection.getOutputStream()) {
-
             String firstLine = br.readLine();
             HttpRequestLine requestLine = HttpRequestUtils.parseHttpRequestLine(firstLine);
             HttpRequestData requestData = new HttpRequestData();
@@ -72,7 +80,7 @@ public class RequestHandler extends Thread {
 
         printHeaders(requestData.getHeader());
 
-        if (RequestMapping.contains(httpRequestLine.getUrl())) {
+        if (dispatcher.isMappedUrl(httpRequestLine.getUrl())) {
             processDynamicRequest(out, requestData);
             return;
         }
@@ -81,9 +89,7 @@ public class RequestHandler extends Thread {
         processStaticRequest(out, requestData.getHttpRequestLine(), contentType);
     }
 
-    private void processDynamicRequest(OutputStream out, HttpRequestData requestData) throws
-        Exception {
-        Dispatcher dispatcher = Dispatcher.getInstance();
+    private void processDynamicRequest(OutputStream out, HttpRequestData requestData) throws  Exception {
         Response response = dispatcher.handleRequest(requestData);
 
         dynamicResponse(out, response);
@@ -94,11 +100,11 @@ public class RequestHandler extends Thread {
 
         Map<String, String> headers = new HashMap<>();
 
-        if (response.getHttpStatus().equals(HttpStatus.FOUND)) {
-            headers.put("Location", response.getRedirectUrl());
+        for (String key : response.headerKeySet()) {
+            headers.put(key, response.findHeader(key));
         }
 
-        responseHeader(dos, response.getHttpStatus(), headers);
+        responseHeader(dos, response.getHttpStatus(), headers, response.getCookies());
         flush(dos);
     }
 
@@ -139,10 +145,17 @@ public class RequestHandler extends Thread {
     }
 
     private void responseHeader(DataOutputStream dos, HttpStatus httpStatus, Map<String, String> headers) {
+        responseHeader(dos, httpStatus, headers, Collections.emptyList());
+    }
+
+    private void responseHeader(DataOutputStream dos, HttpStatus httpStatus, Map<String, String> headers, List<Cookie> cookies) {
         try {
             dos.writeBytes(String.format("HTTP/1.1 %d %s \r\n", httpStatus.getStatusCode(), httpStatus.name()));
             for (String key : headers.keySet()) {
                 dos.writeBytes(key + ": " + headers.get(key) + "\r\n");
+            }
+            for (Cookie cookie : cookies) {
+                dos.writeBytes("Set-Cookie: " + cookie);
             }
             dos.writeBytes("\r\n");
         } catch (IOException e) {

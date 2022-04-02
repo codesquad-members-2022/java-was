@@ -1,7 +1,5 @@
 package webserver;
 
-import java.lang.reflect.Constructor;
-
 import config.RequestMapping;
 import http.HttpServlet;
 import http.Request;
@@ -11,30 +9,25 @@ import webserver.dto.HttpRequestLine;
 
 public class Dispatcher {
 
-    private static Dispatcher instance;
+    private final RequestMapping requestMapping;
 
-    private Dispatcher() {
+    public Dispatcher(RequestMapping requestMapping) {
+        this.requestMapping = requestMapping;
     }
 
-    public synchronized static Dispatcher getInstance() {
-        if (instance == null) {
-            instance = new Dispatcher();
-        }
-        return instance;
+    public boolean isMappedUrl(String url) {
+        return requestMapping.contains(url);
     }
 
-    public Response handleRequest(HttpRequestData requestData) throws Exception {
+    public Response handleRequest(HttpRequestData requestData) {
         HttpRequestLine httpRequestLine = requestData.getHttpRequestLine();
-        Class<? extends HttpServlet> servletClass = RequestMapping.findHandlerMethod(httpRequestLine.getUrl())
+        HttpServlet httpServlet = requestMapping.findHandlerMethod(httpRequestLine.getUrl())
             .orElseThrow(() -> new IllegalStateException("Mapped servlet could not be found"));
 
         Request request = Request.of(requestData);
         Response response = new Response();
 
-        Constructor<? extends HttpServlet> constructor = servletClass.getConstructor(Request.class, Response.class);
-        HttpServlet httpServlet = constructor.newInstance(request, response);
-
-        return httpServlet.service();
+        return httpServlet.service(request, response);
     }
 }
 

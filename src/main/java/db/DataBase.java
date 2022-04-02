@@ -22,7 +22,11 @@ public class DataBase {
         return users.values();
     }
 
-    public static boolean isDuplicateUserId(String userId) {
+    public static boolean isUserIdExist(String userId) {
         return users.containsKey(userId);
+    }
+
+    public static void deleteAll() {
+        users.clear();
     }
 }

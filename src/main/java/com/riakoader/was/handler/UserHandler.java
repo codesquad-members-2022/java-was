@@ -40,7 +40,7 @@ public class UserHandler implements Handler {
         HandlerMethod handlerMethod = handlerMethodMapper.getHandlerMethod(
                 new Pair<>(
                         request.getMethod(),
-                        getCurrentPath(request.getRequestURI(), 2)
+                        getCurrentPath(request.getRequestURI(), HandlerMethodMapper.depth)
                 )
         );
         return handlerMethod.service(request);

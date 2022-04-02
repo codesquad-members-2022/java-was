@@ -6,6 +6,8 @@ import java.util.Map;
 
 public class HandlerMethodMapper {
 
+    public static final int depth = 2;
+
     private final Map<Pair<String, String>, HandlerMethod> mapper;
 
     public HandlerMethodMapper(Map<Pair<String, String>, HandlerMethod> mapper) {

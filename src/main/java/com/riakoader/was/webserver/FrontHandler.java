@@ -60,6 +60,12 @@ public class FrontHandler {
         try (InputStream in = connection.getInputStream();
              OutputStream out = connection.getOutputStream()) {
 
+            /*
+             * 1. receiveRequest(in) - InputStream 에서 클라이언트가 보낸 요청을 읽어들여 HttpRequest 객체를 생성합니다.
+             * 2. assign(receiveRequest(in)) - receiveRequest 메서드가 반환한 HttpRequest 객체 (클라이언트 요청 정보) 를 담당 Handler 에게 위임합니다. (URL 매핑)
+             * 3. sendResponse(out, assign(receiveRequest(in))) - assign 메서드가 반환한 (담당 Handler 가 클라이언트 요청을 받아 생성한 응답) HttpResponse 객체를 OutputStream 을 사용하여 클라이언트에게 응답합니다.
+             *
+             */
             sendResponse(out, assign(receiveRequest(in)));
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -71,12 +77,21 @@ public class FrontHandler {
         int lastIndex = request.getRequestURI().lastIndexOf("/");
         String lastPath = uri.substring(lastIndex + 1);
 
+        /**
+         * .css, .js, .xx 등 확장자가 붙은 파일이 요청 URI 의 '마지막 경로' 일 경우
+         */
         String pattern = "^.*\\..*$";
         if (Pattern.matches(pattern, lastPath)) {
             return resourceHandler.service(request);
         }
 
-        Handler handler = handlerMapper.getHandler(getCurrentPath(request.getRequestURI(), 1));
+        /*
+         * getCurrentPath(request.getRequestURI(), Handler.depth)) - 요청 URI 에서 현재 depth 에 따라 매핑해야할 경로를 얻습니다. (Handler - depth 1, HandlerMapper - depth 2)
+         * ex. /users/create - Handler: /users, HandlerMapper: /create
+         * Handler 초기 생성 시 '필드' 로 매핑된 URL 을 설정해놓고 싶었지만, 시간 관계상 가장 단순하게 순차적으로 잘라 매핑하는 방식으로 구현했습니다.
+         *
+         */
+        Handler handler = handlerMapper.getHandler(getCurrentPath(request.getRequestURI(), Handler.depth));
         return handler.service(request);
     }
 

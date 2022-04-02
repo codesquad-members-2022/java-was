@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpSession {
 
-    private final Map<String, String> session = new ConcurrentHashMap<>();
+    private final Map<String, Object> session = new ConcurrentHashMap<>();
 
     private static volatile HttpSession httpSession;
 
@@ -23,11 +23,11 @@ public class HttpSession {
         return httpSession;
     }
 
-    public String getAttribute(String name) {
+    public Object getAttribute(String name) {
         return session.get(name);
     }
 
-    public void setAttribute(String name, String value) {
+    public void setAttribute(String name, Object value) {
         session.put(name, value);
     }
 

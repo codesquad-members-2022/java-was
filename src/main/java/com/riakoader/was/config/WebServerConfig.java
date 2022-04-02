@@ -148,7 +148,7 @@ public class WebServerConfig implements WebServerConfigurer {
                                     HttpSession session = request.getSession();
                                     session.setAttribute("sessionId", UUID.randomUUID().toString());
 
-                                    Cookie cookie = new Cookie("sessionId", session.getAttribute("sessionId"));
+                                    Cookie cookie = new Cookie("sessionId", (String) session.getAttribute("sessionId"));
                                     cookie.setPath("/");
 
                                     response.addCookie(cookie);
@@ -165,7 +165,7 @@ public class WebServerConfig implements WebServerConfigurer {
 
                                     HttpSession session = request.getSession();
 
-                                    Cookie cookie = new Cookie("sessionId", session.getAttribute("sessionId"));
+                                    Cookie cookie = new Cookie("sessionId", (String) session.getAttribute("sessionId"));
                                     cookie.setMaxAge(0);
                                     cookie.setPath("/");
 

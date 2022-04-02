@@ -28,11 +28,10 @@ public class WebServer {
 
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                if (connectionPool.hasAvailableServlet()) {
-                    connectionPool.connectToDispatcherServlet();
-                    RequestHandler requestHandler = new RequestHandler(connection, dispatcherServlet);
-                    requestHandler.start();
-                }
+//                if (connectionPool.hasAvailableServlet()) {
+//                    connectionPool.connectToDispatcherServlet();
+                RequestHandler requestHandler = new RequestHandler(connection, dispatcherServlet);
+                requestHandler.start();
             }
         }
     }

@@ -6,7 +6,13 @@ import model.http.response.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+
+import static util.HttpRequestUtils.getPath;
+import static util.Pathes.WEBAPP_ROOT;
+import static util.SpecialCharacters.URL_DELIMETER;
 
 public class UserLoginController implements Handler {
 
@@ -34,8 +40,20 @@ public class UserLoginController implements Handler {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String requestUrl = request.getRequestURL();
+        String path = getPath(WEBAPP_ROOT, requestUrl);
 
+        String type = getExtention(requestUrl);
+        byte[] body = Files.readAllBytes(new File(path).toPath());
+        response.responseHeader(body.length, type);
+        response.responseBody(body);
     }
+
+    private String getExtention(String requestUrl) {
+        String[] extentionArray = requestUrl.split(URL_DELIMETER);
+        return extentionArray[extentionArray.length - 1];
+    }
+
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {

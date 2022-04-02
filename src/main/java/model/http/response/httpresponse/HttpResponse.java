@@ -57,6 +57,19 @@ public class HttpResponse implements HttpServletResponse {
         }
     }
 
+    @Override
+    public void responseHeaderRedirection(int lengthOfBodyContent, String type, String location) {
+        try {
+            dos.writeBytes("HTTP/1.1 " + "302" + " OK" + NEW_LINE);
+            dos.writeBytes("Content-Type:" + ContentType.of(type) + NEW_LINE);
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
+            dos.writeBytes("Location: " + location);
+            dos.writeBytes(NEW_LINE);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
     public String get200ResponseStatusLine() {
         return responseStatusLine.get200StatusStatusLine(HTTP_1_1, OK);
     }

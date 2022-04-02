@@ -34,7 +34,7 @@ public class HandlerFactory {
 
     void initMapping() {
         put("/index", homeController);
-        put("/user/form", userCreateController);
+        put("/user/create", userCreateController);
         put("/user/login", userLoginController);
     }
 

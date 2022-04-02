@@ -8,4 +8,6 @@ public interface HttpServletResponse {
     void responseHeader(int length, String type);
 
     void responseBody(byte[] body);
+
+    void responseHeaderRedirection(int length, String type, String location);
 }

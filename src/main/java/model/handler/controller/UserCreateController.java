@@ -1,15 +1,21 @@
 package model.handler.controller;
 
+import db.DataBase;
 import model.handler.Handler;
 import model.http.request.HttpServletRequest;
 import model.http.response.HttpServletResponse;
+import model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 
 import static util.HttpRequestUtils.getPath;
 import static util.Pathes.WEBAPP_ROOT;
@@ -64,6 +70,22 @@ public class UserCreateController implements Handler {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String requestURL = request.getRequestURL();
+        String redirectionURL;
+        String httpRequestBody = request.getBody();
+        Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(httpRequestBody);
+        User user = new User(joinRequestParams.get("userId"), joinRequestParams.get("password"), URLDecoder.decode(joinRequestParams.get("name"), StandardCharsets.UTF_8), joinRequestParams.get("email"));
+        redirectionURL = "/index.html";
+        DataBase.validateDuplicateId(user.getUserId());
+        DataBase.addUser(user);
+        String path = getPath(WEBAPP_ROOT, redirectionURL);
 
+        String[] extentionArray = requestURL.split(URL_DELIMETER);
+        String extention = extentionArray[extentionArray.length - 1];
+
+        byte[] body = Files.readAllBytes(new File(path).toPath());
+
+        response.responseHeaderRedirection(body.length, extention, redirectionURL);
+        response.responseBody(body);
     }
 }

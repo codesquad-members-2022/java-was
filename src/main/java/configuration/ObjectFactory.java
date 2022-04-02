@@ -1,7 +1,7 @@
 package configuration;
 
-import model.handler.HandlerFactory;
-import model.handler.RequestMapping;
+import model.handler.controller.HandlerFactory;
+import model.handler.controller.RequestMapping;
 import model.handler.controller.HomeController;
 import model.handler.controller.UserCreateController;
 import model.handler.controller.UserLoginController;

@@ -1,4 +1,4 @@
-package model.request.httprequest;
+package model.http.request.httprequest;
 
 import model.http.HttpMethod;
 import model.http.HttpVersion;

@@ -1,7 +1,7 @@
 package webserver;
 
-import model.request.httprequest.HttpRequest;
-import model.response.httpresponse.HttpResponse;
+import model.http.request.httprequest.HttpRequest;
+import model.http.response.httpresponse.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.servlet.DispatcherServlet;

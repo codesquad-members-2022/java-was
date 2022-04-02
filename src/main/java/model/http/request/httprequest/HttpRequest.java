@@ -1,8 +1,8 @@
-package model.request.httprequest;
+package model.http.request.httprequest;
 
 import db.DataBase;
 import model.http.HttpMethod;
-import model.request.HttpServletRequest;
+import model.http.request.HttpServletRequest;
 import model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

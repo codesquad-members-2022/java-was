@@ -1,6 +1,6 @@
 package model.handler;
 
-import model.request.HttpServletRequest;
+import model.http.request.HttpServletRequest;
 
 public interface HandlerMapping {
     Handler getHandler(HttpServletRequest request);

@@ -1,7 +1,7 @@
 package model.handler;
 
-import model.request.HttpServletRequest;
-import model.response.HttpServletResponse;
+import model.http.request.HttpServletRequest;
+import model.http.response.HttpServletResponse;
 
 import java.io.IOException;
 

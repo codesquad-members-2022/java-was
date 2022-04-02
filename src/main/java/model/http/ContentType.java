@@ -3,7 +3,7 @@ package model.http;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-public enum Extention {
+public enum ContentType {
 
     HTML("html", "text/html;"),
     CSS("css", "text/css;"),
@@ -12,7 +12,7 @@ public enum Extention {
     private final String extension;
     private final String mimeType;
 
-    Extention(String extension, String mimeType) {
+    ContentType(String extension, String mimeType) {
         this.extension = extension;
         this.mimeType = mimeType;
     }
@@ -20,7 +20,7 @@ public enum Extention {
     public static String of(String inputType) {
         return Arrays.stream(values())
                 .filter(headerType -> euqalTo(headerType.mimeType, inputType))
-                .map(Extention::getType)
+                .map(ContentType::getType)
                 .findAny()
                 .orElseGet(none());
     }

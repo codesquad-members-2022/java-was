@@ -1,8 +1,8 @@
 package model.handler.controller;
 
 import model.handler.Handler;
-import model.request.HttpServletRequest;
-import model.response.HttpServletResponse;
+import model.http.request.HttpServletRequest;
+import model.http.response.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

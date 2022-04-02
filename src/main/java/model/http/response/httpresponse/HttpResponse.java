@@ -1,20 +1,14 @@
-package model.response.httpresponse;
+package model.http.response.httpresponse;
 
-import model.http.Extention;
-import model.request.httprequest.HttpRequest;
-import model.response.HttpServletResponse;
+import model.http.ContentType;
+import model.http.response.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
 
-import static util.HttpRequestUtils.getPath;
-import static util.Pathes.WEBAPP_ROOT;
-import static util.SpecialCharacters.DOT;
 import static util.SpecialCharacters.NEW_LINE;
 
 public class HttpResponse implements HttpServletResponse {
@@ -45,7 +39,7 @@ public class HttpResponse implements HttpServletResponse {
     private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, String type) {
         try {
             dos.writeBytes("HTTP/1.1 " + "200" + " OK" + NEW_LINE);
-            dos.writeBytes("Content-Type:" + Extention.of(type) + NEW_LINE);
+            dos.writeBytes("Content-Type:" + ContentType.of(type) + NEW_LINE);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
             dos.writeBytes(NEW_LINE);
         } catch (IOException e) {
@@ -56,7 +50,7 @@ public class HttpResponse implements HttpServletResponse {
     private void responseHeaderRedirection(DataOutputStream dos, int lengthOfBodyContent, String type, String location) {
         try {
             dos.writeBytes("HTTP/1.1 " + "302" + " OK" + NEW_LINE);
-            dos.writeBytes("Content-Type:" + Extention.of(type) + NEW_LINE);
+            dos.writeBytes("Content-Type:" + ContentType.of(type) + NEW_LINE);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
             dos.writeBytes("Location: " + location);
             dos.writeBytes(NEW_LINE);

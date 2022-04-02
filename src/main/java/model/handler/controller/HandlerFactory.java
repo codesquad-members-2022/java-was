@@ -1,4 +1,6 @@
-package model.handler;
+package model.handler.controller;
+
+import model.handler.Handler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,7 +1,7 @@
 package model.handler;
 
 import configuration.ObjectFactory;
-import org.assertj.core.api.Assertions;
+import model.handler.controller.HandlerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,13 +10,22 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class HandlerFactoryTest {
 
-    private ObjectFactory objectFactory;
     private HandlerFactory handlerFactory;
 
     @BeforeEach
     void init() {
-        objectFactory = new ObjectFactory();
         handlerFactory = ObjectFactory.handlerFactory;
+    }
+
+    @Test
+    @DisplayName("requestURL로 없는 값이 들어오면 HomeController가 반환된다.")
+    void getHomeControllerIfNull() {
+        String requestURL = "/index/codesquad";
+
+        Handler homeController = HandlerFactory.getHandler(requestURL);
+        String expectedName = "HomeController";
+
+        assertThat(homeController.getClass().getSimpleName()).isEqualTo(expectedName);
     }
 
     @Test
@@ -27,7 +36,7 @@ class HandlerFactoryTest {
         Handler homeController = HandlerFactory.getHandler(requestURL);
         String expectedName = "HomeController";
 
-        Assertions.assertThat(homeController.getClass().getSimpleName()).isEqualTo(expectedName);
+        assertThat(homeController.getClass().getSimpleName()).isEqualTo(expectedName);
     }
 
     @Test

@@ -1,4 +1,4 @@
-package model.request;
+package model.http.request;
 
 public interface HttpServletRequest {
     String getRequestURL();

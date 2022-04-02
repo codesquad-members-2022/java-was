@@ -48,8 +48,9 @@ public class ConnectionPool {
         RequestWaitingServlet waitingServlet = findRequestWaitingServletWithParallel();
         if (waitingServlet.isAvailable()) {
             waitingServlet.changeServletStatus(RESPONSING);
+            return waitingServlet;
         }
-        return waitingServlet;
+        return getServlet();
     }
 
     private static void shuffleServlets() {
@@ -91,5 +92,12 @@ public class ConnectionPool {
     private boolean findAvailableServlet() {
         return servlets.stream()
                 .anyMatch(RequestWaitingServlet::isAvailable);
+    }
+
+    public void connectToDispatcherServlet() {
+        RequestWaitingServlet servlet = getServlet();
+        servlet.changeServletStatus(RESPONSING);
+
+        servlet.changeServletStatus(WAITING);
     }
 }

@@ -29,8 +29,6 @@ public class UserCreateController implements Handler {
     private UserCreateController() {
     }
 
-    ;
-
     public static UserCreateController getInstance() {
         if (instance == null) {
             return new UserCreateController();

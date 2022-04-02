@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import static model.http.HttpStatusCode.OK;
 import static model.http.HttpVersion.HTTP_1_1;
 import static util.SpecialCharacters.NEW_LINE;
+import static util.SpecialCharacters.URL_DELIMETER;
 
 public class HttpResponse implements HttpServletResponse {
 
@@ -25,6 +26,12 @@ public class HttpResponse implements HttpServletResponse {
 
     private Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
+    public void forward(String requestURL) {
+
+
+
+    }
+
     public void responseHeader(int lengthOfBodyContent, String type) {
         try {
             dos.writeBytes(get200ResponseStatusLine());
@@ -34,6 +41,11 @@ public class HttpResponse implements HttpServletResponse {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private String getExtention(String requestURL) {
+        String[] extentionArray = requestURL.split(URL_DELIMETER);
+        return extentionArray[extentionArray.length - 1];
     }
 
     private void responseHeaderRedirection(DataOutputStream dos, int lengthOfBodyContent, String type, String location) {

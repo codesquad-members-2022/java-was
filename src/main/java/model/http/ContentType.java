@@ -3,12 +3,18 @@ package model.http;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import static util.SpecialCharacters.NEW_LINE;
+
 public enum ContentType {
 
     HTML("html", "text/html;"),
     CSS("css", "text/css;"),
-    NONE("", "");
+    JAVASCRIPT("js", "javascript"),
+    ICO("ico", "image/x-icon;"),
+    WOFF("wof", "application/font-woff;"),
+    ALL("*", "*/*");
 
+    private static final String CONTENT_TYPE = "Content-Type:";
     private final String extension;
     private final String mimeType;
 
@@ -34,6 +40,11 @@ public enum ContentType {
     }
 
     private static Supplier<String> none() {
-        return NONE::getType;
+        return ALL::getType;
+    }
+
+    @Override
+    public String toString() {
+        return CONTENT_TYPE + ContentType.of("") + NEW_LINE;
     }
 }

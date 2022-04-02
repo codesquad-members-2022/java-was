@@ -62,7 +62,7 @@ public class HttpResponse implements HttpServletResponse {
     }
 
     @Override
-    public DataOutputStream getDos() {
+    public DataOutputStream getDataOutputStream() {
         return dos;
     }
 }

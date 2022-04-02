@@ -3,7 +3,7 @@ package model.http.response;
 import java.io.DataOutputStream;
 
 public interface HttpServletResponse {
-    DataOutputStream getDos();
+    DataOutputStream getDataOutputStream();
 
     void responseHeader(int length, String type);
 

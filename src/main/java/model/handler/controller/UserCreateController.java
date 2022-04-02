@@ -6,13 +6,24 @@ import model.http.response.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+
+import static util.HttpRequestUtils.getPath;
+import static util.Pathes.WEBAPP_ROOT;
+import static util.SpecialCharacters.URL_DELIMETER;
 
 public class UserCreateController implements Handler {
 
     private final Logger log = LoggerFactory.getLogger(UserCreateController.class);
     private static final UserCreateController instance = new UserCreateController();
-    private UserCreateController (){};
+
+    private UserCreateController() {
+    }
+
+    ;
 
     public static UserCreateController getInstance() {
         if (instance == null) {
@@ -34,7 +45,21 @@ public class UserCreateController implements Handler {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        DataOutputStream dos = response.getDataOutputStream();
 
+        String requestURL = request.getRequestURL();
+        String path = getPath(WEBAPP_ROOT, requestURL);
+
+        String extention = getExtention(requestURL);
+        byte[] body = Files.readAllBytes(new File(path).toPath());
+
+        response.responseHeader(body.length, extention);
+        response.responseBody(body);
+    }
+
+    private String getExtention(String requestUrl) {
+        String[] extentionArray = requestUrl.split(URL_DELIMETER);
+        return extentionArray[extentionArray.length - 1];
     }
 
     @Override

@@ -61,7 +61,7 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public String getRequestURL() {
-        return null;
+        return requestLine.getHttpRequestURL();
     }
 
 }

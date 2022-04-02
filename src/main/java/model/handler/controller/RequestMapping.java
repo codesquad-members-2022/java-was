@@ -9,7 +9,10 @@ public class RequestMapping implements HandlerMapping {
     private static final int URL_INDEX = 0;
     private static final String URL_DELIMETER = "\\.";
 
-    private RequestMapping (){};
+    private RequestMapping() {
+    }
+
+    ;
     private static final RequestMapping instance = new RequestMapping();
 
     public static RequestMapping getInstance() {

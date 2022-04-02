@@ -45,6 +45,7 @@ public class HttpRequest implements HttpServletRequest {
         return httpHeader.getContentLength();
     }
 
+    @Override
     public String getBody() {
         return body.getBody();
     }

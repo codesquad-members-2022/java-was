@@ -1,14 +1,19 @@
 package model.handler.controller;
 
+import db.DataBase;
 import model.handler.Handler;
 import model.http.request.HttpServletRequest;
 import model.http.response.HttpServletResponse;
+import model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Map;
 
 import static util.HttpRequestUtils.getPath;
 import static util.Pathes.WEBAPP_ROOT;
@@ -57,6 +62,24 @@ public class UserLoginController implements Handler {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        DataOutputStream dataOutputStream = response.getDataOutputStream();
+
+        String requestURL;
+        String redirectURL;
+        String httpRequestBody = request.getBody();
+        Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(httpRequestBody);
+        User findUser = DataBase.login(joinRequestParams.get("userId"), joinRequestParams.get("password"));
+
+        if (findUser == null) {
+            redirectURL = "/user/login_failed.html";
+        } else {
+            Cookie cookie = SessionDatabase.createCookie(findUser.getUserId());
+            redirectURL = "/index.html";
+        }
+
+        String path = getPath(WEBAPP_ROOT, redirectURL);
+        String extention = getExtention(requestURL);
+        byte[] body = Files.readAllBytes(new File(path).toPath());
 
     }
 }

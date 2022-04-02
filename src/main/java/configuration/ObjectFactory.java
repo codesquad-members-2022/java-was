@@ -1,5 +1,6 @@
 package configuration;
 
+import db.DataBase;
 import model.handler.controller.*;
 import util.RandomUtil;
 import webserver.servlet.ConnectionPool;
@@ -15,5 +16,6 @@ public class ObjectFactory {
     public static final HomeController homeController = HomeController.getInstance();
     public static final DispatcherServlet dispatcherServlet = DispatcherServlet.getInstance();
     public static final HandlerFactory handlerFactory = HandlerFactory.getInstance();
+    public static final DataBase dataBase = DataBase.getInstance();
 
 }

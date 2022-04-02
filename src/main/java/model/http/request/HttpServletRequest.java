@@ -6,4 +6,6 @@ public interface HttpServletRequest {
     boolean isGet();
 
     boolean isPost();
+
+    String getBody();
 }

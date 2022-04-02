@@ -10,9 +10,11 @@ import java.util.function.Supplier;
 public class DataBase {
 
     private static String NO_SUCH_USER = "해당 사용자는 존재하지 않습니다.";
+    private static String DUPLICATE_USER = "해당 아이디로 가입한 회원이 존재합니다.";
     private static List<User> users = new ArrayList<>();
 
-    private DataBase() {}
+    private DataBase() {
+    }
 
     private static final DataBase instance = new DataBase();
 
@@ -24,10 +26,11 @@ public class DataBase {
     }
 
     public static void addUser(User user) {
+        validateDuplicateId(user.getUserId());
         users.add(user);
     }
 
-    public static void validateDuplicateId(String userId) {
+    private static void validateDuplicateId(String userId) {
         users.stream()
                 .filter(user -> user.isSameId(userId))
                 .findAny()
@@ -35,7 +38,7 @@ public class DataBase {
     }
 
     private static void duplicateId(User user) {
-        throw new IllegalStateException(NO_SUCH_USER);
+        throw new IllegalArgumentException(DUPLICATE_USER);
     }
 
     public static Collection<User> findAll() {
@@ -44,13 +47,17 @@ public class DataBase {
 
     public static User login(String userId, String password) {
         return users.stream()
-                .filter(user->user.isSameId(userId))
-                .filter(user->user.isSamePassword(password))
+                .filter(user -> user.isSameId(userId))
+                .filter(user -> user.isSamePassword(password))
                 .findAny()
                 .orElseGet(DataBase::duplicateUser);
     }
 
     private static User duplicateUser() {
-        throw new IllegalStateException(NO_SUCH_USER);
+        throw new IllegalArgumentException(NO_SUCH_USER);
+    }
+
+    public void clear() {
+        users.clear();
     }
 }

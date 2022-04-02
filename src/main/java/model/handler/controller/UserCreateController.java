@@ -76,7 +76,6 @@ public class UserCreateController implements Handler {
         Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(httpRequestBody);
         User user = new User(joinRequestParams.get("userId"), joinRequestParams.get("password"), URLDecoder.decode(joinRequestParams.get("name"), StandardCharsets.UTF_8), joinRequestParams.get("email"));
         redirectionURL = "/index.html";
-        DataBase.validateDuplicateId(user.getUserId());
         DataBase.addUser(user);
         String path = getPath(WEBAPP_ROOT, redirectionURL);
 

@@ -42,7 +42,7 @@ class HandlerFactoryTest {
     @Test
     @DisplayName("requestURL로 /user/form을 넣으면 Handler의 이름이 UserCreateController가 반환된다.")
     void findUserCreateController() {
-        String requestURL = "/user/form";
+        String requestURL = "/user/create";
 
         Handler userCreateController = HandlerFactory.getHandler(requestURL);
         String expectedName = "UserCreateController";

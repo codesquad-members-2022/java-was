@@ -41,7 +41,7 @@ class RequestMappingTest {
     @Test
     @DisplayName("requestURL로 /user/form을 넣으면 Handler의 이름이 UserCreateController인 컨트롤러가 반환된다.")
     void findUserCreateController() {
-        when(httpServletRequest.getRequestURL()).thenReturn("/user/form");
+        when(httpServletRequest.getRequestURL()).thenReturn("/user/create");
         httpServletRequest.getRequestURL();
 
         Handler userCreateController = requestMapping.getHandler(httpServletRequest);

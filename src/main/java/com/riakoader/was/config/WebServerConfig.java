@@ -65,6 +65,7 @@ public class WebServerConfig implements WebServerConfigurer {
 
     @Override
     public void configureHandlerMapper(HandlerMapper handlerMapper) {
+
         logger.debug("configureHandlerMethod() start");
 
         handlerMapper.mappingHandler("/user", 0);
@@ -74,6 +75,7 @@ public class WebServerConfig implements WebServerConfigurer {
 
     @Override
     public void addHandlerMethodMapper(HandlerMethodMapperRegistry handlerMethodMapperRegistry) {
+
         logger.debug("addHandlerMethodMapper() start");
 
         handlerMethodMapperRegistry.addHandlerMethod(

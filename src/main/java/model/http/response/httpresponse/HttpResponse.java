@@ -9,6 +9,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static model.http.HttpStatusCode.OK;
+import static model.http.HttpVersion.HTTP_1_1;
 import static util.SpecialCharacters.NEW_LINE;
 
 public class HttpResponse implements HttpServletResponse {
@@ -33,7 +35,7 @@ public class HttpResponse implements HttpServletResponse {
 
     private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, String type) {
         try {
-            dos.writeBytes("HTTP/1.1 " + "200" + " OK" + NEW_LINE);
+            dos.writeBytes(get200ResponseStatusLine());
             dos.writeBytes("Content-Type:" + ContentType.of(type) + NEW_LINE);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
             dos.writeBytes(NEW_LINE);
@@ -61,6 +63,10 @@ public class HttpResponse implements HttpServletResponse {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    public String get200ResponseStatusLine() {
+        return responseStatusLine.get200StatusStatusLine(HTTP_1_1, OK);
     }
 
     @Override

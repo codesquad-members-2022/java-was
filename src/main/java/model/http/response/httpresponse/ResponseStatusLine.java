@@ -6,6 +6,8 @@ import model.http.HttpVersion;
 public class ResponseStatusLine {
 
     private static final String RESPONSE_STATUSLINE_DELIMETER = " ";
+    public static final String NEW_LINE = "\r\n";
+
     private HttpVersion httpVersion;
     private HttpStatusCode httpStatusCode;
 
@@ -18,19 +20,13 @@ public class ResponseStatusLine {
         this.httpStatusCode = httpStatusCode;
     }
 
-    @Override
-    public String toString() {
+    public String get200StatusStatusLine(HttpVersion httpVersion, HttpStatusCode statusCode) {
         return new ResponseStatusLineBuilder()
                 .append(httpVersion)
                 .append(RESPONSE_STATUSLINE_DELIMETER)
-                .append(httpStatusCode)
-                .append(RESPONSE_STATUSLINE_DELIMETER)
+                .append(statusCode)
+                .append(NEW_LINE)
                 .toString();
-    }
-
-    public static void main(String[] args) throws Exception {
-        ResponseStatusLine re = new ResponseStatusLine();
-        System.out.println(re.toString());
     }
 
     private static class ResponseStatusLineBuilder {

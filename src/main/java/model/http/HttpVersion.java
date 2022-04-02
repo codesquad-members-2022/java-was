@@ -27,4 +27,9 @@ public enum HttpVersion {
     public String getVersion() {
         return this.version;
     }
+
+    @Override
+    public String toString() {
+        return getVersion();
+    }
 }

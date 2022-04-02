@@ -36,6 +36,7 @@ public class HttpRequest implements HttpServletRequest {
     private HttpHeader getHttpHeader(BufferedReader bufferedReader) throws IOException {
         return new HttpHeader(bufferedReader);
     }
+
     private HttpRequestBody getHttpRequestBody(BufferedReader bufferedReader, int contentLength) throws IOException {
         return new HttpRequestBody(bufferedReader, contentLength);
     }

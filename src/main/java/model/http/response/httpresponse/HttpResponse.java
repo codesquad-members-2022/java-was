@@ -13,6 +13,8 @@ import static util.SpecialCharacters.NEW_LINE;
 
 public class HttpResponse implements HttpServletResponse {
 
+    private ResponseStatusLine responseStatusLine;
+
     private Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
     public void response(OutputStream out) throws IOException {
@@ -25,13 +27,6 @@ public class HttpResponse implements HttpServletResponse {
 //
 //        String extention = extentionArray[extentionArray.length - 1];
 //        byte[] body = Files.readAllBytes(new File(path).toPath());
-//
-//        if (httpRequest.isPost()) {
-//            responseHeaderRedirection(dos, body.length, extention, requestURL);
-//            responseBody(dos, body);
-//            return;
-//        }
-//
 //        responseHeader(dos, body.length, extention);
 //        responseBody(dos, body);
     }

@@ -7,6 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.DataOutputStream;
+import java.io.File;
+import java.nio.file.Files;
+
+import static util.HttpRequestUtils.getPath;
+import static util.Pathes.WEBAPP_ROOT;
 
 public class HomeController implements Handler {
 
@@ -30,11 +35,21 @@ public class HomeController implements Handler {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         DataOutputStream dataOutputStream = response.getDataOutputStream();
+
         response(dataOutputStream);
     }
 
     private void response(DataOutputStream dataOutputStream) {
-
+        DataOutputStream dos = dataOutputStream;
+//
+//        String requestUrl = httpServletRequest.getRequestURL();
+//        String path = getPath(WEBAPP_ROOT, requestUrl);
+//
+//        String type = getExtention(requestUrl);
+//        byte[] body = Files.readAllBytes(new File(path).toPath());
+//        System.out.println(type);
+//        responseHeader(dos, body.length, type);
+//        responseBody(dos, body);
     }
 
     @Override

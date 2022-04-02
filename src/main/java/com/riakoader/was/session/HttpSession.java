@@ -1,9 +1,11 @@
 package com.riakoader.was.session;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpSession {
+
+    private final Map<String, String> session = new ConcurrentHashMap<>();
 
     private static volatile HttpSession httpSession;
 
@@ -20,8 +22,6 @@ public class HttpSession {
         }
         return httpSession;
     }
-
-    private final Map<String, String> session = new HashMap<>();
 
     public String getAttribute(String name) {
         return session.get(name);

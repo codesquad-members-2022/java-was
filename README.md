@@ -1,3 +1,16 @@
+## Step04 리뷰 반영
+
+- [x] DataBase.findUserById "ddd" 수정하기
+- [x] Session DB에서 직접 세션 생성하도록 변경
+- [x] LogoutServlet.getSessionId에서 상수 사용하기 (SESSION_ID_IDX=1)
+- [ ] HttpResponse 클래스 코드 리팩토링 하기
+
+## Step05 TODO list
+
+- [x] 로그인 상태일 경우 User 목록 출력
+- [x] 로그인 하지 않은 상태면 Login으로 이동
+- [ ] LoginFilter 리팩토링 하기다
+
 ## Step04 TODO list
 
 - [x] Servlet interface 만들기

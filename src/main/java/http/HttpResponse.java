@@ -34,6 +34,16 @@ public class HttpResponse {
         }
     }
 
+    public void forward(byte[] body) {
+        try {
+            response200Header(body.length);
+            responseBody(body);
+            dos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void redirection(String location) {
         try {
             dos.writeBytes("HTTP/1.1 302 Found \r\n");

@@ -41,9 +41,7 @@ public class LoginServlet extends BaseServlet {
     }
 
     private void createCookie(HttpResponse response, Optional<User> findUser) {
-        String sessionId = UUID.randomUUID().toString();
-        log.debug("[SessionId] : {}", sessionId);
-        Session.save(sessionId, findUser.get());
+        String sessionId = Session.save(findUser.get());
         response.addHeader("Set-Cookie", Session.SESSION_ID + "=" + sessionId + "; Path=/");
         response.addHeader("Cache-Control", "Max-Age=" + 1800);
     }

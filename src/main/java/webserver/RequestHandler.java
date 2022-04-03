@@ -6,11 +6,11 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class RequestHandler extends Thread {
 
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String WEBAPP = "./webapp";
 
     private final Socket connection;
 
@@ -26,10 +26,13 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             HttpRequest httpRequest = HttpRequest.receive(br);
-            HttpResponse httpResponse = new HttpResponse(dos, WEBAPP);
+            HttpResponse httpResponse = new HttpResponse(dos);
 
-            Controller controller = RequestMapping.getController(httpRequest.getPath());
-            controller.process(httpRequest, httpResponse);
+            if (!httpRequest.hasSessionId()) {
+                httpResponse.addHeader("Set-Cookie", "sessionId=" + UUID.randomUUID() + "; Path=/");
+            }
+
+            RequestMapping.runController(httpRequest, httpResponse);
 
         } catch (IOException e) {
             log.error(e.getMessage());

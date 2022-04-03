@@ -3,6 +3,7 @@ package db;
 import webserver.HttpSession;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Sessions {
@@ -10,15 +11,11 @@ public class Sessions {
     private static final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
 
     public static HttpSession getSession(String sessionId) {
-        HttpSession session;
-
-        if ((session = sessions.get(sessionId)) != null) {
-            return session;
-        }
-
-        session = new HttpSession(sessionId);
-        sessions.put(sessionId, session);
-        return session;
+        return Optional.ofNullable(sessions.get(sessionId))
+                .orElseGet(() -> {
+                    sessions.put(sessionId, new HttpSession(sessionId));
+                    return sessions.get(sessionId);
+                });
     }
 
     public static void remove(String sessionId) {

@@ -2,16 +2,20 @@ package webserver;
 
 import db.DataBase;
 import model.User;
+import org.checkerframework.checker.units.qual.C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.common.Cookie;
 import web.request.HttpMethod;
 import web.request.HttpRequest;
 import web.response.HttpResponse;
+import web.session.SessionManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.NoSuchElementException;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -38,8 +42,12 @@ public class RequestHandler extends Thread {
     private void sendResponse(HttpRequest request, HttpResponse response) throws IOException {
         String path = request.getPath();
         HttpMethod method = request.getMethod();
-        if (path.equals("/user/create") && method.isPost()) {
+        if (path.equals("/user/create") && method == HttpMethod.POST) {
             userJoin(request, response);
+        } else if (path.equals("/user/login") && method == HttpMethod.POST) {
+            login(request, response);
+        } else if (path.equals("/user/logout") && method == HttpMethod.POST) {
+            logout(request,response);
         } else {
             response.responseStaticResource(path);
         }
@@ -58,6 +66,47 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
             response.redirectTo("/user/form.html");
         }
+    }
+
+    private void login(HttpRequest request, HttpResponse response) throws IOException {
+        String inputUserId = request.getParameter("userId");
+        String inputUserPassword = request.getParameter("password");
+
+        try {
+            User findUser = matchAndGetUser(inputUserId,inputUserPassword);
+            SessionManager.createSession(findUser, response);
+            response.redirectTo("/index.html");
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            response.redirectTo("/user/login_failed.html");
+        }
+    }
+
+    private void logout(HttpRequest request, HttpResponse response) throws IOException {
+
+        Cookie sessionCookie = request.getCookie(SessionManager.SESSION_COOKIE_NAME);
+
+        if (sessionCookie == null) {
+            response.redirectTo("/index.html");
+            return;
+        }
+
+        String sessionId = sessionCookie.getValue();
+        SessionManager.expireSession(sessionId);
+
+        Cookie expireCookie = new Cookie(SessionManager.SESSION_COOKIE_NAME, null);
+        expireCookie.setMaxAge(0);
+        response.addCookie(expireCookie);
+
+        response.redirectTo("/user/index.html");
+    }
+
+    private User matchAndGetUser(String inputUserId, String inputUserPassword) {
+        User findUser = DataBase.findUserById(inputUserId).orElseThrow(
+                () -> new NoSuchElementException("존재하지 않는 회원입니다.")
+        );
+        findUser.matchPassword(inputUserPassword);
+        return findUser;
     }
 
     private void validateDuplicateUser(User user) {

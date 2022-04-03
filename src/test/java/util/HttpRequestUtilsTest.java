@@ -2,7 +2,6 @@ package util;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import util.HttpRequestUtils.Pair;
 
 import java.util.Map;
 
@@ -53,21 +52,21 @@ public class HttpRequestUtilsTest {
 
     @Test
     public void getKeyValue() throws Exception {
-        Pair pair = HttpRequestUtils.getKeyValue("userId=javajigi", "=");
-        assertThat(pair).isEqualTo(new Pair("userId", "javajigi"));
+        Pair<String, String> pair = HttpRequestUtils.getKeyValue("userId=javajigi", "=");
+        assertThat(pair).isEqualTo(new Pair<>("userId", "javajigi"));
     }
 
     @Test
     public void getKeyValue_invalid() throws Exception {
-        Pair pair = HttpRequestUtils.getKeyValue("userId", "=");
+        Pair<String,String> pair = HttpRequestUtils.getKeyValue("userId", "=");
         assertThat(pair).isNull();
     }
 
     @Test
     public void parseHeader() throws Exception {
         String header = "Content-Length: 59";
-        Pair pair = HttpRequestUtils.parseHeader(header);
-        assertThat(pair).isEqualTo(new Pair("Content-Length", "59"));
+        Pair<String, String> pair = HttpRequestUtils.parseHeader(header);
+        assertThat(pair).isEqualTo(new Pair<>("Content-Length", "59"));
     }
 
     @Test

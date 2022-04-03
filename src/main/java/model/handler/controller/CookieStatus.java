@@ -4,8 +4,7 @@ public enum CookieStatus {
     VALID,
     INVALID;
 
-
     public boolean isValidCookie() {
-        return false;
+        return this.equals(VALID);
     }
 }

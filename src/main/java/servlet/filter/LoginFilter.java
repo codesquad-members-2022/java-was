@@ -12,6 +12,9 @@ import java.util.Map;
 
 public class LoginFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(LoginFilter.class);
+    public static final int MIN_LENGTH = 1;
+    public static final int SESSEION_ID_BEGIN_INDEX = 10;
+    public static final int SECOND_SESSION = 1;
     private List<String> redLabel = new ArrayList<>();
 
     @Override
@@ -43,8 +46,8 @@ public class LoginFilter implements Filter {
         Map<String, String> headers = request.getHeaders();
         String values = headers.get("Cookie");
         String[] splits = values.split("; ");
-        if (splits.length > 1) {
-            return splits[1].substring(10);
+        if (splits.length > MIN_LENGTH) {
+            return splits[SECOND_SESSION].substring(SESSEION_ID_BEGIN_INDEX);
         }
         return null;
     }

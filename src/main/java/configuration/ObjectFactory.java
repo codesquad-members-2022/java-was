@@ -17,5 +17,4 @@ public class ObjectFactory {
     public static final DispatcherServlet dispatcherServlet = DispatcherServlet.getInstance();
     public static final HandlerFactory handlerFactory = HandlerFactory.getInstance();
     public static final DataBase dataBase = DataBase.getInstance();
-
 }

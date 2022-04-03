@@ -3,8 +3,6 @@ package model.http;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-import static util.SpecialCharacters.NEW_LINE;
-
 public enum ContentType {
 
     HTML("html", "text/html;"),
@@ -12,21 +10,20 @@ public enum ContentType {
     JAVASCRIPT("js", "javascript"),
     ICO("ico", "image/x-icon;"),
     WOFF("wof", "application/font-woff;"),
-    ALL("*", "*/*");
+    OTHER("", "");
 
-    private static final String CONTENT_TYPE = "Content-Type:";
-    private final String extension;
+    private final String type;
     private final String mimeType;
 
-    ContentType(String extension, String mimeType) {
-        this.extension = extension;
+    ContentType(String type, String mimeType) {
+        this.type = type;
         this.mimeType = mimeType;
     }
 
     public static String of(String inputType) {
         return Arrays.stream(values())
                 .filter(headerType -> euqalTo(headerType.mimeType, inputType))
-                .map(ContentType::getType)
+                .map(ContentType::getMimeType)
                 .findAny()
                 .orElseGet(none());
     }
@@ -35,16 +32,11 @@ public enum ContentType {
         return headerType.equals(inputType);
     }
 
-    public String getType() {
+    public String getMimeType() {
         return mimeType;
     }
 
     private static Supplier<String> none() {
-        return ALL::getType;
-    }
-
-    @Override
-    public String toString() {
-        return CONTENT_TYPE + ContentType.of("") + NEW_LINE;
+        return OTHER::getMimeType;
     }
 }

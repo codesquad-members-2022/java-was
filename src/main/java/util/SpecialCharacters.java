@@ -11,4 +11,5 @@ public class SpecialCharacters {
     public static final String EQUAL = "=";
     public static final String AND = "&";
     public static final String URL_BOUNDARY = "?";
+    public static final String URL_DELIMETER = "\\.";
 }

@@ -3,24 +3,27 @@ package model.http;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-public enum Extention {
+public enum ContentType {
 
     HTML("html", "text/html;"),
     CSS("css", "text/css;"),
-    NONE("", "");
+    JAVASCRIPT("js", "javascript"),
+    ICO("ico", "image/x-icon;"),
+    WOFF("wof", "application/font-woff;"),
+    OTHER("", "");
 
-    private final String extension;
+    private final String type;
     private final String mimeType;
 
-    Extention(String extension, String mimeType) {
-        this.extension = extension;
+    ContentType(String type, String mimeType) {
+        this.type = type;
         this.mimeType = mimeType;
     }
 
     public static String of(String inputType) {
         return Arrays.stream(values())
                 .filter(headerType -> euqalTo(headerType.mimeType, inputType))
-                .map(Extention::getType)
+                .map(ContentType::getMimeType)
                 .findAny()
                 .orElseGet(none());
     }
@@ -29,11 +32,11 @@ public enum Extention {
         return headerType.equals(inputType);
     }
 
-    public String getType() {
+    public String getMimeType() {
         return mimeType;
     }
 
     private static Supplier<String> none() {
-        return NONE::getType;
+        return OTHER::getMimeType;
     }
 }

@@ -20,4 +20,13 @@ public enum HttpStatusCode {
     private final int code;
     private final Series series;
     private final String reason;
+
+    public int getCode() {
+        return code;
+    }
+
+    @Override
+    public String toString() {
+        return code + " " + reason;
+    }
 }

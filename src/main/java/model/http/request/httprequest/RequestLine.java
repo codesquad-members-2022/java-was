@@ -1,4 +1,4 @@
-package model.request;
+package model.http.request.httprequest;
 
 import model.http.HttpMethod;
 import model.http.HttpVersion;
@@ -32,7 +32,7 @@ public class RequestLine {
         return HttpVersion.of(startLine[VERSION_INDEX]);
     }
 
-    public String getHttpRequestUrl() {
+    public String getHttpRequestURL() {
         return this.url;
     }
 

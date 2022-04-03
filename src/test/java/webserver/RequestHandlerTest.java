@@ -36,15 +36,4 @@ class RequestHandlerTest {
     void init(){
 
     }
-
-    @Test
-    @DisplayName("")
-    public void test01() throws IOException {
-        Mockito.when(socket.getInputStream()).thenReturn(inputStream);
-        bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-
-
-        Mockito.verify(outputStream).write(valueCapture.capture());
-        byte[] writtenData = valueCapture.getValue();
-    }
 }

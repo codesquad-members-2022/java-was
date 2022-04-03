@@ -32,12 +32,9 @@ public class LoginFilter implements Filter {
 
     private boolean isValidSession(HttpRequest request) {
         String sessionId = getSessionId(request);
-        if (sessionId != null) {
-            if (Session.getAttribute(sessionId) != null) {
-                log.debug("[LoginFilter] {}", sessionId);
-                return true;
-            }
-
+        if (sessionId != null && Session.getAttribute(sessionId) != null) {
+            log.debug("[LoginFilter] {}", sessionId);
+            return true;
         }
         return false;
     }

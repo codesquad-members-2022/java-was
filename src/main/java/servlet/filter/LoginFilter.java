@@ -33,10 +33,11 @@ public class LoginFilter implements Filter {
     private boolean isValidSession(HttpRequest request) {
         String sessionId = getSessionId(request);
         if (sessionId != null) {
-            if (Session.isLoginUser(sessionId)) {
+            if (Session.getAttribute(sessionId) != null) {
                 log.debug("[LoginFilter] {}", sessionId);
                 return true;
             }
+
         }
         return false;
     }

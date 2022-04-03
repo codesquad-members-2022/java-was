@@ -20,7 +20,7 @@ public class Session {
         sessionDB.remove(key);
     }
 
-    public static boolean isLoginUser(String sessionId) {
-        return sessionDB.containsKey(sessionId);
+    public static Object getAttribute(String id) {
+        return sessionDB.get(id);
     }
 }

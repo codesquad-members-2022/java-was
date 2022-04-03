@@ -6,6 +6,7 @@ import model.http.session.Cookie;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// Todo 요구사항에 맞게 변수명 정리
 public class SessionDatabase {
 
     private static Map<String, Object> sessionDatabase;
@@ -24,10 +25,18 @@ public class SessionDatabase {
         return instance;
     }
 
-    public static Cookie createCookie(String id) {
-        Cookie cookie = new Cookie("id", id);
-        sessionDatabase.put(id, cookie);
+    public static Cookie createCookie(String sessionId) {
+        Cookie cookie = new Cookie("sessionId", sessionId);
+        sessionDatabase.put(sessionId, cookie);
         return cookie;
+    }
+
+    public Cookie getCookie(String sessionId) {
+        return (Cookie) sessionDatabase.get(sessionId);
+    }
+
+    public int size() {
+        return sessionDatabase.size();
     }
 
     public static void put(String sessionId, Object session) {

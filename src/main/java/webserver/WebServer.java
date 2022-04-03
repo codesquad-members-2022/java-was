@@ -32,6 +32,7 @@ public class WebServer {
 //                    connectionPool.connectToDispatcherServlet();
                 RequestHandler requestHandler = new RequestHandler(connection, dispatcherServlet);
                 requestHandler.start();
+//                }
             }
         }
     }

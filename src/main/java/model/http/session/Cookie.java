@@ -1,6 +1,7 @@
 package model.http.session;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Cookie {
 
@@ -72,12 +73,30 @@ public class Cookie {
         return cookiePeriod.getMaxAge();
     }
 
+    public long setMaxAge(long time){
+        cookiePeriod.setMaxAge(time);
+        return time;
+    }
+
     public boolean isInValidCookie() {
         return !cookieStatus.isValidCookie();
     }
 
     @Override
     public String toString() {
-        return name + VALUE_EQUAL + value + COOKIE_VALUE_DELIMETER + PATH + VALUE_EQUAL + BASIC_PATH + COOKIE_VALUE_DELIMETER + MAX_AGE + VALUE_EQUAL + getMaxAge()+";";
+        return name + VALUE_EQUAL + value + COOKIE_VALUE_DELIMETER + PATH + VALUE_EQUAL + BASIC_PATH + COOKIE_VALUE_DELIMETER + MAX_AGE + VALUE_EQUAL + getMaxAge() + ";";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cookie cookie = (Cookie) o;
+        return Objects.equals(UUID, cookie.UUID) && Objects.equals(value, cookie.value) && cookieStatus == cookie.cookieStatus && Objects.equals(cookiePeriod, cookie.cookiePeriod);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(UUID, value, cookieStatus, cookiePeriod);
     }
 }

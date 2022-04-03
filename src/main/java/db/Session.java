@@ -8,9 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Session {
     public static final String SESSION_ID = "sessionId";
-    private static Map<String, User> sessionDB = new ConcurrentHashMap<>();
+    private static Map<String, Object> sessionDB = new ConcurrentHashMap<>();
 
-    public static String save(User value) {
+    public static String save(Object value) {
         String sessionId = UUID.randomUUID().toString();
         sessionDB.put(sessionId, value);
         return sessionId;

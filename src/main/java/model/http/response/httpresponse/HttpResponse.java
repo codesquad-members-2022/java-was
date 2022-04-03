@@ -2,6 +2,7 @@ package model.http.response.httpresponse;
 
 import model.http.ContentType;
 import model.http.response.HttpServletResponse;
+import model.http.session.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,6 @@ public class HttpResponse implements HttpServletResponse {
     public void forward(String requestURL) {
 
 
-
     }
 
     public void responseHeader(int lengthOfBodyContent, String type) {
@@ -43,17 +43,14 @@ public class HttpResponse implements HttpServletResponse {
         }
     }
 
-    private String getExtention(String requestURL) {
-        String[] extentionArray = requestURL.split(URL_DELIMETER);
-        return extentionArray[extentionArray.length - 1];
-    }
-
-    private void responseHeaderRedirection(DataOutputStream dos, int lengthOfBodyContent, String type, String location) {
+    @Override
+    public void responseHeaderLoginRedirection(int lengthOfBodyContent, String type, String location, Cookie cookie) {
         try {
             dos.writeBytes("HTTP/1.1 " + "302" + " OK" + NEW_LINE);
             dos.writeBytes("Content-Type:" + ContentType.of(type) + NEW_LINE);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + NEW_LINE);
-            dos.writeBytes("Location: " + location);
+            dos.writeBytes("Location: " + location + NEW_LINE);
+            dos.writeBytes("Set-Cookie: " + cookie + NEW_LINE);
             dos.writeBytes(NEW_LINE);
         } catch (IOException e) {
             log.error(e.getMessage());

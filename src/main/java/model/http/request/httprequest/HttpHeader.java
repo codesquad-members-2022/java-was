@@ -2,7 +2,6 @@ package model.http.request.httprequest;
 
 import configuration.HttpHeaders;
 import configuration.ObjectFactory;
-import model.http.HeaderType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.util.Objects.isNull;
 import static util.SpecialCharacters.NULL_STRING;
 
 public class HttpHeader {

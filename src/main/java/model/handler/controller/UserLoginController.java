@@ -1,14 +1,20 @@
 package model.handler.controller;
 
+import db.DataBase;
 import model.handler.Handler;
 import model.http.request.HttpServletRequest;
 import model.http.response.HttpServletResponse;
+import model.http.session.Cookie;
+import model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
+import webserver.SessionDatabase;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Map;
 
 import static util.HttpRequestUtils.getPath;
 import static util.Pathes.WEBAPP_ROOT;
@@ -36,9 +42,7 @@ public class UserLoginController implements Handler {
         if (request.isGet()) {
             doGet(request, response);
         }
-        System.out.println("dddd");
         if (request.isPost()) {
-            System.out.println("dddd");
             doPost(request, response);
         }
     }
@@ -62,7 +66,28 @@ public class UserLoginController implements Handler {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+        String requestURL = request.getRequestURL();
+        String redirectionURL;
+        Cookie cookie = null;
+        String httpRequestBody = request.getBody();
+        Map<String, String> joinRequestParams = HttpRequestUtils.parseQueryString(httpRequestBody);
+        User findUser = DataBase.login(joinRequestParams.get("userId"), joinRequestParams.get("password"));
+        if (findUser == null) {
+            redirectionURL = "/user/login_failed.html";
+        } else {
+            cookie = SessionDatabase.createCookie(findUser.getUserId());
+            redirectionURL = "/index.html";
+        }
+        String path = getPath(WEBAPP_ROOT, redirectionURL);
+        String extention = getExtention(requestURL);
+        byte[] body = Files.readAllBytes(new File(path).toPath());
+        if (cookie == null) {
+            response.responseHeaderRedirection(body.length, extention, redirectionURL);
+            response.responseBody(body);
+            return;
+        }
+        response.responseHeaderLoginRedirection(body.length, extention, redirectionURL, cookie);
+        response.responseBody(body);
     }
 
 }

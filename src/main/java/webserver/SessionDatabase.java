@@ -1,12 +1,13 @@
 package webserver;
 
 import configuration.ObjectFactory;
-import model.handler.controller.Cookie;
+import model.http.session.Cookie;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionDatabase {
+
     private static Map<String, Object> sessionDatabase;
     private static SessionValidator validator;
     private static final SessionDatabase instance = new SessionDatabase();
@@ -40,4 +41,5 @@ public class SessionDatabase {
     public static boolean isExpired(Cookie cookie) {
         return cookie.isExpired();
     }
+
 }

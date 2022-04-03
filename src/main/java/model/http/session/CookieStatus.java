@@ -1,4 +1,4 @@
-package model.handler.controller;
+package model.http.session;
 
 public enum CookieStatus {
     VALID,

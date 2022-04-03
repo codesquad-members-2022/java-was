@@ -28,6 +28,7 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequest httpRequest = new HttpRequest(in);
             HttpResponse httpResponse = new HttpResponse(out);
+            System.out.println(SessionDatabase.getInstance());
             dispatcherServlet.service(httpRequest, httpResponse);
         } catch (IOException e) {
             log.error(e.getMessage());

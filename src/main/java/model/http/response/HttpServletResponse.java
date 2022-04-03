@@ -1,5 +1,7 @@
 package model.http.response;
 
+import model.http.session.Cookie;
+
 import java.io.DataOutputStream;
 
 public interface HttpServletResponse {
@@ -10,4 +12,6 @@ public interface HttpServletResponse {
     void responseBody(byte[] body);
 
     void responseHeaderRedirection(int length, String type, String location);
+
+    void responseHeaderLoginRedirection(int lengthOfBodyContent, String type, String location, Cookie cookie);
 }

@@ -1,12 +1,13 @@
-package model.handler.controller;
+package model.http.session;
 
 import java.time.LocalDateTime;
 
 public class CookiePeriod {
 
-    private static final long BASIC_EXPIRED_TIME = 30L;
+    private static final long BASIC_EXPIRED_TIME = 3600L;
     private LocalDateTime createAt;
     private LocalDateTime expiredAt;
+    private long maxAge = 3600;
 
     public CookiePeriod() {
         LocalDateTime now = LocalDateTime.now();
@@ -24,5 +25,9 @@ public class CookiePeriod {
 
     public void setMaxAge(long time) {
         this.expiredAt = createAt.plusMinutes(time);
+    }
+
+    public long getMaxAge() {
+        return maxAge;
     }
 }

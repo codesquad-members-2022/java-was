@@ -30,7 +30,11 @@ public class User {
     }
 
     public boolean matchesUserId(String userId) {
-        return this.userId == userId;
+        return this.userId.equals(userId);
+    }
+
+    public boolean matchesPassword(String password) {
+        return this.password.equals(password);
     }
 
     @Override

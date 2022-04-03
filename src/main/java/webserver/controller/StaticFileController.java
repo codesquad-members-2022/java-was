@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import webserver.http.Request;
 import webserver.http.Response;
 
-public class DefaultController implements Controller {
+public class StaticFileController implements Controller {
     @Override
     public void process(Request request, Response response) throws IOException {
         byte[] body = Files.readAllBytes(new File("./webapp" + request.getUrl()).toPath());

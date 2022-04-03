@@ -15,7 +15,7 @@ public class DataBase {
     private static Map<String, User> users = new HashMap<>();
 
     public static Optional<User> addUser(User user) {
-        if (users.get(user.getUserId()) != null) {
+        if (users.containsKey(user.getUserId())) {
             return Optional.empty();
         }
         users.put(user.getUserId(), user);
@@ -23,8 +23,8 @@ public class DataBase {
         return Optional.ofNullable(user);
     }
 
-    public static User findUserById(String userId) {
-        return users.get(userId);
+    public static Optional<User> findUserById(String userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     public static Collection<User> findAll() {

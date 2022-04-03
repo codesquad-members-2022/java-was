@@ -12,7 +12,15 @@ import java.nio.file.Files;
 
 public class IndexController {
     private static final Logger log = LoggerFactory.getLogger(IndexController.class);
-    public static final String INDEX_PAGE_URL = "/index.html";
+    private static final String INDEX_PAGE_URL = "/index.html";
+
+    private static final IndexController indexcontroller = new IndexController();
+
+    private IndexController(){}
+
+    public static IndexController getInstance() {
+        return indexcontroller;
+    }
 
     public HttpResponse main(HttpRequest request) {
         HttpResponse response = new HttpResponse(request.getVersion(), HttpStatus.OK);

@@ -1,15 +1,18 @@
 package webserver.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import webserver.http.HttpRequest;
 import webserver.http.HttpResponse;
 
 public class UrlMapper {
+    private static final Logger log = LoggerFactory.getLogger(UrlMapper.class);
     private UrlMapper() {
 
     }
 
-    private static final UserController userController = new UserController();
-    private static final IndexController indexController = new IndexController();
+    private static final UserController userController = UserController.getInstance();
+    private static final IndexController indexController = IndexController.getInstance();
 
     public static HttpResponse getResponse(HttpRequest request) {
         String url = request.getUrl();
@@ -17,7 +20,11 @@ public class UrlMapper {
     }
 
     private static HttpResponse getResponse(String url, HttpRequest request) {
-        HttpResponse response = null;
+        if (url.endsWith(".js") || url.endsWith(".css") || url.endsWith(".ico")) {
+            return null;
+        }
+
+        // Function<HttpRequest, HttpResponse> 함수형 프로그래밍 개선필요
         switch (url) {
             case "/user/create":
                 return userController.join(request);
@@ -25,8 +32,14 @@ public class UrlMapper {
                 return indexController.main(request);
             case "/user/form.html":
                 return userController.joinForm(request);
+            case "/user/login.html":
+                return userController.loginForm(request);
+            case "/user/login":
+                return userController.login(request);
+            case "/user/logout":
+                return userController.logout(request);
             default:
-                return response;
+                return null;
         }
     }
 }

@@ -44,6 +44,7 @@ public class HttpResponse {
 
     public void addBody(byte[] responseBody) {
         this.responseBody = responseBody;
+        this.responseHeaders.put("Content-Length: ", String.valueOf(this.responseBody.length));
     }
 
     public static HttpResponse response200Header(HttpRequest request) {

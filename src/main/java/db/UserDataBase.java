@@ -6,8 +6,8 @@ import model.User;
 import java.util.Collection;
 import java.util.Map;
 
-public class DataBase {
-    private DataBase() {
+public class UserDataBase {
+    private UserDataBase() {
     }
 
     private static Map<String, User> users = Maps.newHashMap();
@@ -30,4 +30,5 @@ public class DataBase {
     public static Collection<User> findAll() {
         return users.values();
     }
+
 }

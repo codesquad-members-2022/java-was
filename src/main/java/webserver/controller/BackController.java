@@ -4,7 +4,7 @@ import webserver.request.Request;
 import webserver.response.Response;
 
 @FunctionalInterface
-public interface Controller {
+public interface BackController {
 
-    Response handleRequest(Request request);
+    Response process(Request request);
 }

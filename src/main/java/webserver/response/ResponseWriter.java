@@ -4,21 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
+import java.util.Map;
+import java.util.Optional;
 
 
 public class ResponseWriter {
 
     private static final String NEW_LINE = "\r\n";
     private static final String BLANK = " ";
-    private static final String CONTENT_TYPE_KEY = "Content-Type: ";
-    private static final String CHARSET = "charset=utf-8";
-    private static final String CONTENT_LENGTH_KEY = "Content-Length: ";
-    private static final String LOCATION_KEY = "Location: ";
-    private static final String ROOT_PATH = "./webapp";
+    private static final String HEADER_DELIMITER = ": ";
 
     private final Logger log = LoggerFactory.getLogger(ResponseWriter.class);
 
@@ -31,36 +27,34 @@ public class ResponseWriter {
     }
 
     public void writeResponse() {
-        try {
-            dos.writeBytes(response.getProtocol() + BLANK + response.getStatus() + NEW_LINE);
-            if (response.getContentType() == null) {
-                write302();
-            }
-            if (response.getLocation() == null) {
-                write200();
-            }
-            dos.flush();
-        } catch (IOException e) {
-            log.error(e.getMessage());
+       try {
+           writeStartLine();
+           writeHeaders();
+           writeBody();
+           dos.flush();
+       } catch (IOException e) {
+           log.debug(e.getMessage());
+       }
+    }
+
+    private void writeStartLine() throws IOException {
+        dos.writeBytes(response.getProtocol() + BLANK + response.getStatus() + BLANK + NEW_LINE);
+    }
+
+    private void writeHeaders() throws IOException {
+        for (Map.Entry<String, String> entry : response.getHeaders().entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            dos.writeBytes(key + HEADER_DELIMITER + value + NEW_LINE);
         }
-
-    }
-
-    private void write200() throws IOException {
-        dos.writeBytes(CONTENT_TYPE_KEY + response.getContentTypeAsString() + CHARSET + NEW_LINE);
-        byte[] body = parseResource();
-        dos.writeBytes(CONTENT_LENGTH_KEY + body.length + NEW_LINE);
         dos.writeBytes(NEW_LINE);
-        dos.write(body, 0, body.length);
     }
 
-    private byte[] parseResource() throws IOException {
-        return Files.readAllBytes(new File(ROOT_PATH + response.getViewPath()).toPath());
+    private void writeBody() throws IOException {
+        Optional<byte[]> bodyOptional = response.getBody();
+        if (bodyOptional.isPresent()) {
+            byte[] body = bodyOptional.get();
+            dos.write(body, 0, body.length);
+        }
     }
-
-    private void write302() throws IOException {
-        dos.writeBytes(LOCATION_KEY + response.getLocation() + NEW_LINE);
-    }
-
-
 }

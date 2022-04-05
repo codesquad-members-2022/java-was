@@ -52,4 +52,9 @@ public class Request {
         return requestBody;
     }
 
+    public String getSessionId() {
+        String cookie = headers.get("Cookie");
+        return cookie.split("=")[1];
+    }
+
 }

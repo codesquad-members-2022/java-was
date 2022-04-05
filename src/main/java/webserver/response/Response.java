@@ -1,33 +1,26 @@
 package webserver.response;
 
-
 import webserver.ContentType;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 public class Response {
+    private static final String ROOT_PATH = "./webapp";
 
     private final String protocol;
     private final String status;
-    private String viewPath;
-    private ContentType contentType;
-    private String location;
+    private final Map<String, String> headers = new HashMap<>();
+    private byte[] body;
 
-    private Response(String protocol, String status, String viewPath, ContentType contentType, String location) {
+    public Response(String protocol, String status) {
         this.protocol = protocol;
         this.status = status;
-        this.viewPath = viewPath;
-        this.contentType = contentType;
-        this.location = location;
-
-    }
-
-    public static Response of(String protocol, String status, String viewPath, ContentType contentType) {
-        return new Response(protocol, status, viewPath, contentType, null);
-    }
-
-    public static Response of(String protocol, String status, String location) {
-        return new Response(protocol, status, null, null, location);
-    }
-
+    };
 
     public String getProtocol() {
         return protocol;
@@ -37,19 +30,29 @@ public class Response {
         return status;
     }
 
-    public String getViewPath() {
-        return viewPath;
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
-    public ContentType getContentType() {
-        return contentType;
+    public Optional<byte[]> getBody() {
+        return Optional.ofNullable(body);
     }
 
-    public String getLocation() {
-        return location;
+    public void setLocation(String location) {
+        headers.put("Location", location);
     }
 
-    public String getContentTypeAsString() {
-        return contentType.getType();
+    public void setCookie(String cookie) {
+        headers.put("Set-Cookie", cookie);
+    }
+
+    public void saveBody(String viewPath) {
+        try {
+            this.body = Files.readAllBytes(new File(ROOT_PATH + viewPath).toPath());
+            headers.put("Content-Type", ContentType.findType(viewPath) + "; charset=utf-8");
+            headers.put("Content-Length", String.valueOf(body.length));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -245,3 +245,41 @@ HTTP_VERSION_NOT_SUPPORTED(505, Series.SERVER_ERROR, "HTTP Version not supported
 
 - URI 에 path 뒤에 query 는 식별자의 역할도 수행합니다.
 - 결론: `자원의 경로 + 식별자 = 주소`
+
+# 웹 서버 4단계 - 쿠키를 이용한 로그인 구현
+
+## 요구사항
+- [x] 회원가입한 사용자로 로그인을 할 수 있어야 한다.
+- [x] “로그인” 메뉴를 클릭하면 `http://localhost:8080/user/login.html` 으로 이동해 로그인할 수 있다.
+- [x] 로그인이 성공하면 `index.html`로 이동하고, 로그인이 실패하면 `/user/login_failed.html`로 이동해야 한다.
+- [x] 앞 단계에서 회원가입할 때 생성한 User 객체를 DataBase.addUser() 메서드를 활용해 메모리에 저장한다.
+- [x] 아이디와 비밀번호가 같은지를 확인해서 로그인이 성공하면 응답 header의 Set-Cookie 값을 sessionId=적당한값으로 설정한다.
+
+## Cookie
+- 웹 서버가 클라이언트에게 보내는 데이터 중 하나
+- `Set-Cookie` : 서버에서 클라이언트로 쿠키를 전달(Response)
+- `Cookie` : 클라이언트가 서버에서 받은 쿠키를 저장하고, HTTP 요청시 서버로 다시 전달
+  - 왜 다시 전달하는가?
+    - HTTP는 `무상태(Stateless) 프로토콜`이기 때문에 쿠키를 저장하고 있을 수 없다. 따라서 매 요청시마다 서버와 클라이언트가 계속 쿠키를 주고 받게 된다.
+- 쿠키는 네트워크 트래픽을 추가로 사용하기 때문에 꼭 필요한 정보만 사용한다
+  - 보안에 민감한 데이터는 **절대절대절대** 저장하면 안된다!
+- `Expires` : 쿠키의 만료일 지정
+- `Max-Age` : 초단위이며 지정한 초가 모두 지나면 쿠키를 삭제한다. 음수나 0으로 지정시 바로 쿠키를 삭제함
+- `Domain` : 쿠키를 전송할 도메인을 지정한다
+  - Domain을 명시한 경우 : 명시한 도메인과 서브 도메인에도 쿠키를 전송한다
+  - Domain을 생략한 경우 : 현재 문서 기준 도메인에만 전송
+- `Path` : 설정한 경로를 포함한 하위 경로페이지에서만 쿠키에 접근이 가능하다
+  - 일반적으로는 `Path=/` 로 지정한다
+- `Secure` : 쿠키는 `http, https를 구분하지 않고 전송`한다. Secure를 적용하면 https의 경우에만 전송한다.
+
+## 미션에서의 쿠키 적용
+- Cookie라는 클래스를 만들어 쿠키의 속성을 관리할 수 있도록 했습니다.
+- Cookies라는 일급컬렉션으로 Cookie를 관리했습니다.
+- response 객체를 만들 때 아래와 같이 쿠키를 설정했습니다.
+
+```java
+    Cookie cookie = new Cookie("sessionId", session.getAttribute("sessionId"));
+    cookie.setPath("/");
+
+    response.addCookie(cookie); 
+```

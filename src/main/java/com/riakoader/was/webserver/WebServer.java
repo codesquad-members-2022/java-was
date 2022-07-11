@@ -30,7 +30,7 @@ public class WebServer {
 
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                frontHandler.assign(connection);
+                frontHandler.process(connection);
             }
         }
     }
